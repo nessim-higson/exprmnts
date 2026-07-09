@@ -8,7 +8,7 @@ set -e
 for f in "$HOME/.config/cloudflare/experiments.env" "$HOME/.config/cloudflare/aff.env"; do
   [ -f "$f" ] && . "$f" && break
 done
-: "${CLOUDFLARE_API_TOKEN:?set CLOUDFLARE_API_TOKEN or create ~/.config/cloudflare/experiments.env}"
+# No token? Fine — wrangler falls back to its own OAuth login (`wrangler login`).
 
 PROJECT="exprmnts"
 cd "$(dirname "$0")"
