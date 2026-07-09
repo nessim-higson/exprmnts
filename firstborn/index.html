@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Firstborn Nav Archive · exprmnts</title>
+<style>
+  :root{ --ink:#09090a; --panel:#101011; --white:#ece9e3; --mute:#96948c; --faint:#605e58;
+         --hairline:#2c2b28; --crimson:#b2222a; --parchment:#e7e1d6 }
+  *{box-sizing:border-box; margin:0}
+  body{background:var(--ink); color:var(--white); min-height:100vh;
+    font:15px/1.55 "Helvetica Neue",-apple-system,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:56px 64px 80px; display:flex; flex-direction:column; gap:0}
+  a{color:inherit}
+  .crumb{display:flex; align-items:center; gap:10px; color:var(--faint);
+    font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; margin-bottom:26px}
+  .crumb a{color:var(--faint); text-decoration:none} .crumb a:hover{color:var(--white)}
+  .eyebrow{display:flex; align-items:center; gap:14px; color:var(--crimson);
+    font-size:12px; font-weight:600; letter-spacing:.28em; text-transform:uppercase}
+  .eyebrow::before{content:""; width:26px; height:2px; background:var(--crimson)}
+  h1{font-size:72px; font-weight:800; letter-spacing:-.03em; margin:22px 0 8px; line-height:.98}
+  .sub{color:var(--mute); font-size:13.5px; max-width:760px; margin-bottom:36px}
+  .tabs{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:22px}
+  .tab{appearance:none; background:none; border:1px solid var(--hairline); color:var(--mute);
+    font:700 12px/1 "Helvetica Neue",Helvetica,sans-serif; letter-spacing:.14em; text-transform:uppercase;
+    padding:13px 18px; cursor:pointer; transition:.15s}
+  .tab:hover{border-color:var(--faint); color:var(--white)}
+  .tab.on{background:var(--white); color:var(--ink); border-color:var(--white)}
+  .buildnote{color:var(--faint); font-size:12px; letter-spacing:.02em; margin:-6px 0 22px; max-width:1024px; min-height:16px}
+  .stage-wrap{border:1px solid var(--hairline); background:#000; position:relative;
+    width:100%; max-width:1024px; aspect-ratio:1024/680; overflow:hidden}
+  #stage{position:absolute; inset:0; width:100%; height:100%}
+  #stage ruffle-player, #stage>*{width:100%!important; height:100%!important}
+  .stage-note{position:absolute; left:0; right:0; bottom:0; padding:10px 16px;
+    background:linear-gradient(transparent,rgba(0,0,0,.85)); color:var(--mute); font-size:11.5px;
+    letter-spacing:.04em; display:flex; justify-content:space-between; pointer-events:none}
+  .meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1px;
+    background:var(--hairline); border:1px solid var(--hairline); margin-top:28px; max-width:1024px}
+  .meta div{background:var(--panel); padding:18px 20px}
+  .meta .k{color:var(--crimson); font-size:11px; font-weight:700; letter-spacing:.18em;
+    text-transform:uppercase; margin-bottom:7px}
+  .meta .v{color:var(--white); font-size:13.5px} .meta .v a{color:var(--parchment)}
+  .finding{max-width:1024px; margin-top:34px; padding:22px 24px; border:1px solid var(--hairline);
+    border-left:2px solid var(--crimson); background:var(--panel)}
+  .finding h3{font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--crimson); margin-bottom:12px}
+  .finding p{color:var(--mute); font-size:13.5px; margin-bottom:10px}
+  .finding p:last-child{margin-bottom:0}
+  .finding b{color:var(--white); font-weight:700}
+  footer{margin-top:60px; color:var(--faint); font-size:11px; letter-spacing:.18em; text-transform:uppercase}
+  @media(max-width:700px){ body{padding:28px} h1{font-size:44px} }
+</style>
+</head>
+<body>
+  <div class="crumb"><a href="/">Experiments</a> &nbsp;/&nbsp; <span>Firstborn Nav</span></div>
+
+  <div class="eyebrow">Reference archive · Firstborn (firstbornmultimedia.com)</div>
+  <h1>The Text Nav.</h1>
+  <p class="sub">The homepage navigation from Firstborn's Flash-era site, pulled from the Wayback Machine and
+     run in-browser through <b>Ruffle</b> (no plug-in needed). Switch eras below. These are the real archived
+     <code>.swf</code> binaries — dynamic content (news feeds, project pages) was served from live backends that
+     no longer exist, so expect the <em>navigation shell</em> to render, not the full site.</p>
+
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-swf="swf/firstborn-2003.swf" data-vars="siteSize=1"
+      data-note="Renders fully — the text menu plus the scattered portfolio thumbnail field. Move the mouse through the field.">2003 · main.swf ✓</button>
+    <button class="tab" data-swf="swf/firstborn-2007.swf" data-vars="siteSize=1"
+      data-note="Partial — this build (fb6) pulls extra child SWFs / server XML that weren't archived; Ruffle may show a blank stage.">2007 · main.swf</button>
+    <button class="tab" data-swf="swf/firstborn-2010.swf" data-vars=""
+      data-note="Shell only — fb7 (AS3) loads its nav data over a Flash Remoting backend that no longer exists.">2010 · fb7</button>
+  </div>
+  <div class="buildnote" id="buildnote"></div>
+
+  <div class="stage-wrap">
+    <div id="stage"></div>
+    <div class="stage-note"><span id="nowplaying">2003 · main.swf</span><span>Ruffle · self-hosted</span></div>
+  </div>
+
+  <div class="meta">
+    <div><div class="k">Source</div><div class="v">web.archive.org<br>firstbornmultimedia.com</div></div>
+    <div><div class="k">2003 capture</div><div class="v"><a href="https://web.archive.org/web/20030406122526/http://www.firstbornmultimedia.com/" target="_blank" rel="noopener">/swf/main.swf →</a></div></div>
+    <div><div class="k">2007 capture</div><div class="v"><a href="https://web.archive.org/web/20070302091151/http://firstbornmultimedia.com/" target="_blank" rel="noopener">/swf/main.swf →</a></div></div>
+    <div><div class="k">2010 capture</div><div class="v"><a href="https://web.archive.org/web/20100103103748/http://firstbornmultimedia.com/" target="_blank" rel="noopener">fb7 /main.swf →</a></div></div>
+  </div>
+
+  <div class="finding">
+    <h3>On the "physics" question</h3>
+    <p>Decompiling the ActionScript in each binary: the nav is <b>text-based and motion-driven</b>, but what
+       reads as "physics" is <b>eased tweening</b>, not a spring/mass simulation. The 2003–2007 builds (AS2) use
+       <code>buildMainNav</code> / <code>textNavAni</code> with ease-in curves; the 2010 fb7 build (AS3) drives an
+       elastic/bounce tween engine — springy <em>feel</em>, scripted keyframes underneath.</p>
+    <p>No <code>velocity</code>, <code>gravity</code>, <code>friction</code> or drag-constraint code is present in
+       these homepage binaries. If the physics nav you remember was a separate lab/experiment piece, say the word
+       and I'll go dig that specific one out of the archive.</p>
+  </div>
+
+  <footer>I Am Always Hungry · exprmnts</footer>
+
+<script src="ruffle/ruffle.js"></script>
+<script>
+  window.RufflePlayer = window.RufflePlayer || {};
+  let player = null;
+  const stage = document.getElementById('stage');
+
+  function play(url, vars){
+    const ruffle = window.RufflePlayer.newest();
+    if (player) { try{ player.remove(); }catch(e){} }
+    player = ruffle.createPlayer();
+    stage.appendChild(player);
+    player.load({
+      url,
+      parameters: vars || "",
+      allowScriptAccess: true,
+      autoplay: "on",
+      backgroundColor: "#000000",
+      wmode: "opaque",
+      scale: "showAll",
+      letterbox: "on",
+      preferredRenderer: "canvas"
+    }).catch(e => console.error('ruffle load', e));
+  }
+
+  const noteEl = document.getElementById('buildnote');
+  function selectTab(b){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('nowplaying').textContent = b.textContent.trim().replace(/\s*✓$/,'');
+    noteEl.textContent = b.dataset.note || '';
+    play(b.dataset.swf, b.dataset.vars);
+  }
+  document.getElementById('tabs').addEventListener('click', e => {
+    const b = e.target.closest('.tab'); if(b) selectTab(b);
+  });
+
+  // boot with the 2003 build (renders the full nav)
+  window.addEventListener('load', () => selectTab(document.querySelector('.tab.on')));
+</script>
+</body>
+</html>

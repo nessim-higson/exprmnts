@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>exprmnts · IAAH</title>
+<style>
+  :root{ --ink:#09090a; --white:#ece9e3; --mute:#96948c; --faint:#605e58;
+         --hairline:#2c2b28; --crimson:#b2222a; --parchment:#e7e1d6 }
+  *{box-sizing:border-box; margin:0}
+  body{background:var(--ink); color:var(--white); min-height:100vh;
+    font:15px/1.5 "Helvetica Neue",-apple-system,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:64px; display:flex; flex-direction:column}
+  .crumb{display:flex; align-items:center; gap:10px; color:var(--faint);
+    font-size:11px; font-weight:600; letter-spacing:.22em; text-transform:uppercase; margin-bottom:26px}
+  .crumb a{color:var(--faint); text-decoration:none} .crumb a:hover{color:var(--white)}
+  .eyebrow{display:flex; align-items:center; gap:14px; color:var(--crimson);
+    font-size:12px; font-weight:600; letter-spacing:.28em; text-transform:uppercase}
+  .eyebrow::before{content:""; width:26px; height:2px; background:var(--crimson)}
+  h1{font-size:96px; font-weight:800; letter-spacing:-.03em; margin:28px 0 6px}
+  .sub{color:var(--mute); font-size:13px; letter-spacing:.18em; text-transform:uppercase; margin-bottom:70px}
+  .row{display:flex; align-items:baseline; gap:26px; padding:30px 4px;
+    border-top:1px solid var(--hairline); text-decoration:none; color:var(--white)}
+  .row:last-of-type{border-bottom:1px solid var(--hairline)}
+  .row .k{font-size:12px; font-weight:700; letter-spacing:.2em; color:var(--crimson); min-width:70px}
+  .row h2{font-size:24px; font-weight:700; letter-spacing:-.01em}
+  .row p{color:var(--mute); font-size:13.5px; flex:1}
+  .row .arr{color:var(--faint); font-size:20px; transition:transform .15s}
+  .row:hover .arr{color:var(--white); transform:translateX(6px)}
+  .row:hover h2{color:var(--parchment)}
+  footer{margin-top:auto; padding-top:60px; color:var(--faint); font-size:11px;
+    letter-spacing:.18em; text-transform:uppercase}
+  @media(max-width:700px){ body{padding:28px} h1{font-size:56px} .row{flex-direction:column; gap:8px} }
+</style>
+</head>
+<body>
+  <div class="eyebrow">I Am Always Hungry</div>
+  <h1>exprmnts.</h1>
+  <div class="sub">Inspiration, teardowns &amp; things I'm playing with</div>
+
+  <a class="row" href="/firstborn/">
+    <span class="k">001</span>
+    <h2>Firstborn · Flash-era text navigation</h2>
+    <p>Archived homepage nav (2003 / 2007 / 2010) running live via Ruffle — the "physics" nav reference.</p>
+    <span class="arr">→</span>
+  </a>
+
+  <footer>I AM ALWAYS HUNGRY · A PLAYGROUND</footer>
+</body>
+</html>
