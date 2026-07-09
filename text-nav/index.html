@@ -19,25 +19,16 @@
   .crumb a{color:var(--faint); text-decoration:none}
   .crumb a:hover{color:var(--white)}
 
-  /* ------- the text nav ------- */
-  #nav{position:fixed; z-index:4; left:13vw; top:50%; transform:translateY(-62%); user-select:none}
-  #logo{font-size:30px; font-weight:400; letter-spacing:.42em; color:#8f8d86; margin-bottom:14px}
-  #logo sup{font-size:10px; letter-spacing:0}
-  .items{display:flex; flex-direction:column; align-items:flex-end; gap:2px; width:230px}
-  .item{font-size:15px; font-weight:700; letter-spacing:.02em; color:#8f8d86; cursor:pointer;
-    display:flex}
-  .item span{display:inline-block; white-space:pre}
-  .item:hover{color:var(--white)}
-  .item.red{color:var(--crimson)}
-  .item.red:hover{color:#ff6a60}
-  .item.open{color:var(--white)}
-
-  #sub{position:absolute; left:258px; top:44px; display:none; flex-direction:column; gap:1px}
-  #sub.on{display:flex}
-  .sitem{font-size:26px; font-weight:700; letter-spacing:-.01em; color:#b9b6ae; cursor:pointer;
-    white-space:nowrap; opacity:0; will-change:transform,opacity}
-  .sitem:hover{color:#fff}
-  .sitem.sel{color:var(--crimson)}
+  /* ------- the type engine ------- */
+  #tree{position:fixed; inset:0; z-index:4; user-select:none}
+  .node{position:absolute; font-weight:700; letter-spacing:.01em; color:#c9c6be;
+    white-space:nowrap; cursor:pointer; will-change:left,top,font-size,opacity; line-height:1}
+  .node.r0{transform:translateX(-100%)}        /* level 0 is right-aligned, like the original */
+  .node.red{color:var(--crimson)}
+  .node.logo{font-weight:400; letter-spacing:.42em; color:#8f8d86; cursor:pointer}
+  .node.logo sup{font-size:.4em; letter-spacing:0}
+  #copy{position:absolute; max-width:340px; font-weight:700; font-size:12.5px; line-height:1.55;
+    color:#8a8880; opacity:0; will-change:opacity; pointer-events:none}
 
   /* ------- control strip ------- */
   #ctl{position:fixed; right:22px; bottom:20px; z-index:6; display:flex; align-items:center; gap:18px;
@@ -52,49 +43,323 @@
 
   footer{position:fixed; left:26px; bottom:22px; z-index:5; color:var(--faint); font-size:10px;
     letter-spacing:.2em; text-transform:uppercase}
-  @media(max-width:820px){
-    #nav{left:8vw} #sub{left:0; top:190px}
-    #ctl{right:12px; bottom:64px; flex-wrap:wrap; max-width:70vw}
-  }
+  @media(max-width:820px){ #ctl{right:12px; bottom:64px; flex-wrap:wrap; max-width:70vw} }
 </style>
 </head>
 <body>
 <canvas id="field"></canvas>
+<div id="tree"><div id="copy"></div></div>
 
 <div class="crumb"><a href="/">exprmnts</a> &nbsp;/&nbsp; 002 · text nav, rebuilt</div>
-
-<nav id="nav">
-  <div id="logo">firstborn<sup>®</sup></div>
-  <div class="items" id="items">
-    <div class="item" data-w="WHO WE ARE"></div>
-    <div class="item" data-w="WHAT WE DO"></div>
-    <div class="item" data-w="HOW WE DO IT"></div>
-    <div class="item" data-w="OUR PORTFOLIO" data-sub="1"></div>
-    <div class="item red" data-w="FIRSTBORN IS 5!"></div>
-    <div class="item" data-w="CONTACT US"></div>
-  </div>
-  <div id="sub">
-    <div class="sitem" data-layout="client">BY CLIENT (A-Z)</div>
-    <div class="sitem" data-layout="chrono">BY CHRONOLOGY</div>
-    <div class="sitem" data-layout="type">BY PROJECT TYPE</div>
-    <div class="sitem" data-layout="media">BY DELIVERY MEDIA</div>
-    <div class="sitem sel" data-layout="scatter">BY THUMBNAIL</div>
-  </div>
-</nav>
 
 <div id="ctl">
   <div class="seg" id="mode">
     <b data-m="spring" class="on">Spring</b><b data-m="tween">Tween ’03</b>
   </div>
-  <label>Stiff <input type="range" id="stiff" min="20" max="220" value="90"><span class="val" id="stiffV">90</span></label>
-  <label>Damp <input type="range" id="damp" min="4" max="30" value="12"><span class="val" id="dampV">12</span></label>
+  <label>Stiff <input type="range" id="stiff" min="30" max="300" value="130"><span class="val" id="stiffV">130</span></label>
+  <label>Damp <input type="range" id="damp" min="6" max="34" value="16"><span class="val" id="dampV">16</span></label>
   <label>Repel <input type="range" id="repel" min="0" max="240" value="120"><span class="val" id="repelV">120</span></label>
 </div>
 
-<footer>Firstborn ’03 nav · real mined thumbnails · physics rebuild</footer>
+<footer>Firstborn ’03 type engine · studied from the original · real mined thumbnails</footer>
 
 <script>
-/* ============ setup ============ */
+/* =====================================================================
+   THE TREE — edit freely. label / red / copy / children / layout.
+   `layout` on OUR PORTFOLIO leaves re-sorts the thumbnail field.
+   Labels + copy transcribed from the 2003 original where recoverable;
+   items marked [edit] are stand-ins — swap in your own.
+   ===================================================================== */
+const TREE = [
+ { label:'WHO WE ARE',
+   copy:"Firstborn is a talented and imaginative interactive agency founded in New York City in 1997. Our story is one of hard work, determination and a strong desire to create the best user experiences possible. Our team specializes in producing digital, interactive designs for high-profile clients mainly in fashion, cosmetics, sports and entertainment.",
+   children:[
+     { label:'PRINCIPALS' },
+     { label:'DESIGN PHILOSOPHY' },
+     { label:'BUSINESS PHILOSOPHY' },
+     { label:'HISTORY' },
+ ]},
+ { label:'WHAT WE DO',
+   copy:"Firstborn creates digital design projects that corporate clients use in many areas of their businesses. Our work helps heavily branded companies more effectively sell, market, train and communicate, via the computer. Generally, this means we make websites, intranet sites, and laptop and CD-ROM presentations.",
+   children:[
+     { label:'THE BASICS',
+       copy:"We don't do extended consulting, market research, usability testing, or focus groups. That may be worth repeating. We don't do focus groups. We limit usability testing to our staff and our client's staff. We envision, manage, DESIGN, program and deliver." },
+     { label:'TYPES OF PROJECTS',
+       copy:"There are many ways of using \"new media\" to improve basic needs in everyday business. All businesses strive to communicate more clearly, more efficiently and more cost-effectively with their employees, clients and potential clients.",
+       children:[
+         { label:'SALES' },
+         { label:'MARKETING/PR' },
+         { label:'COMMUNICATIONS',
+           copy:"All companies communicate with their employees and clients on a regular basis. To the clients we work with, the way they communicate is almost as important as what they are communicating. Interactive media is a great way to deliver company memos, annual reports, employee orientation materials, press, news and other important information." },
+         { label:'TRAINING' },
+     ]},
+     { label:'TYPES OF DELIVERY',
+       children:[            /* named in the original's own copy */
+         { label:'WEBSITES' },
+         { label:'INTRANET SITES' },
+         { label:'LAPTOP PRESENTATIONS' },
+         { label:'CD-ROMS' },
+     ]},
+ ]},
+ { label:'HOW WE DO IT',      /* [edit] children are stand-ins */
+   children:[
+     { label:'OUR PROCESS' },
+     { label:'TECHNOLOGY' },
+     { label:'AWARDS' },
+ ]},
+ { label:'OUR PORTFOLIO',
+   children:[
+     { label:'BY CLIENT (A-Z)',    layout:'client'  },
+     { label:'BY CHRONOLOGY',      layout:'chrono'  },
+     { label:'BY PROJECT TYPE',    layout:'type'    },
+     { label:'BY DELIVERY MEDIA',  layout:'media'   },
+     { label:'BY THUMBNAIL',       layout:'scatter' },
+ ]},
+ { label:'FIRSTBORN IS 5!', red:true,
+   copy:"Five years of hard work, determination and a strong desire to create the best user experiences possible." },
+ { label:'CONTACT US',
+   copy:"Thinking about working with Firstborn? We'd love to hear from you." },
+];
+
+/* =====================================================================
+   MOTION CONFIG — the feel lives here. Tweak away.
+   ===================================================================== */
+const CFG = {
+  anchorX: 0.24,        // where level-0's right edge sits (fraction of vw)
+  anchorY: 0.40,        // top of the flow (fraction of vh)
+  drift:   0.055,       // how far the whole block slides up-left per open level
+  focusPx: 27,          // deepest (newest) level font size
+  levelRatio: 0.60,     // each generation back shrinks to this
+  minPx: 8.5,
+  indent: 0.65,         // child indent, as a multiple of parent font size... of focusPx
+  lineGap: 1.22,
+  groupGap: 0.35,       // extra gap (em of focus) around an open child group
+  stagger: 65,          // ms between siblings cascading in
+  fromX: 54, fromScale: 1.5,   // where new type flies in from (offset px, scale mult)
+  ghost: 0.34,          // alpha of a selected/receded item
+  ghostZoom: 1.3,       // a selected ancestor enlarges as it recedes
+  bright: 0.85,         // alpha of a live item at the deepest level
+  backFade: 0.78,       // per-generation alpha falloff for older levels
+  leafZoom: 1.5,        // selected leaf enlarges by this
+  copyDelay: 850, copyFadeIn: 900,
+};
+
+/* ============ shared spring/tween integrator ============ */
+const P = { mode:'spring', k:130, c:16, repel:120 };
+function stepVal(o, dt){ // o: {v (value), t (target), vel}
+  if (P.mode==='spring'){
+    const f=(o.t-o.v)*P.k;
+    o.vel=(o.vel+f*dt)*Math.max(0,1-P.c*dt);
+    o.v+=o.vel*dt;
+  } else {
+    o.v+=(o.t-o.v)*Math.min(1,7*dt);
+    o.vel=0;
+  }
+}
+const sv = (v)=>({v, t:v, vel:0});
+
+/* ============ tree state ============ */
+const treeEl = document.getElementById('tree');
+const copyEl = document.getElementById('copy');
+let path = [];            // chain of open nodes (node refs)
+const nodeEls = new Map(); // node -> {el, x,y,fs,al, depth, dying}
+
+const LOGO = { label:'firstborn', logo:true };
+
+function isOpen(n){ return path.includes(n); }
+function deepest(){ return path.length; }   // depth of the newest generation
+
+/* flatten the visible flow in document order */
+function visibleFlow(){
+  const out=[ {node:LOGO, depth:0, kind:'logo'} ];
+  const walk=(nodes, depth)=>{
+    for(const n of nodes){
+      out.push({node:n, depth, kind:'item'});
+      if (isOpen(n) && n.children) walk(n.children, depth+1);
+    }
+  };
+  walk(TREE, 0);
+  return out;
+}
+
+/* compute layout targets for every visible node */
+function layoutTree(){
+  const W=innerWidth, H=innerHeight;
+  const dMax = deepest();
+  const fsFor = d => Math.max(CFG.minPx, CFG.focusPx * Math.pow(CFG.levelRatio, dMax - d));
+  const alFor = (n,d) => {
+    const gen = dMax - d;
+    let a = (d===dMax ? CFG.bright : CFG.bright*Math.pow(CFG.backFade, gen));
+    if (isOpen(n) || n===selLeaf) a = CFG.ghost * Math.pow(CFG.backFade, Math.max(0,gen-0));
+    return a;
+  };
+  const ax = W*CFG.anchorX * (1 - CFG.drift*dMax*0.9);
+  let y = H*CFG.anchorY * (1 - CFG.drift*dMax);
+  const targets = new Map();
+
+  // logo
+  const logoFs = fsFor(0)*1.35;
+  targets.set(LOGO, {x:ax, y, fs:logoFs, al:0.5, r0:true});
+  y += logoFs*CFG.lineGap*1.25;
+
+  // level-0 column stays TIGHT (like the original) — children float in
+  // their own columns starting at the parent's row, with displacement
+  // only inside the subtree.
+  const subFlow = (nodes, d, x, startY) => {   // returns height consumed
+    let yy = startY;
+    for(const n of nodes){
+      let fs = fsFor(d);
+      if (n===selLeaf) fs *= CFG.leafZoom;
+      if (isOpen(n)) fs *= CFG.ghostZoom;
+      targets.set(n, {x, y:yy, fs, al:alFor(n,d), r0:false});
+      yy += fs*CFG.lineGap;
+      if (isOpen(n) && n.children){
+        yy += subFlow(n.children, d+1, ax + CFG.focusPx*CFG.indent*(d+1) + 10, yy) * 1
+              - 0; // children consume vertical space before following siblings
+      }
+    }
+    return yy - startY;
+  };
+
+  for(const n of TREE){
+    let fs = fsFor(0);
+    if (n===selLeaf) fs *= CFG.leafZoom;
+    if (isOpen(n)) fs *= CFG.ghostZoom;
+    targets.set(n, {x:ax, y, fs, al:alFor(n,0), r0:true});
+    if (isOpen(n) && n.children){
+      // subtree starts at this row, one column right — does NOT push level-0
+      subFlow(n.children, 1, ax + CFG.focusPx*CFG.indent + 10, y + fs*CFG.lineGap*0.2);
+    }
+    y += fs*CFG.lineGap;
+  }
+  return targets;
+}
+
+let selLeaf = null;
+
+/* reconcile DOM with the visible flow */
+function render(prevPos){
+  const targets = layoutTree();
+  const seen = new Set();
+  let i = 0, cascade = [];
+  for (const [n,t] of targets){
+    seen.add(n);
+    let rec = nodeEls.get(n);
+    if (!rec){
+      const el = document.createElement('div');
+      el.className = 'node' + (t.r0?' r0':'') + (n.red?' red':'') + (n.logo?' logo':'');
+      el.innerHTML = n.logo ? 'firstborn<sup>®</sup>' : n.label;
+      treeEl.appendChild(el);
+      // cascade in: from parent's position (or its own target), scaled up, transparent
+      const from = prevPos && prevPos.get(parentOf(n)) || t;
+      rec = { el,
+        x:sv(from.x + CFG.fromX), y:sv(from.y), fs:sv(t.fs*CFG.fromScale), al:sv(0), hold:true };
+      nodeEls.set(n, rec);
+      cascade.push(rec);
+      el.addEventListener('click', ev=>{ ev.stopPropagation(); clickNode(n); });
+      el.addEventListener('pointerenter', ()=> rec.hover=true);
+      el.addEventListener('pointerleave', ()=> rec.hover=false);
+    }
+    rec.dying = false;
+    rec.x.t = t.x; rec.y.t = t.y; rec.fs.t = t.fs; rec.al.t = t.al;
+    rec.baseAl = t.al;
+    i++;
+  }
+  // stagger the newcomers' arrival (they hold at origin, invisible, until released)
+  cascade.forEach((rec,j)=>{
+    const hx=rec.x.t, hy=rec.y.t, hf=rec.fs.t, ha=rec.baseAl;
+    rec.x.t=rec.x.v; rec.y.t=rec.y.v; rec.fs.t=rec.fs.v;
+    rec.baseAl=0; rec.al.t=0;
+    setTimeout(()=>{ rec.x.t=hx; rec.y.t=hy; rec.fs.t=hf; rec.baseAl=ha; }, j*CFG.stagger);
+  });
+  // the departed: fade toward their parent and remove
+  for (const [n,rec] of nodeEls){
+    if (n===LOGO || seen.has(n)) continue;
+    if (!rec.dying){
+      rec.dying = true;
+      const pp = targets.get(parentOf(n)) || {x:rec.x.v-40, y:rec.y.v};
+      rec.x.t = pp.x + 20; rec.al.t = 0; rec.fs.t = rec.fs.v*0.7;
+      setTimeout(()=>{ if(rec.dying){ rec.el.remove(); nodeEls.delete(n); } }, 700);
+    }
+  }
+  scheduleCopy();
+}
+
+function parentOf(n){
+  const find=(nodes,parent)=>{
+    for(const c of nodes){
+      if (c===n) return parent;
+      if (c.children){ const r=find(c.children,c); if(r!==undefined) return r; }
+    }
+  };
+  return find(TREE, LOGO);
+}
+
+/* snapshot current positions (for cascade origins) */
+function snapshot(){
+  const m = new Map();
+  for (const [n,rec] of nodeEls) m.set(n, {x:rec.x.v, y:rec.y.v});
+  return m;
+}
+
+/* ============ interaction ============ */
+function clickNode(n){
+  const prev = snapshot();
+  if (n===LOGO){ path=[]; selLeaf=null; setFieldMood('home'); render(prev); return; }
+  if (n.children){
+    const ix = path.indexOf(n);
+    if (ix>=0){ path = path.slice(0,ix); selLeaf=null; }       // close this branch
+    else {
+      // open: trim path to this node's depth chain
+      path = chainTo(n); selLeaf=null;
+    }
+  } else {
+    path = chainTo(n).slice(0,-1);
+    selLeaf = (selLeaf===n)? null : n;
+    if (n.layout){ curLayout=n.layout; layouts[curLayout](); setFieldMood('portfolio'); }
+  }
+  const inPortfolio = path.some(p=>p.label==='OUR PORTFOLIO') || (selLeaf && selLeaf.layout);
+  setFieldMood(inPortfolio ? 'portfolio' : (path.length||selLeaf ? 'dim' : 'home'));
+  render(prev);
+}
+function chainTo(n){
+  const chain=[];
+  const walk=(nodes,acc)=>{
+    for(const c of nodes){
+      if (c===n){ chain.push(...acc,c); return true; }
+      if (c.children && walk(c.children,[...acc,c])) return true;
+    }
+    return false;
+  };
+  walk(TREE,[]);
+  return chain;
+}
+
+/* ============ body copy ============ */
+let copyTimer=null;
+function scheduleCopy(){
+  const src = selLeaf?.copy ? selLeaf : (path.length && path[path.length-1].copy ? path[path.length-1] : null);
+  clearTimeout(copyTimer);
+  copyEl.style.transition='opacity .25s';
+  copyEl.style.opacity=0;
+  if (!src) return;
+  copyTimer = setTimeout(()=>{
+    // anchor to the deepest column: last child of the open node, or the leaf itself
+    let anchor = nodeEls.get(src);
+    if (src.children && isOpen(src)){
+      const lastChild = src.children[src.children.length-1];
+      anchor = nodeEls.get(lastChild) || anchor;
+    }
+    if (!anchor) return;
+    copyEl.textContent = src.copy;
+    copyEl.style.left = Math.min(anchor.x.t + 6, innerWidth-370) + 'px';
+    copyEl.style.top  = Math.min(anchor.y.t + anchor.fs.t*2.4, innerHeight-240) + 'px';
+    copyEl.style.transition = 'opacity '+CFG.copyFadeIn+'ms';
+    copyEl.style.opacity = 1;
+  }, CFG.copyDelay);
+}
+
+/* ============ the thumbnail field (canvas) ============ */
 const IDS = ['012','014','016','018','020','022','024','026','028','030','032','034','036','038','040',
 '042','044','046','048','050','052','054','056','058','060','062','064','066','070','072','074','076',
 '078','080','082','084','086','088','090','092','094','096','098','100','102','104','106','108','110',
@@ -102,7 +367,7 @@ const IDS = ['012','014','016','018','020','022','024','026','028','030','032','
 '154','156','158','160','162','164','166','170','172','174','178','184','186','188','190','196','198',
 '200','202','204','206','208','212','216','218','220','222','224','226','228','230','232','234','236',
 '238','240','242','244','248','250','254','256','258'];
-const TW = 66, TH = 31;                       // native tile size
+const TW = 66, TH = 31;
 const cv = document.getElementById('field'), cx = cv.getContext('2d');
 let W, H, DPR;
 function resize(){
@@ -110,186 +375,120 @@ function resize(){
   W = innerWidth; H = innerHeight;
   cv.width = W*DPR; cv.height = H*DPR; cx.setTransform(DPR,0,0,DPR,0,0);
 }
-addEventListener('resize', ()=>{ resize(); layouts[curLayout](); });
+addEventListener('resize', ()=>{ resize(); layouts[curLayout](); render(snapshot()); });
 resize();
 
-/* deterministic PRNG so the scatter is stable per session */
 let seed = 20031107;
 const rnd = () => (seed = (seed*1664525+1013904223)>>>0, seed/4294967296);
-
-/* ============ particles ============ */
 const parts = IDS.map((id,i)=>{
   const img = new Image(); img.src = 'assets/t'+id+'.jpg';
-  return { img, i, x: W/2, y: H/2, vx:0, vy:0, hx: W/2, hy: H/2, b:0.22, s:1 };
+  return { img, i, x:0, y:0, vx:0, vy:0, hx:0, hy:0, b:0.2, s:1 };
 });
-
-/* ============ home layouts (the nav drives the field) ============ */
-function safeZone(x,y){ // keep clear of the menu block
-  return x > 0.08*W && x < 0.36*W && y > 0.28*H && y < 0.78*H;
-}
+function safeZone(x,y){ return x > 0.06*W && x < 0.42*W && y > 0.22*H && y < 0.8*H; }
 const layouts = {
   scatter(){ parts.forEach(p=>{
     let x,y,tries=0;
-    do { x = 30+rnd()*(W-60); y = 60+rnd()*(H-120); tries++; } while (safeZone(x,y) && tries<40);
-    p.hx=x; p.hy=y;
-  });},
+    do { x=30+rnd()*(W-60); y=60+rnd()*(H-120); tries++; } while (safeZone(x,y)&&tries<40);
+    p.hx=x; p.hy=y; });},
   client(){ grid(parts.slice().sort((a,b)=>a.i-b.i)); },
   chrono(){ grid(parts.slice().sort((a,b)=>b.i-a.i)); },
-  type(){ // clusters
-    const K=5, cs=[];
-    for(let k=0;k<K;k++) cs.push([0.44*W+rnd()*0.48*W, 0.16*H+rnd()*0.68*H]);
+  type(){ const K=5, cs=[];
+    for(let k=0;k<K;k++) cs.push([0.5*W+rnd()*0.44*W, 0.16*H+rnd()*0.68*H]);
     parts.forEach((p,j)=>{ const c=cs[j%K];
-      const a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*Math.min(W,H)*0.13;
-      p.hx=c[0]+Math.cos(a)*r; p.hy=c[1]+Math.sin(a)*r; });
-  },
-  media(){ // horizontal bands
-    const rows=4;
+      const a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*Math.min(W,H)*0.12;
+      p.hx=c[0]+Math.cos(a)*r; p.hy=c[1]+Math.sin(a)*r; }); },
+  media(){ const rows=4;
     parts.forEach((p,j)=>{ const r=j%rows, n=Math.ceil(parts.length/rows), k=Math.floor(j/rows);
-      p.hx = 0.42*W + (k/(n-1))*0.53*W;
-      p.hy = 0.22*H + r*(0.56*H/(rows-1)) + (rnd()-0.5)*8; });
-  },
+      p.hx = 0.48*W + (k/(n-1))*0.48*W;
+      p.hy = 0.22*H + r*(0.56*H/(rows-1)) + (rnd()-0.5)*8; }); },
 };
 function grid(sorted){
-  const cols = Math.max(6, Math.round(Math.sqrt(sorted.length*(W*0.55)/(H*0.7)/(TW/TH))));
+  const cols = Math.max(6, Math.round(Math.sqrt(sorted.length*(W*0.48)/(H*0.7)/(TW/TH))));
   const rows = Math.ceil(sorted.length/cols);
-  const gw = Math.min(0.55*W, cols*(TW+10)), gh = Math.min(0.72*H, rows*(TH+10));
-  const x0 = 0.42*W, y0 = (H-gh)/2;
+  const gw = Math.min(0.48*W, cols*(TW+10)), gh = Math.min(0.72*H, rows*(TH+10));
+  const x0 = 0.5*W, y0 = (H-gh)/2;
   sorted.forEach((p,j)=>{
     p.hx = x0 + (j%cols)*(gw/(cols-1||1));
-    p.hy = y0 + Math.floor(j/cols)*(gh/(rows-1||1));
-  });
+    p.hy = y0 + Math.floor(j/cols)*(gh/(rows-1||1)); });
 }
 let curLayout='scatter';
 layouts.scatter();
-parts.forEach(p=>{ p.x=p.hx; p.y=p.hy; });   // spawn settled — motion is opt-in
+parts.forEach(p=>{ p.x=p.hx; p.y=p.hy; });
 
-/* ============ physics ============ */
-const P = { mode:'spring', k:90, c:12, repel:120 };
+let fieldMood='home';   // home=0.2 base | portfolio=0.28 | dim=0.05
+function setFieldMood(m){ fieldMood=m; }
+const moodBase = ()=> fieldMood==='dim' ? 0.05 : (fieldMood==='portfolio' ? 0.26 : 0.18);
+
 const mouse = { x:-9e3, y:-9e3 };
 addEventListener('pointermove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
 addEventListener('pointerleave', ()=>{ mouse.x=-9e3; mouse.y=-9e3; });
-
 const easeOut = t => 1-Math.pow(1-t,3);
+
+/* ============ master frame loop ============ */
 let last = performance.now();
 function frame(now){
   const dt = Math.min(0.033,(now-last)/1000); last=now;
-  cx.clearRect(0,0,W,H);
   const t = now/1000;
+  // field
+  cx.clearRect(0,0,W,H);
+  const base = moodBase();
   for(const p of parts){
-    // drift target: home + slow per-tile sinusoid
-    const dx0 = Math.sin(t*0.35 + p.i*1.7)*7, dy0 = Math.cos(t*0.28 + p.i*2.3)*5;
-    const tx = p.hx+dx0, ty = p.hy+dy0;
+    const dx0=Math.sin(t*0.35+p.i*1.7)*7, dy0=Math.cos(t*0.28+p.i*2.3)*5;
+    const tx=p.hx+dx0, ty=p.hy+dy0;
     if (P.mode==='spring'){
-      let fx = (tx-p.x)*P.k, fy = (ty-p.y)*P.k;
+      let fx=(tx-p.x)*Math.min(P.k,140), fy=(ty-p.y)*Math.min(P.k,140);
       const mdx=p.x-mouse.x, mdy=p.y-mouse.y, md=Math.hypot(mdx,mdy);
-      if (md < P.repel && md>0.01){
-        const f = (1-md/P.repel)*2600;
-        fx += mdx/md*f; fy += mdy/md*f;
+      if (fieldMood!=='dim' && md<P.repel && md>0.01){
+        const f=(1-md/P.repel)*2600; fx+=mdx/md*f; fy+=mdy/md*f;
       }
-      p.vx = (p.vx + fx*dt) * Math.max(0,1-P.c*dt);
-      p.vy = (p.vy + fy*dt) * Math.max(0,1-P.c*dt);
-      p.x += p.vx*dt; p.y += p.vy*dt;
-    } else { // archival tween: pure ease toward target, no momentum, no repel
-      p.x += (tx-p.x)*Math.min(1, 3.2*dt/0.6);
-      p.y += (ty-p.y)*Math.min(1, 3.2*dt/0.6);
+      p.vx=(p.vx+fx*dt)*Math.max(0,1-Math.min(P.c,16)*dt);
+      p.vy=(p.vy+fy*dt)*Math.max(0,1-Math.min(P.c,16)*dt);
+      p.x+=p.vx*dt; p.y+=p.vy*dt;
+    } else {
+      p.x+=(tx-p.x)*Math.min(1,3.2*dt/0.6);
+      p.y+=(ty-p.y)*Math.min(1,3.2*dt/0.6);
       p.vx=p.vy=0;
     }
-    // proximity brightness + scale
-    const md = Math.hypot(p.x-mouse.x, p.y-mouse.y);
-    const near = Math.max(0, 1-md/170);
-    const tb = 0.20 + easeOut(near)*0.8, ts = 1 + easeOut(near)*0.55;
-    p.b += (tb-p.b)*Math.min(1,10*dt);
-    p.s += (ts-p.s)*Math.min(1,10*dt);
-    if (p.img.complete && p.img.naturalWidth){
+    const md=Math.hypot(p.x-mouse.x,p.y-mouse.y);
+    const near=fieldMood==='dim'?0:Math.max(0,1-md/170);
+    const tb=base+easeOut(near)*(1-base), ts=1+easeOut(near)*0.55;
+    p.b+=(tb-p.b)*Math.min(1,10*dt);
+    p.s+=(ts-p.s)*Math.min(1,10*dt);
+    if (p.img.complete&&p.img.naturalWidth){
       const w=TW*p.s, h=TH*p.s;
-      cx.globalAlpha = p.b;
-      cx.drawImage(p.img, p.x-w/2, p.y-h/2, w, h);
+      cx.globalAlpha=p.b;
+      cx.drawImage(p.img,p.x-w/2,p.y-h/2,w,h);
     }
   }
-  cx.globalAlpha = 1;
-  tickLetters(dt); tickSub(dt);
+  cx.globalAlpha=1;
+  // type engine
+  for (const [n,rec] of nodeEls){
+    stepVal(rec.x,dt); stepVal(rec.y,dt); stepVal(rec.fs,dt);
+    // hover brightens without fighting the layout alpha
+    if (!rec.dying) rec.al.t = rec.hover ? Math.min(1,(rec.baseAl??rec.al.t)+0.35) : (rec.baseAl??rec.al.t);
+    stepVal(rec.al,dt);
+    rec.el.style.left = rec.x.v+'px';
+    rec.el.style.top = rec.y.v+'px';
+    rec.el.style.fontSize = Math.max(1,rec.fs.v)+'px';
+    rec.el.style.opacity = Math.max(0,Math.min(1,rec.al.v));
+  }
   requestAnimationFrame(frame);
 }
+
+/* logo click closes everything */
+render(null);
+nodeEls.get(LOGO)?.el.addEventListener('click', ()=>clickNode(LOGO));
 requestAnimationFrame(frame);
-
-/* ============ menu: per-letter springs ============ */
-const letterSprings = [];
-document.querySelectorAll('.item').forEach(item=>{
-  const word = item.dataset.w;
-  const springs = [];
-  [...word].forEach(ch=>{
-    const s = document.createElement('span'); s.textContent = ch;
-    item.appendChild(s);
-    springs.push({el:s, x:0, v:0, t:0});
-  });
-  letterSprings.push(springs);
-  item.addEventListener('pointerenter', ()=> springs.forEach((sp,j)=> setTimeout(()=> sp.t=7, j*14)));
-  item.addEventListener('pointerleave', ()=> springs.forEach(sp=> sp.t=0));
-});
-function tickLetters(dt){
-  for(const springs of letterSprings) for(const sp of springs){
-    if (P.mode==='spring'){
-      const f = (sp.t-sp.x)*300;
-      sp.v = (sp.v+f*dt)*Math.max(0,1-14*dt);
-      sp.x += sp.v*dt;
-    } else {
-      sp.x += (sp.t-sp.x)*Math.min(1,9*dt);
-      sp.v = 0;
-    }
-    if (Math.abs(sp.x)>0.01 || Math.abs(sp.v)>0.01)
-      sp.el.style.transform = 'translateX('+(-sp.x)+'px)';
-  }
-}
-
-/* ============ submenu cascade ============ */
-const sub = document.getElementById('sub');
-const sitems = [...document.querySelectorAll('.sitem')].map(el=>({el, x:-46, v:0, o:0, on:false}));
-let subOpen = false;
-document.querySelectorAll('.item').forEach(item=>{
-  item.addEventListener('pointerenter', ()=>{
-    const want = !!item.dataset.sub;
-    if (want && !subOpen) openSub();
-    document.querySelectorAll('.item').forEach(i=>i.classList.toggle('open', i===item && want));
-  });
-});
-document.getElementById('nav').addEventListener('pointerleave', ()=>{ /* stays open — click elsewhere closes */ });
-document.body.addEventListener('click', e=>{
-  if (!e.target.closest('#nav') && subOpen) closeSub();
-});
-function openSub(){ subOpen=true; sub.classList.add('on');
-  sitems.forEach((s,j)=>{ s.x=-46; s.v=0; s.o=0; setTimeout(()=> s.on=true, j*55); }); }
-function closeSub(){ subOpen=false; sitems.forEach(s=> s.on=false);
-  setTimeout(()=>{ if(!subOpen) sub.classList.remove('on'); }, 320);
-  document.querySelectorAll('.item').forEach(i=>i.classList.remove('open')); }
-function tickSub(dt){
-  for(const s of sitems){
-    const tx = s.on?0:-46, to = s.on?1:0;
-    if (P.mode==='spring'){
-      const f=(tx-s.x)*260; s.v=(s.v+f*dt)*Math.max(0,1-12*dt); s.x+=s.v*dt;
-    } else { s.x += (tx-s.x)*Math.min(1,8*dt); s.v=0; }
-    s.o += (to-s.o)*Math.min(1,10*dt);
-    s.el.style.transform='translateX('+s.x+'px)';
-    s.el.style.opacity=s.o;
-  }
-}
-sitems.forEach(s=>{
-  s.el.addEventListener('click', ()=>{
-    sitems.forEach(o=>o.el.classList.remove('sel'));
-    s.el.classList.add('sel');
-    curLayout = s.el.dataset.layout;
-    layouts[curLayout]();
-  });
-});
 
 /* ============ controls ============ */
 document.querySelectorAll('#mode b').forEach(b=>{
   b.addEventListener('click', ()=>{
     document.querySelectorAll('#mode b').forEach(o=>o.classList.remove('on'));
-    b.classList.add('on'); P.mode = b.dataset.m;
+    b.classList.add('on'); P.mode=b.dataset.m;
   });
 });
-const bind = (id, key) => {
-  const el = document.getElementById(id), v = document.getElementById(id+'V');
+const bind=(id,key)=>{
+  const el=document.getElementById(id), v=document.getElementById(id+'V');
   el.addEventListener('input', ()=>{ P[key]=+el.value; v.textContent=el.value; });
 };
 bind('stiff','k'); bind('damp','c'); bind('repel','repel');
