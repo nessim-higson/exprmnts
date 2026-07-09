@@ -19,16 +19,18 @@
   .crumb a{color:var(--faint); text-decoration:none}
   .crumb a:hover{color:var(--white)}
 
-  /* ------- the type engine ------- */
-  #tree{position:fixed; inset:0; z-index:4; user-select:none}
-  .node{position:absolute; font-weight:700; letter-spacing:.01em; color:#c9c6be;
-    white-space:nowrap; cursor:pointer; will-change:left,top,font-size,opacity; line-height:1}
-  .node.r0{transform:translateX(-100%)}        /* level 0 is right-aligned, like the original */
-  .node.red{color:var(--crimson)}
-  .node.logo{font-weight:400; letter-spacing:.42em; color:#8f8d86; cursor:pointer}
-  .node.logo sup{font-size:.4em; letter-spacing:0}
-  #copy{position:absolute; max-width:340px; font-weight:700; font-size:12.5px; line-height:1.55;
-    color:#8a8880; opacity:0; will-change:opacity; pointer-events:none}
+  /* ------- the type engine (ported from the decompiled 2003 AS2) ------- */
+  #nav{position:fixed; z-index:4; user-select:none}
+  #nav .box{position:absolute; transform-origin:0 0; will-change:transform}
+  #nav .it{position:absolute; transform-origin:0 0; will-change:transform;
+    font-weight:700; font-size:16px; line-height:1; letter-spacing:.01em;
+    white-space:nowrap; cursor:pointer; color:#999}
+  #logo{position:absolute; transform-origin:0 0; will-change:transform; cursor:pointer;
+    font-weight:400; font-size:34px; line-height:1; letter-spacing:.42em; color:#8f8d86}
+  #logo sup{font-size:11px; letter-spacing:0}
+  #content{position:absolute; transform-origin:0 0; will-change:transform;
+    width:330px; font-weight:700; font-size:12.5px; line-height:1.55; color:#8a8880;
+    pointer-events:none}
 
   /* ------- control strip ------- */
   #ctl{position:fixed; right:22px; bottom:20px; z-index:6; display:flex; align-items:center; gap:18px;
@@ -48,27 +50,30 @@
 </head>
 <body>
 <canvas id="field"></canvas>
-<div id="tree"><div id="copy"></div></div>
+
+<div id="nav">
+  <div id="logo">firstborn<sup>®</sup></div>
+  <div id="main" class="box"></div>
+  <div id="content"></div>
+</div>
 
 <div class="crumb"><a href="/">exprmnts</a> &nbsp;/&nbsp; 002 · text nav, rebuilt</div>
 
 <div id="ctl">
   <div class="seg" id="mode">
-    <b data-m="spring" class="on">Spring</b><b data-m="tween">Tween ’03</b>
+    <b data-m="fb03" class="on">’03 Engine</b><b data-m="spring">Spring</b>
   </div>
+  <label>Speed <input type="range" id="speed" min="1.5" max="8" step="0.5" value="3"><span class="val" id="speedV">3</span></label>
   <label>Stiff <input type="range" id="stiff" min="30" max="300" value="130"><span class="val" id="stiffV">130</span></label>
-  <label>Damp <input type="range" id="damp" min="6" max="34" value="16"><span class="val" id="dampV">16</span></label>
   <label>Repel <input type="range" id="repel" min="0" max="240" value="120"><span class="val" id="repelV">120</span></label>
 </div>
 
-<footer>Firstborn ’03 type engine · studied from the original · real mined thumbnails</footer>
+<footer>Firstborn ’03 type engine · ported from the decompiled AS2 · real mined thumbnails</footer>
 
 <script>
 /* =====================================================================
    THE TREE — edit freely. label / red / copy / children / layout.
-   `layout` on OUR PORTFOLIO leaves re-sorts the thumbnail field.
-   Labels + copy transcribed from the 2003 original where recoverable;
-   items marked [edit] are stand-ins — swap in your own.
+   Copy transcribed from the 2003 original where recoverable.
    ===================================================================== */
 const TREE = [
  { label:'WHO WE ARE',
@@ -94,7 +99,7 @@ const TREE = [
          { label:'TRAINING' },
      ]},
      { label:'TYPES OF DELIVERY',
-       children:[            /* named in the original's own copy */
+       children:[
          { label:'WEBSITES' },
          { label:'INTRANET SITES' },
          { label:'LAPTOP PRESENTATIONS' },
@@ -122,244 +127,268 @@ const TREE = [
 ];
 
 /* =====================================================================
-   MOTION CONFIG — the feel lives here. Tweak away.
+   CONSTANTS — verbatim from the decompiled main.swf (fb 2003):
+     speed=3 @ 60fps, navSpace=8, mLeading=8, sLeading=8,
+     mainOffset=-14, horOffset=22,
+     grey=0x999999 black=0x333333 red=0xFF0000,
+     scale ladder: containers ×0.75/level, newcomers at 133,
+     logo: 66.5 home → 29.7 open, siblings 75 / selected 100 / leaf 133,
+     content scale-pops 0→100 at speed/2, subsub flies in from x=400.
    ===================================================================== */
-const CFG = {
-  anchorX: 0.24,        // where level-0's right edge sits (fraction of vw)
-  anchorY: 0.40,        // top of the flow (fraction of vh)
-  drift:   0.055,       // how far the whole block slides up-left per open level
-  focusPx: 27,          // deepest (newest) level font size
-  levelRatio: 0.60,     // each generation back shrinks to this
-  minPx: 8.5,
-  indent: 0.65,         // child indent, as a multiple of parent font size... of focusPx
-  lineGap: 1.22,
-  groupGap: 0.35,       // extra gap (em of focus) around an open child group
-  stagger: 65,          // ms between siblings cascading in
-  fromX: 54, fromScale: 1.5,   // where new type flies in from (offset px, scale mult)
-  ghost: 0.34,          // alpha of a selected/receded item
-  ghostZoom: 1.3,       // a selected ancestor enlarges as it recedes
-  bright: 0.85,         // alpha of a live item at the deepest level
-  backFade: 0.78,       // per-generation alpha falloff for older levels
-  leafZoom: 1.5,        // selected leaf enlarges by this
-  copyDelay: 850, copyFadeIn: 900,
+const K = {
+  speed: 3, navSpace: 8, mLeading: 8, sLeading: 8,
+  mainOffset: -14, horOffset: 22,
+  grey:'#999999', black:'#4a4a4a', red:'#e03a30', hover:'#ece9e3',
+  anchorX: 0.155, anchorY: 0.40,
+  ladder: 0.75, newcomer: 133,
+  logoHome: 66.5, logoOpen: 29.7,
+  sibling: 75, selected: 100, leaf: 133,
+  subsubFlyX: 400,
 };
+/* note: original "black" was 0x333333 — nearly invisible on pure black,
+   the site bg was #000 with items over imagery; nudged to #4a4a4a. */
 
-/* ============ shared spring/tween integrator ============ */
-const P = { mode:'spring', k:130, c:16, repel:120 };
-function stepVal(o, dt){ // o: {v (value), t (target), vel}
-  if (P.mode==='spring'){
-    const f=(o.t-o.v)*P.k;
-    o.vel=(o.vel+f*dt)*Math.max(0,1-P.c*dt);
-    o.v+=o.vel*dt;
+const P = { mode:'fb03', speed:3, k:130, c:16, repel:120 };
+
+/* ===== scaleEase / easeIn — the decompiled primitives, verbatim ===== */
+function scaleEase(o, dt60){       // o:{s, goal, speed?}
+  const mod = o.speed || P.speed;
+  const diff = o.goal - o.s;
+  if (P.mode==='fb03'){
+    if (Math.abs(diff) > 1) o.s += (diff/mod)*dt60;
+    else o.s = o.goal;
+  } else {                          // spring A/B mode
+    o.vs=(o.vs||0); const f=diff*P.k*0.06;
+    o.vs=(o.vs+f*dt60)*Math.max(0,1-P.c*0.016*dt60);
+    o.s+=o.vs*dt60*0.06*10;
+    if (Math.abs(diff)<0.5 && Math.abs(o.vs)<0.5){ o.s=o.goal; o.vs=0; }
+  }
+}
+function easeIn(o, prop, goal, dt60){
+  const diff = goal - o[prop];
+  if (P.mode==='fb03'){
+    if (Math.abs(diff) > 1) o[prop] += (diff/P.speed)*dt60;
+    else o[prop] = goal;
   } else {
-    o.v+=(o.t-o.v)*Math.min(1,7*dt);
-    o.vel=0;
+    const vk='v'+prop; o[vk]=(o[vk]||0);
+    const f=diff*P.k*0.06;
+    o[vk]=(o[vk]+f*dt60)*Math.max(0,1-P.c*0.016*dt60);
+    o[prop]+=o[vk]*dt60*0.06*10;
+    if (Math.abs(diff)<0.5 && Math.abs(o[vk])<0.5){ o[prop]=goal; o[vk]=0; }
   }
 }
-const sv = (v)=>({v, t:v, vel:0});
 
-/* ============ tree state ============ */
-const treeEl = document.getElementById('tree');
-const copyEl = document.getElementById('copy');
-let path = [];            // chain of open nodes (node refs)
-const nodeEls = new Map(); // node -> {el, x,y,fs,al, depth, dying}
+/* ===== nav objects =====
+   logo, main (container), main items, sub (container), sub items,
+   subsub (container), subsub items, content. Each: {el,x,y,s,goal,w,h}
+   Containers nest in the DOM so scaling composes exactly like Flash. */
+const navEl = document.getElementById('nav');
+const logoEl = document.getElementById('logo');
+const mainEl = document.getElementById('main');
+const contentEl = document.getElementById('content');
 
-const LOGO = { label:'firstborn', logo:true };
+const logo = { el:logoEl, x:0, y:0, s:0, goal:100 };
+const main = { el:mainEl, x:0, y:0, s:0, goal:100 };
+let mains=[], sub=null, subs=[], subsub=null, subsubs=[];
+let mSel=-1, sSel=-1, ssSel=-1;           // selected indices
+let clickMode='logo', contentPending=null, contentShown=null;
+const content = { el:contentEl, x:0, y:0, s:0, goal:0, speed: K.speed/2 };
 
-function isOpen(n){ return path.includes(n); }
-function deepest(){ return path.length; }   // depth of the newest generation
+function makeItem(node, parentEl, onClick){
+  const el=document.createElement('div');
+  el.className='it'; el.textContent=node.label;
+  el.style.color = node.red ? K.red : K.grey;
+  parentEl.appendChild(el);
+  const o={ el, node, x:0, y:0, s:0, goal:100, w:0, h:0, baseColor: node.red?K.red:K.grey };
+  o.w=el.offsetWidth; o.h=el.offsetHeight;
+  el.addEventListener('click', e=>{ e.stopPropagation(); onClick(o); });
+  el.addEventListener('pointerenter', ()=> el.style.color=K.hover);
+  el.addEventListener('pointerleave', ()=> el.style.color=o.baseColor);
+  return o;
+}
+function setColor(o,c){ o.baseColor=c; o.el.style.color=c; }
 
-/* flatten the visible flow in document order */
-function visibleFlow(){
-  const out=[ {node:LOGO, depth:0, kind:'logo'} ];
-  const walk=(nodes, depth)=>{
-    for(const n of nodes){
-      out.push({node:n, depth, kind:'item'});
-      if (isOpen(n) && n.children) walk(n.children, depth+1);
-    }
-  };
-  walk(TREE, 0);
-  return out;
+/* ===== build (mirrors buildMainNav / buildSubNav / buildSubSubNav) ===== */
+function buildMain(){
+  mains = TREE.map((n,i)=> makeItem(n, mainEl, ()=>mainRelease(i)));
+  // right-align: xGoal = -width (items tuck left so right edges meet origin)
+  mains.forEach((o,i)=>{ o.x=0; o.xGoal=-o.w; o.y=0; o.s=100; });
+  placeMainNav();
+  logo.s=0; logo.goal=K.logoHome;
+  main.s=0; main.goal=100;
+}
+function buildSub(node){
+  removeBox(sub, subs); removeBox(subsub, subsubs); subsub=null; subsubs=[];
+  const el=document.createElement('div'); el.className='box'; mainEl.appendChild(el);
+  const mo=mains[mSel];
+  sub={ el, x:0, y: mo.y + mo.h + K.sLeading, s:0, goal:K.newcomer };
+  subs=(node.children||[]).map((n,i)=> makeItem(n, el, ()=>subRelease(i)));
+  subs.forEach(o=>{ o.s=100; });   // items live at full scale; the CONTAINER grows in
+  chainYs(subs);
+  apply(sub);
+}
+function buildSubSub(node){
+  removeBox(subsub, subsubs);
+  const el=document.createElement('div'); el.className='box'; sub.el.appendChild(el);
+  subsub={ el, x:K.subsubFlyX, y:0, s:0, goal:K.newcomer, xGoal:0 };
+  subsubs=(node.children||[]).map((n,i)=> makeItem(n, el, ()=>subsubRelease(i)));
+  subsubs.forEach(o=>{ o.s=100; });
+  chainYs(subsubs);
+  apply(subsub);
+}
+function removeBox(box, items){ if(box){ box.el.remove(); } items.length=0; }
+
+/* placeMainNav — verbatim splice logic (evaluated at click time,
+   when the fresh sub block still has ~zero height — so the main stack
+   stays tight, exactly like the original) */
+function placeMainNav(){
+  for(let i=1;i<mains.length;i++)
+    mains[i].y = mains[i-1].y + mains[i-1].h*(mains[i-1].s/100) + K.mLeading;
+}
+function chainYs(items){
+  for(let i=1;i<items.length;i++)
+    items[i].y = items[i-1].y + items[i-1].h*(items[i-1].s/100) + K.navSpace;
 }
 
-/* compute layout targets for every visible node */
-function layoutTree(){
-  const W=innerWidth, H=innerHeight;
-  const dMax = deepest();
-  const fsFor = d => Math.max(CFG.minPx, CFG.focusPx * Math.pow(CFG.levelRatio, dMax - d));
-  const alFor = (n,d) => {
-    const gen = dMax - d;
-    let a = (d===dMax ? CFG.bright : CFG.bright*Math.pow(CFG.backFade, gen));
-    if (isOpen(n) || n===selLeaf) a = CFG.ghost * Math.pow(CFG.backFade, Math.max(0,gen-0));
-    return a;
-  };
-  const ax = W*CFG.anchorX * (1 - CFG.drift*dMax*0.9);
-  let y = H*CFG.anchorY * (1 - CFG.drift*dMax);
-  const targets = new Map();
-
-  // logo
-  const logoFs = fsFor(0)*1.35;
-  targets.set(LOGO, {x:ax, y, fs:logoFs, al:0.5, r0:true});
-  y += logoFs*CFG.lineGap*1.25;
-
-  // level-0 column stays TIGHT (like the original) — children float in
-  // their own columns starting at the parent's row, with displacement
-  // only inside the subtree.
-  const subFlow = (nodes, d, x, startY) => {   // returns height consumed
-    let yy = startY;
-    for(const n of nodes){
-      let fs = fsFor(d);
-      if (n===selLeaf) fs *= CFG.leafZoom;
-      if (isOpen(n)) fs *= CFG.ghostZoom;
-      targets.set(n, {x, y:yy, fs, al:alFor(n,d), r0:false});
-      yy += fs*CFG.lineGap;
-      if (isOpen(n) && n.children){
-        yy += subFlow(n.children, d+1, ax + CFG.focusPx*CFG.indent*(d+1) + 10, yy) * 1
-              - 0; // children consume vertical space before following siblings
-      }
-    }
-    return yy - startY;
-  };
-
-  for(const n of TREE){
-    let fs = fsFor(0);
-    if (n===selLeaf) fs *= CFG.leafZoom;
-    if (isOpen(n)) fs *= CFG.ghostZoom;
-    targets.set(n, {x:ax, y, fs, al:alFor(n,0), r0:true});
-    if (isOpen(n) && n.children){
-      // subtree starts at this row, one column right — does NOT push level-0
-      subFlow(n.children, 1, ax + CFG.focusPx*CFG.indent + 10, y + fs*CFG.lineGap*0.2);
-    }
-    y += fs*CFG.lineGap;
-  }
-  return targets;
+/* ===== the switch functions — goals verbatim from the decompile ===== */
+function scaleNavObj(l,m,s,ss){
+  logo.goal=l; main.goal=m;
+  if(sub) sub.goal=s;
+  if(subsub) subsub.goal=ss;
 }
-
-let selLeaf = null;
-
-/* reconcile DOM with the visible flow */
-function render(prevPos){
-  const targets = layoutTree();
-  const seen = new Set();
-  let i = 0, cascade = [];
-  for (const [n,t] of targets){
-    seen.add(n);
-    let rec = nodeEls.get(n);
-    if (!rec){
-      const el = document.createElement('div');
-      el.className = 'node' + (t.r0?' r0':'') + (n.red?' red':'') + (n.logo?' logo':'');
-      el.innerHTML = n.logo ? 'firstborn<sup>®</sup>' : n.label;
-      treeEl.appendChild(el);
-      // cascade in: from parent's position (or its own target), scaled up, transparent
-      const from = prevPos && prevPos.get(parentOf(n)) || t;
-      rec = { el,
-        x:sv(from.x + CFG.fromX), y:sv(from.y), fs:sv(t.fs*CFG.fromScale), al:sv(0), hold:true };
-      nodeEls.set(n, rec);
-      cascade.push(rec);
-      el.addEventListener('click', ev=>{ ev.stopPropagation(); clickNode(n); });
-      el.addEventListener('pointerenter', ()=> rec.hover=true);
-      el.addEventListener('pointerleave', ()=> rec.hover=false);
-    }
-    rec.dying = false;
-    rec.x.t = t.x; rec.y.t = t.y; rec.fs.t = t.fs; rec.al.t = t.al;
-    rec.baseAl = t.al;
-    i++;
-  }
-  // stagger the newcomers' arrival (they hold at origin, invisible, until released)
-  cascade.forEach((rec,j)=>{
-    const hx=rec.x.t, hy=rec.y.t, hf=rec.fs.t, ha=rec.baseAl;
-    rec.x.t=rec.x.v; rec.y.t=rec.y.v; rec.fs.t=rec.fs.v;
-    rec.baseAl=0; rec.al.t=0;
-    setTimeout(()=>{ rec.x.t=hx; rec.y.t=hy; rec.fs.t=hf; rec.baseAl=ha; }, j*CFG.stagger);
+function logoRelease(){
+  clickMode='logo'; mSel=-1; sSel=-1; ssSel=-1;
+  removeBox(sub,subs); sub=null; removeBox(subsub,subsubs); subsub=null;
+  scaleNavObj(K.logoHome, 100, 0, 0);
+  mains.forEach(o=>{ o.goal=100; o.xGoal=-o.w; setColor(o, o.node.red?K.red:K.grey); });
+  placeMainNav();
+  removeContent(); setFieldMood('home');
+}
+function mainRelease(i){
+  const node=TREE[i];
+  if (mSel===i && node.children){ logoRelease(); return; }   // toggle shut
+  mSel=i; sSel=-1; ssSel=-1; clickMode='main';
+  removeContent();
+  scaleNavObj(K.logoOpen, K.ladder*100, 0, 0);
+  mains.forEach((o,j)=>{
+    o.goal = j===i ? K.selected : K.sibling;
+    o.xGoal = j===i ? K.mainOffset : -o.w;
+    setColor(o, j===i ? (node.red?K.red:K.black) : (o.node.red?K.red:K.grey));
   });
-  // the departed: fade toward their parent and remove
-  for (const [n,rec] of nodeEls){
-    if (n===LOGO || seen.has(n)) continue;
-    if (!rec.dying){
-      rec.dying = true;
-      const pp = targets.get(parentOf(n)) || {x:rec.x.v-40, y:rec.y.v};
-      rec.x.t = pp.x + 20; rec.al.t = 0; rec.fs.t = rec.fs.v*0.7;
-      setTimeout(()=>{ if(rec.dying){ rec.el.remove(); nodeEls.delete(n); } }, 700);
-    }
-  }
-  scheduleCopy();
+  if (node.children){ buildSub(node); sub.goal=K.newcomer; }
+  else { mains[i].goal=K.leaf; }
+  placeMainNav();
+  contentPending = node.copy ? {node, at:'main'} : null;
+  setFieldMood(node.label==='OUR PORTFOLIO' ? 'portfolio' : 'dim');
 }
-
-function parentOf(n){
-  const find=(nodes,parent)=>{
-    for(const c of nodes){
-      if (c===n) return parent;
-      if (c.children){ const r=find(c.children,c); if(r!==undefined) return r; }
-    }
-  };
-  return find(TREE, LOGO);
-}
-
-/* snapshot current positions (for cascade origins) */
-function snapshot(){
-  const m = new Map();
-  for (const [n,rec] of nodeEls) m.set(n, {x:rec.x.v, y:rec.y.v});
-  return m;
-}
-
-/* ============ interaction ============ */
-function clickNode(n){
-  const prev = snapshot();
-  if (n===LOGO){ path=[]; selLeaf=null; setFieldMood('home'); render(prev); return; }
-  if (n.children){
-    const ix = path.indexOf(n);
-    if (ix>=0){ path = path.slice(0,ix); selLeaf=null; }       // close this branch
-    else {
-      // open: trim path to this node's depth chain
-      path = chainTo(n); selLeaf=null;
-    }
+function subRelease(i){
+  const node=TREE[mSel].children[i];
+  sSel=i; ssSel=-1; clickMode='sub';
+  removeContent();
+  subs.forEach((o,j)=>{
+    setColor(o, j===i ? K.black : K.grey);
+    o.goal = j===i ? (node.children?K.selected:K.leaf) : K.sibling;
+  });
+  if (node.children){
+    scaleNavObj(K.logoOpen, K.ladder*K.ladder*100, K.newcomer, 0);
+    buildSubSub(node);
+    subsub.goal=K.newcomer;
   } else {
-    path = chainTo(n).slice(0,-1);
-    selLeaf = (selLeaf===n)? null : n;
-    if (n.layout){ curLayout=n.layout; layouts[curLayout](); setFieldMood('portfolio'); }
+    scaleNavObj(K.logoOpen, K.ladder*K.ladder*100, K.newcomer, 0);
+    removeBox(subsub,subsubs); subsub=null;
   }
-  const inPortfolio = path.some(p=>p.label==='OUR PORTFOLIO') || (selLeaf && selLeaf.layout);
-  setFieldMood(inPortfolio ? 'portfolio' : (path.length||selLeaf ? 'dim' : 'home'));
-  render(prev);
+  if (node.layout){ curLayout=node.layout; layouts[curLayout](); setFieldMood('portfolio'); }
+  else if (TREE[mSel].label!=='OUR PORTFOLIO') setFieldMood('dim');
+  contentPending = node.copy ? {node, at:'sub'} : null;
 }
-function chainTo(n){
-  const chain=[];
-  const walk=(nodes,acc)=>{
-    for(const c of nodes){
-      if (c===n){ chain.push(...acc,c); return true; }
-      if (c.children && walk(c.children,[...acc,c])) return true;
-    }
-    return false;
-  };
-  walk(TREE,[]);
-  return chain;
-}
-
-/* ============ body copy ============ */
-let copyTimer=null;
-function scheduleCopy(){
-  const src = selLeaf?.copy ? selLeaf : (path.length && path[path.length-1].copy ? path[path.length-1] : null);
-  clearTimeout(copyTimer);
-  copyEl.style.transition='opacity .25s';
-  copyEl.style.opacity=0;
-  if (!src) return;
-  copyTimer = setTimeout(()=>{
-    // anchor to the deepest column: last child of the open node, or the leaf itself
-    let anchor = nodeEls.get(src);
-    if (src.children && isOpen(src)){
-      const lastChild = src.children[src.children.length-1];
-      anchor = nodeEls.get(lastChild) || anchor;
-    }
-    if (!anchor) return;
-    copyEl.textContent = src.copy;
-    copyEl.style.left = Math.min(anchor.x.t + 6, innerWidth-370) + 'px';
-    copyEl.style.top  = Math.min(anchor.y.t + anchor.fs.t*2.4, innerHeight-240) + 'px';
-    copyEl.style.transition = 'opacity '+CFG.copyFadeIn+'ms';
-    copyEl.style.opacity = 1;
-  }, CFG.copyDelay);
+function subsubRelease(i){
+  const node=TREE[mSel].children[sSel].children[i];
+  ssSel=i; clickMode='subsub';
+  removeContent();
+  scaleNavObj(K.logoOpen, K.ladder*K.ladder*K.ladder*100, K.newcomer, K.newcomer);
+  subsubs.forEach((o,j)=>{
+    setColor(o, j===i ? K.black : K.grey);
+    o.goal = j===i ? K.leaf : K.sibling;
+  });
+  contentPending = node.copy ? {node, at:'subsub'} : null;
 }
 
-/* ============ the thumbnail field (canvas) ============ */
+/* ===== content (addContent/removeContent: scale pop, speed/2) ===== */
+function removeContent(){ content.goal=0; contentShown=null; }
+function addContent(pend){
+  contentEl.textContent = pend.node.copy;
+  // place beside/below the deepest column, in nav-local coords
+  let x=0,y=0;
+  if (pend.at==='subsub' && subsub){
+    x = subXAbs() + (subsub.xGoal ?? subsub.x)*absScale(sub)/100 + 10;
+    y = subYAbs() + (subsub.y + colH(subsubs)*(subsub.s/100))*absScale(sub)/100 + 14;
+  } else if (pend.at==='sub' && sub){
+    x = subXAbs() + 6;
+    y = subYAbs() + colH(subs)*absScale(sub)/100 + 14;
+  } else {
+    x = main.x + 6; y = main.y + colH(mains)*(main.s/100) + 16;
+  }
+  content.x=x; content.y=y; content.s=0; content.goal=100;
+  contentShown=pend.node;
+}
+const absScale = box => (main.s/100)*(box?box.s:100);
+const subXAbs = ()=> main.x + (sub? sub.x*(main.s/100):0);
+const subYAbs = ()=> main.y + (sub? sub.y*(main.s/100):0);
+const colH = items => items.length? items[items.length-1].y + items[items.length-1].h*(items[items.length-1].s/100) : 0;
+
+/* ===== apply transforms ===== */
+function apply(o){
+  o.el.style.transform = 'translate('+o.x+'px,'+o.y+'px) scale('+(Math.max(0,o.s)/100)+')';
+}
+
+/* ===== navRun — the master tick, 60Hz fixed-step like the SWF ===== */
+function navTick(dt60){
+  scaleEase(logo, dt60); scaleEase(main, dt60);
+  mains.forEach(o=>{ scaleEase(o,dt60); easeIn(o,'x',o.xGoal,dt60); });
+  if (sub){ scaleEase(sub,dt60); subs.forEach(o=>scaleEase(o,dt60)); chainYs(subs); }
+  if (subsub){ scaleEase(subsub,dt60); easeIn(subsub,'x',subsub.xGoal,dt60);
+    subsubs.forEach(o=>scaleEase(o,dt60)); chainYs(subsubs);
+    // subsub container y chains under the selected sub item, live (navRun verbatim)
+    if (sSel>=0 && subs[sSel]) subsub.y = subs[sSel].y + subs[sSel].h*(subs[sSel].s/100) + K.navSpace;
+    if (sSel>=0 && subs[sSel]) subsub.xGoal = subs[sSel].x + subs[sSel].w - K.horOffset;
+    // sub items after the selected re-chain below the subsub block, live
+    for(let i=sSel+1;i<subs.length;i++){
+      const prev = i===sSel+1
+        ? { y: subsub.y + colH(subsubs)*(subsub.s/100), h:0, s:100 }
+        : subs[i-1];
+      subs[i].y = prev.y + prev.h*(prev.s/100) + K.navSpace;
+    }
+  }
+  scaleEase(content, dt60);
+  // threshold choreography: content pops once the nav has settled
+  if (contentPending){
+    const settled = atGoal(logo)&&atGoal(main)&&mains.every(atGoal)
+      && (!sub || (atGoal(sub)&&subs.every(atGoal)))
+      && (!subsub || (atGoal(subsub)&&subsubs.every(atGoal)));
+    if (settled){ addContent(contentPending); contentPending=null; }
+  }
+  // render
+  apply(logo); apply(main); mains.forEach(apply);
+  if (sub){ apply(sub); subs.forEach(apply); }
+  if (subsub){ apply(subsub); subsubs.forEach(apply); }
+  apply(content);
+}
+const atGoal = o => o.s===o.goal;
+
+/* ===== anchor + showAll-style stage scaling (like the SWF embed) ===== */
+function anchorNav(){
+  navEl.style.left = (innerWidth*K.anchorX)+'px';
+  navEl.style.top  = (innerHeight*K.anchorY)+'px';
+  const k = Math.min(Math.max(Math.min(innerWidth/1100, innerHeight/760), 0.85), 1.8);
+  navEl.style.transform = 'scale('+k+')';
+  navEl.style.transformOrigin = '0 0';
+  logo.x=0; logo.y=-46;
+  main.x = 10; main.y = 0;   // main origin ≈ logo right edge region; items right-align INTO it
+}
+
+/* =====================================================================
+   the thumbnail field (unchanged from v2)
+   ===================================================================== */
 const IDS = ['012','014','016','018','020','022','024','026','028','030','032','034','036','038','040',
 '042','044','046','048','050','052','054','056','058','060','062','064','066','070','072','074','076',
 '078','080','082','084','086','088','090','092','094','096','098','100','102','104','106','108','110',
@@ -374,9 +403,9 @@ function resize(){
   DPR = Math.min(devicePixelRatio||1, 2);
   W = innerWidth; H = innerHeight;
   cv.width = W*DPR; cv.height = H*DPR; cx.setTransform(DPR,0,0,DPR,0,0);
+  anchorNav();
 }
-addEventListener('resize', ()=>{ resize(); layouts[curLayout](); render(snapshot()); });
-resize();
+addEventListener('resize', ()=>{ resize(); layouts[curLayout](); });
 
 let seed = 20031107;
 const rnd = () => (seed = (seed*1664525+1013904223)>>>0, seed/4294967296);
@@ -392,9 +421,9 @@ const layouts = {
     p.hx=x; p.hy=y; });},
   client(){ grid(parts.slice().sort((a,b)=>a.i-b.i)); },
   chrono(){ grid(parts.slice().sort((a,b)=>b.i-a.i)); },
-  type(){ const K=5, cs=[];
-    for(let k=0;k<K;k++) cs.push([0.5*W+rnd()*0.44*W, 0.16*H+rnd()*0.68*H]);
-    parts.forEach((p,j)=>{ const c=cs[j%K];
+  type(){ const KC=5, cs=[];
+    for(let k=0;k<KC;k++) cs.push([0.5*W+rnd()*0.44*W, 0.16*H+rnd()*0.68*H]);
+    parts.forEach((p,j)=>{ const c=cs[j%KC];
       const a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*Math.min(W,H)*0.12;
       p.hx=c[0]+Math.cos(a)*r; p.hy=c[1]+Math.sin(a)*r; }); },
   media(){ const rows=4;
@@ -412,10 +441,11 @@ function grid(sorted){
     p.hy = y0 + Math.floor(j/cols)*(gh/(rows-1||1)); });
 }
 let curLayout='scatter';
+resize();
 layouts.scatter();
 parts.forEach(p=>{ p.x=p.hx; p.y=p.hy; });
 
-let fieldMood='home';   // home=0.2 base | portfolio=0.28 | dim=0.05
+let fieldMood='home';
 function setFieldMood(m){ fieldMood=m; }
 const moodBase = ()=> fieldMood==='dim' ? 0.05 : (fieldMood==='portfolio' ? 0.26 : 0.18);
 
@@ -424,12 +454,8 @@ addEventListener('pointermove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
 addEventListener('pointerleave', ()=>{ mouse.x=-9e3; mouse.y=-9e3; });
 const easeOut = t => 1-Math.pow(1-t,3);
 
-/* ============ master frame loop ============ */
-let last = performance.now();
-function frame(now){
-  const dt = Math.min(0.033,(now-last)/1000); last=now;
-  const t = now/1000;
-  // field
+function fieldTick(dt){
+  const t = performance.now()/1000;
   cx.clearRect(0,0,W,H);
   const base = moodBase();
   for(const p of parts){
@@ -444,10 +470,14 @@ function frame(now){
       p.vx=(p.vx+fx*dt)*Math.max(0,1-Math.min(P.c,16)*dt);
       p.vy=(p.vy+fy*dt)*Math.max(0,1-Math.min(P.c,16)*dt);
       p.x+=p.vx*dt; p.y+=p.vy*dt;
-    } else {
-      p.x+=(tx-p.x)*Math.min(1,3.2*dt/0.6);
-      p.y+=(ty-p.y)*Math.min(1,3.2*dt/0.6);
-      p.vx=p.vy=0;
+    } else {   // '03 mode: easeIn on positions, mouse repel nudges the goal
+      let gx=tx, gy=ty;
+      const mdx=p.x-mouse.x, mdy=p.y-mouse.y, md=Math.hypot(mdx,mdy);
+      if (fieldMood!=='dim' && md<P.repel && md>0.01){
+        const push=(1-md/P.repel)*60; gx+=mdx/md*push; gy+=mdy/md*push;
+      }
+      p.x += (gx-p.x)/(P.speed*2) * dt*60;
+      p.y += (gy-p.y)/(P.speed*2) * dt*60;
     }
     const md=Math.hypot(p.x-mouse.x,p.y-mouse.y);
     const near=fieldMood==='dim'?0:Math.max(0,1-md/170);
@@ -461,26 +491,26 @@ function frame(now){
     }
   }
   cx.globalAlpha=1;
-  // type engine
-  for (const [n,rec] of nodeEls){
-    stepVal(rec.x,dt); stepVal(rec.y,dt); stepVal(rec.fs,dt);
-    // hover brightens without fighting the layout alpha
-    if (!rec.dying) rec.al.t = rec.hover ? Math.min(1,(rec.baseAl??rec.al.t)+0.35) : (rec.baseAl??rec.al.t);
-    stepVal(rec.al,dt);
-    rec.el.style.left = rec.x.v+'px';
-    rec.el.style.top = rec.y.v+'px';
-    rec.el.style.fontSize = Math.max(1,rec.fs.v)+'px';
-    rec.el.style.opacity = Math.max(0,Math.min(1,rec.al.v));
-  }
+}
+
+/* ===== master loop: fixed 60Hz for the nav (like the SWF), dt for field ===== */
+let last = performance.now(), acc = 0;
+function frame(now){
+  let dt = Math.min(0.05,(now-last)/1000); last=now;
+  acc += dt;
+  const STEP = 1/60;
+  let n = 0;
+  while (acc >= STEP && n < 5){ navTick(1); acc -= STEP; n++; }
+  fieldTick(dt);
   requestAnimationFrame(frame);
 }
 
-/* logo click closes everything */
-render(null);
-nodeEls.get(LOGO)?.el.addEventListener('click', ()=>clickNode(LOGO));
+/* ===== boot ===== */
+buildMain();
+logoEl.addEventListener('click', logoRelease);
 requestAnimationFrame(frame);
 
-/* ============ controls ============ */
+/* ===== controls ===== */
 document.querySelectorAll('#mode b').forEach(b=>{
   b.addEventListener('click', ()=>{
     document.querySelectorAll('#mode b').forEach(o=>o.classList.remove('on'));
@@ -491,7 +521,7 @@ const bind=(id,key)=>{
   const el=document.getElementById(id), v=document.getElementById(id+'V');
   el.addEventListener('input', ()=>{ P[key]=+el.value; v.textContent=el.value; });
 };
-bind('stiff','k'); bind('damp','c'); bind('repel','repel');
+bind('speed','speed'); bind('stiff','k'); bind('repel','repel');
 </script>
 </body>
 </html>

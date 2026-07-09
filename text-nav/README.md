@@ -9,12 +9,22 @@ the archived original running in Ruffle.
 - **109 genuine thumbnails** mined straight out of the archived `portfolio.swf`
   (DefineBits + shared JPEGTables reconstruction — no decompiler needed). NBC Uni, The 4400,
   Madonna, FCUK, Loreal, Yigal… the real 2003–2006 portfolio.
-- **The type engine (v2)** — rebuilt after driving the original in Ruffle and mapping its grammar:
-  one living hierarchy where children splice inline below their parent, later siblings get pushed
-  down, the newest level always arrives biggest + brightest, every older generation scales down and
-  dims ("type shifts back, new type cascades forward"), selected items ghost (enlarge + fade) as
-  their children take focus, leaves zoom in place, and body copy fades in lazily after the nav
-  settles. The whole block drifts up-left as depth grows, like a camera pulling back.
+- **The type engine (v3)** — a straight port of the decompiled 2003 ActionScript (see
+  `original-as2-disassembly.txt`, extracted with a hand-rolled AS2 bytecode disassembler). The
+  original's "physics" is two primitives running at a fixed 60fps:
+
+  ```actionscript
+  scaleEase: diff = goal - _xscale;  |diff|>1 ? _xscale += diff/speed : snap   // speed = 3
+  easeIn(prop, goal, speed): same, for any property
+  ```
+
+  plus structure: **nested scaling containers** (main ⊃ sub ⊃ subsub) on a ×0.75-per-level ladder
+  with newcomers at 133 (=1/0.75, so the newest level nets out full-size while ancestors recede as
+  one organism); **layout re-chained every frame from live scales** (the column breathes);
+  **threshold choreography** (snap makes eased values *arrive*, and arrival triggers the next
+  phase — body copy scale-pops 0→100 at speed/2 only after the nav settles); sub-subs fly in from
+  x=400; logo 66.5 → 29.7; selected 100 / siblings 75 / leaves 133; selection recolors instantly
+  (grey↔dark). All constants verbatim: navSpace=8, mLeading=8, mainOffset=-14, horOffset=22.
 - **Data-driven** — the entire menu is one `TREE` object at the top of the file (labels, copy,
   children, field layouts); the feel lives in a `CFG` block (scales, ratios, stagger, ghost alpha,
   drift). Edit either without touching the engine. Copy transcribed from the 2003 original where

@@ -1,0 +1,1189 @@
+===== DoAction in sprite (tag@) len=21546 =====
+baseLevel = 100
+level = GET("baseLevel")
+navSpace = 8
+mLeading = 8
+sLeading = 8
+mainOffset = -14
+horOffset = 22
+speed = 3
+mScale = 100
+black = 3355443
+grey = 10066329
+red = 16711680
+aniMode = "expand"
+holdMax = 40
+initData()
+if (!(GET("_root").siteSize == 0.0)) jump +45
+GET("_root").scaleRatio = 50
+GET("_root").scaleDivider = 50
+jump +67
+if (!(GET("_root").siteSize == 1)) jump +40
+GET("_root").scaleRatio = 20
+GET("_root").scaleDivider = 80
+GET("_root").newMain = 4
+GET("_root").newSub = 5
+GET("_root").newSubsub = undefined
+GET("_root").suspend = 0.0
+GET("_root").suspend2 = 0.0
+pt1 = new Object()
+GET("pt1").x = 343
+GET("pt1").y = 43
+function <anon>() {
+  GET("preloader").removeMovieClip()
+  buildMainNav()
+  buildImportObj()
+  GET("this").onEnterFrame = GET("navRun")
+}
+initMovie = <anonfn>
+function <anon>() {
+  tmp = GET("bodyContent")
+  GET("tmp").speed = (GET("speed") / 2)
+  GET("tmp").goal = 0.0
+  GET("tmp").onEnterFrame = GET("tmp").scaleEase
+  cInit = 0.0
+  contentDone = 0.0
+}
+removeContent = <anonfn>
+function <anon>(contentObj, cX, cY) {
+  GET("bodyContent").removeMovieClip()
+  level = GET("level")
+  GET("this").attachMovie(GET("contentObj"), "bodyContent", GET("level"))
+  tmp = GET("bodyContent")
+  GET("tmp")._x = GET("cX")
+  GET("tmp")._y = GET("cY")
+  GET("tmp")._xscale = 0.0
+  GET("tmp")._yscale = GET("tmp")._xscale
+  GET("tmp").goal = 100
+  GET("tmp").onEnterFrame = GET("tmp").scaleEase
+  cInit = 1
+}
+addContent = <anonfn>
+function <anon>() {
+  level = GET("level")
+  GET("this").attachMovie(GET("allData")._list.0.0, "logo", GET("level"))
+  GET("logo").cObj = new Color(GET("tmp").("m" + GET("i")))
+  GET("logo")._x = GET("allData").GET("allData")._list.0.0.x
+  GET("logo")._y = GET("allData").GET("allData")._list.0.0.y
+  GET("logo")._xscale = 0.0
+  GET("logo")._yscale = GET("logo")._xscale
+  lScale = 100
+  GET("logo").goal = GET("lScale")
+  GET("logo").onEnterFrame = GET("logo").scaleEase
+}
+buildLogo = <anonfn>
+function <anon>() {
+  level = GET("level")
+  GET("this").attachMovie("preloader", "preLoader", GET("level"))
+  GET("preLoader")._x = 193
+  GET("preLoader")._y = 60
+  GET("preLoader")._xscale = 0.0
+  GET("preLoader")._yscale = GET("preLoader")._xscale
+  GET("preLoader").goal = 100
+  GET("preLoader").onEnterFrame = GET("preLoader").scaleEase
+}
+buildPreloader = <anonfn>
+function <anon>() {
+  GET("logo").hitArea = GET("logo").sizer
+  function <anon>() {
+    logoRelease(GET("this").path(), GET("this").idNum())
+  }
+  GET("logo").onRelease = <anonfn>
+  function <anon>() {
+    logoPress(GET("this").path(), GET("this").idNum())
+  }
+  GET("logo").onPress = <anonfn>
+  lScale = 66.5
+  GET("logo").goal = GET("lScale")
+  GET("logo").onEnterFrame = GET("logo").scaleEase
+  mScale = 100
+  level = GET("level")
+  GET("this").createEmptyMovieClip("main", GET("level"))
+  level = GET("level")
+  mCount = (GET("allData")._list.length - 1)
+  var tmp = GET("main")
+  GET("tmp")._x = ((GET("logo")._x + (((GET("logo").sizer._width - 34) * GET("logo")._xscale) / 100)) + ((((GET("main").m1.sizer._width * GET("main").m1._xscale) / 100) * GET("main")._xscale) / 100))
+  GET("tmp")._xscale = 0.0
+  GET("tmp")._yscale = GET("tmp")._xscale
+  GET("tmp").goal = GET("mScale")
+  GET("tmp").onEnterFrame = GET("tmp").scaleEase
+  mainNum = (GET("allData")._list.length - 1)
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +389
+  level = GET("level")
+  GET("tmp").attachMovie(GET("allData")._list.GET("i"), ("m" + GET("i")), GET("level"))
+  GET("tmp").("m" + GET("i")).hitArea = GET("tmp").("m" + GET("i")).sizer
+  function <anon>() {
+    mainRelease(GET("this").path(), GET("this").idNum())
+  }
+  GET("tmp").("m" + GET("i")).onRelease = <anonfn>
+  function <anon>() {
+    mainPress(GET("this").path(), GET("this").idNum())
+  }
+  GET("tmp").("m" + GET("i")).onPress = <anonfn>
+  GET("tmp").("m" + GET("i")).cObj = new Color(GET("tmp").("m" + GET("i")))
+  i = GET("i")
+  jump -409
+  placeMainNav()
+}
+buildMainNav = <anonfn>
+function <anon>(path, idNum) {
+  GET("main").sub.removeMovieClip()
+  sCount = (GET("allData").GET("allData")._list.GET("idNum")._list.length - 1)
+  sScale = 133
+  level = GET("level")
+  GET("main").createEmptyMovieClip("sub", GET("level"))
+  var tmp = GET("main").sub
+  GET("tmp")._y = ((GET("main").("m" + GET("mSelected"))._y + GET("main").("m" + GET("mSelected")).sizer._height) + GET("sLeading"))
+  GET("tmp")._xscale = 0.0
+  GET("tmp")._yscale = GET("tmp")._xscale
+  GET("tmp").goal = GET("sScale")
+  GET("tmp").onEnterFrame = GET("tmp").scaleEase
+  i = 1
+  if (!!(GET("i") > GET("sCount"))) jump +485
+  level = GET("level")
+  GET("tmp").attachMovie(GET("allData").GET("allData")._list.GET("idNum")._list.GET("i"), ("m" + GET("i")), GET("level"))
+  if (!(GET("i") > 1)) jump +151
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  GET("tmp").("m" + GET("i")).hitArea = GET("tmp").("m" + GET("i")).sizer
+  function <anon>() {
+    subRelease(GET("this").path(), GET("this").idNum())
+  }
+  GET("tmp").("m" + GET("i")).onRelease = <anonfn>
+  GET("tmp").("m" + GET("i")).cObj = new Color(GET("tmp").("m" + GET("i")))
+  i = GET("i")
+  jump -505
+  level = GET("level")
+  GET("tmp").createEmptyMovieClip("spacer", GET("level"))
+  var spacerNum = (GET("allData").GET("allData")._list.GET("idNum")._list.length - 1)
+  GET("tmp").spacer._y = (GET("tmp").("m" + GET("spacerNum"))._y + GET("tmp").("m" + GET("spacerNum"))._height)
+}
+buildSubNav = <anonfn>
+function <anon>(path, idNum) {
+  GET("main").sub.subsub.removeMovieClip()
+  var apoo = GET("allData").GET("allData")._list.GET("mSelected")
+  ssCount = (GET("apoo").GET("apoo")._list.GET("sSelected")._list.length - 1)
+  if (!(GET("apoo").GET("apoo")._list.GET("idNum")._list.length > 0.0)) jump +914
+  level = GET("level")
+  GET("main").sub.createEmptyMovieClip("subsub", GET("level"))
+  tmp = GET("main").sub.subsub
+  GET("tmp")._x = 400
+  GET("tmp")._xscale = 0.0
+  GET("tmp")._yscale = GET("tmp")._xscale
+  GET("tmp").goal = GET("ssScale")
+  GET("tmp").onEnterFrame = GET("tmp").scaleEase
+  i = 1
+  if (!!(GET("i") > (GET("apoo").GET("apoo")._list.GET("idNum")._list.length - 1))) jump +497
+  level = GET("level")
+  GET("tmp").attachMovie(GET("apoo").GET("apoo")._list.GET("idNum")._list.GET("i"), ("m" + GET("i")), GET("level"))
+  if (!(GET("i") > 1)) jump +151
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  GET("tmp").("m" + GET("i")).hitArea = GET("tmp").("m" + GET("i")).sizer
+  function <anon>() {
+    subsubRelease(GET("this").path(), GET("this").idNum())
+  }
+  GET("tmp").("m" + GET("i")).onRelease = <anonfn>
+  GET("tmp").("m" + GET("i")).cObj = new Color(GET("tmp").("m" + GET("i")))
+  var spacerNum = GET("i")
+  i = GET("i")
+  jump -558
+  level = GET("level")
+  GET("tmp").createEmptyMovieClip("spacer", GET("level"))
+  GET("tmp").spacer._y = (GET("tmp").("m" + GET("spacerNum"))._y + GET("tmp").("m" + GET("spacerNum")).sizer._height)
+  placeSubNav(GET("mSelected"), GET("idNum"), true)
+  jump +32
+  placeSubNav(GET("mSelected"), GET("idNum"), false)
+}
+buildSubSubNav = <anonfn>
+function <anon>() {
+  GET("this").createEmptyMovieClip("portfolioObj", 10)
+  GET("this").createEmptyMovieClip("fb5Obj", 20)
+  if (!(GET("_root").siteSize == 0.0)) jump +150
+  GET("_root").createEmptyMovieClip("userCounter", 5)
+  GET("_root").userCounter._x = (GET("Stage").width - 118)
+  GET("_root").userCounter._y = (GET("Stage").height - 467)
+  GET("_root").userCounter.loadMovie("swf/stats.swf")
+  GET("portfolioObj")._x = -105
+  GET("portfolioObj")._y = 10
+  GET("portfolioObj").loadMovie("swf/portfolio.swf")
+  GET("fb5Obj")._x = -105
+  GET("fb5Obj")._y = -60
+  level = GET("level")
+  GET("_root").mode = 0.0
+}
+buildImportObj = <anonfn>
+function <anon>() {
+  level = GET("level")
+  GET("_root").attachMovie("musicEngine", "musicEngine", GET("level"))
+}
+buildMusic = <anonfn>
+function <anon>() {
+  level = GET("level")
+  GET("_root").attachMovie("scaler", "scaler", 10000)
+  GET("_root").scaler._x = 11
+  GET("_root").scaler._y = GET("_root").scaler._x
+}
+buildScaler = <anonfn>
+function <anon>(mSelect, sSelect) {
+  var tmp = GET("main")
+  i = 2
+  if (!!(GET("i") > GET("mSelect"))) jump +119
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + GET("tmp").("m" + (GET("i") - 1))._height) + GET("mLeading"))
+  i = GET("i")
+  jump -139
+  GET("tmp").("m" + (GET("mSelect") + 1))._y = ((GET("main").sub._y + GET("main").sub._height) + (GET("mLeading") * 2))
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +119
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + GET("tmp").("m" + (GET("i") - 1))._height) + GET("mLeading"))
+  i = GET("i")
+  jump -139
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +87
+  GET("tmp").("m" + GET("i")).xGoal = (0.0 - GET("tmp").("m" + GET("i")).sizer._width)
+  i = GET("i")
+  jump -107
+}
+placeMainNav = <anonfn>
+function <anon>(mSelect, sSelect, hasSubs) {
+  var tmp = GET("main").sub
+  if (!GET("hasSubs")) jump +617
+  subHasSubs = 1
+  GET("tmp").m1._y = 0.0
+  i = 2
+  if (!!(GET("i") > GET("sSelect"))) jump +169
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -189
+  GET("tmp").subsub._y = ((GET("tmp").("m" + GET("sSelect"))._y + ((GET("tmp").("m" + GET("sSelect")).sizer._height * GET("tmp").("m" + GET("sSelect"))._xscale) / 100)) + GET("navSpace"))
+  i = (GET("sSelect") + 1)
+  if (!!(GET("i") > GET("mCount"))) jump +119
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + GET("tmp").("m" + (GET("i") - 1))._height) + GET("navSpace"))
+  i = GET("i")
+  jump -139
+  GET("main").sub.subsub._x = ((GET("tmp").("m" + GET("sSelect"))._x + GET("tmp").("m" + GET("sSelect")).sizer._width) - GET("horOffset"))
+  jump +18
+  subHasSubs = 0.0
+}
+placeSubNav = <anonfn>
+function <anon>(lScale, mScale, sScale, ssScale) {
+  GET("logo").goal = GET("lScale")
+  GET("logo").onEnterFrame = GET("logo").scaleEase
+  GET("main").goal = GET("mScale")
+  GET("main").onEnterFrame = GET("main").scaleEase
+  GET("main").sub.goal = GET("sScale")
+  GET("main").sub.onEnterFrame = GET("main").sub.scaleEase
+  GET("main").sub.subsub.goal = GET("ssScale")
+  GET("main").sub.subsub.onEnterFrame = GET("main").sub.subsub.scaleEase
+}
+scaleNavObj = <anonfn>
+function <anon>() {
+  GET("_root").suspend = 0.0
+}
+GET("_root").onMouseUp = <anonfn>
+function <anon>(path, idNum) {
+  lInit = 0.0
+  clickMode = "logo"
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +173
+  if (!(GET("allData").GET("allData")._list.GET("i").colorSelec == undefined)) jump +45
+  GET("main").("m" + GET("i")).setColor(GET("grey"))
+  jump +67
+  GET("main").("m" + GET("i")).setColor(GET(GET("allData").GET("allData")._list.GET("i").colorSelec))
+  i = GET("i")
+  jump -193
+  GET("_root").mode = 0.0
+  GET("fb5Obj").unloadMovie()
+  GET("_root").miniSiteLoaded = 0.0
+  removeContent()
+  scalePrincipals(0.0)
+}
+logoRelease = <anonfn>
+function <anon>() {
+  lInit = 1
+  mSelected = undefined
+  tmpSelected = undefined
+  scaleNavObj(66.5, 100, 0.0, 0.0)
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +101
+  GET("main").("m" + GET("i")).goal = 100
+  GET("main").("m" + GET("i")).onEnterFrame = GET("main").("m" + GET("i")).scaleEase
+  i = GET("i")
+  jump -121
+}
+logoSwitch = <anonfn>
+function <anon>(path, idNum, mClick) {
+  GET("_root").onEnterFrame = GET("navRun")
+  GET("_root").suspend = 0.0
+  GET("_root").newMain = GET("idNum")
+  mObj = GET("idNum")
+  mouseClicked = GET("mClick")
+  if (!!(GET("mSelected") == GET("idNum"))) jump +543
+  mBack = 0.0
+  if (!(GET("tmpSelected") == undefined)) jump +39
+  mSelected = GET("idNum")
+  tmpSelected = GET("idNum")
+  mOldSelected = undefined
+  jump +34
+  mOldSelected = GET("mSelected")
+  tmpSelected = GET("idNum")
+  mSelected = undefined
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +173
+  if (!(GET("allData").GET("allData")._list.GET("i").colorSelec == undefined)) jump +45
+  GET("main").("m" + GET("i")).setColor(GET("grey"))
+  jump +67
+  GET("main").("m" + GET("i")).setColor(GET(GET("allData").GET("allData")._list.GET("i").colorSelec))
+  i = GET("i")
+  jump -193
+  if (!(GET("allData").GET("allData")._list.GET("idNum").colorSelec == undefined)) jump +45
+  GET("main").("m" + GET("idNum")).setColor(GET("black"))
+  jump +67
+  GET("main").("m" + GET("idNum")).setColor(GET(GET("allData").GET("allData")._list.GET("idNum").colorSelec))
+  GET("fb5Obj").unloadMovie()
+  GET("_root").miniSiteLoaded = 0.0
+  removeContent()
+  jump +594
+  if ((GET("mSelected") == GET("idNum"))) jump +13
+  (GET("mSelected") == GET("idNum"))
+  if (!!(GET("sSelected") == undefined)) jump +556
+  mBack = 1
+  var tmp = GET("main").sub
+  i = 1
+  if (!!(GET("i") > GET("sCount"))) jump +173
+  if (!(GET("allData").GET("allData")._list.GET("idNum").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("i")).setColor(GET("grey"))
+  jump +67
+  GET("tmp").("m" + GET("i")).setColor(GET(GET("allData").GET("allData")._list.GET("idNum").colorSelec))
+  i = GET("i")
+  jump -193
+  var tmp = GET("main").sub.subsub
+  i = 1
+  if (!!(GET("i") > GET("ssCount"))) jump +173
+  if (!(GET("allData").GET("allData")._list.GET("idNum").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("i")).setColor(GET("grey"))
+  jump +67
+  GET("tmp").("m" + GET("i")).setColor(GET(GET("allData").GET("allData")._list.GET("idNum").colorSelec))
+  i = GET("i")
+  jump -193
+  if (!!(GET("sSelected") == undefined)) jump +68
+  removeContent()
+  GET("fb5Obj").unloadMovie()
+  GET("_root").miniSiteLoaded = 0.0
+  clickMode = "main"
+  mInit = 0.0
+  var tmp = GET("allData").GET("allData")._list.GET("idNum")
+  pAddress = undefined
+  kAddress = GET("allData")
+  cAddress = GET("allData").GET("allData")._list.GET("idNum")
+  GET("this").GET("cAddress").exception1(GET("cAddress").arg1)
+  GET("_root").mode = 0.0
+  kNum = GET("idNum")
+}
+mainRelease = <anonfn>
+function <anon>(idNum) {
+  mInit = 1
+  if (!(GET("mBack") == 0.0)) jump +438
+  aniMode = "subRetract"
+  subNavInit = 0.0
+  subHasSubs = 0.0
+  if (!(GET("mouseClicked") == 0.0)) jump +20
+  sObj = undefined
+  ssObj = undefined
+  sSelectedOld = GET("sSelected")
+  subHasSubsOld = GET("subHasSubs")
+  sSelected = undefined
+  ssSelected = undefined
+  scaleNavObj(29.7, 75, 0.0, 0.0)
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +121
+  if (!!(GET("i") == GET("mOldSelected"))) jump +83
+  GET("main").("m" + GET("i")).goal = 75
+  GET("main").("m" + GET("i")).onEnterFrame = GET("main").("m" + GET("i")).scaleEase
+  i = GET("i")
+  jump -141
+  GET("main").("m" + GET("mSelected")).goal = 100
+  GET("main").("m" + GET("mSelected")).onEnterFrame = GET("main").("m" + GET("mSelected")).scaleEase
+  jump +253
+  aniMode = "subRetract"
+  subHasSubsOld = GET("subHasSubs")
+  sSelectedOld = GET("sSelected")
+  sSelected = undefined
+  scaleNavObj(29.7, 75, 133, 0.0)
+  var tmp = GET("main").sub
+  i = 1
+  if (!!(GET("i") > GET("sCount"))) jump +101
+  GET("tmp").("m" + GET("i")).goal = 100
+  GET("tmp").("m" + GET("i")).onEnterFrame = GET("tmp").("m" + GET("i")).scaleEase
+  i = GET("i")
+  jump -121
+  GET("_root")._quality = "HIGH"
+}
+mainSwitch = <anonfn>
+function <anon>(path, idNum, mClick) {
+  GET("_root").onEnterFrame = GET("navRun")
+  GET("_root").suspend = 0.0
+  GET("_root").newSub = GET("idNum")
+  mObj = GET("mSelected")
+  sObj = GET("idNum")
+  if (!(GET("mClick") == 1)) jump +26
+  ssObj = undefined
+  GET("_root").newSubsub = undefined
+  mouseClicked = GET("mClick")
+  if (!!(GET("idNum") == GET("sSelected"))) jump +672
+  sBack = 0.0
+  sSelectedOld = GET("sSelected")
+  subHasSubsOld = GET("subHasSubs")
+  tmpsSelected = GET("idNum")
+  subsubNavInit = 0.0
+  if (!(GET("subHasSubs") == 1)) jump +223
+  var apoo = GET("allData").GET("allData")._list.GET("mSelected")
+  var tmp = GET("main").sub.subsub
+  i = 1
+  if (!!(GET("i") > GET("ssCount"))) jump +133
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("i")).setColor(GET("grey"))
+  jump +47
+  GET("tmp").("m" + GET("i")).setColor(GET(GET("apoo").colorSelec))
+  i = GET("i")
+  jump -153
+  var apoo = GET("allData").GET("allData")._list.GET("mSelected")
+  var tmp = GET("main").sub
+  i = 1
+  if (!!(GET("i") > GET("sCount"))) jump +133
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("i")).setColor(GET("grey"))
+  jump +47
+  GET("tmp").("m" + GET("i")).setColor(GET(GET("apoo").colorSelec))
+  i = GET("i")
+  jump -153
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("idNum")).setColor(GET("black"))
+  jump +47
+  GET("tmp").("m" + GET("idNum")).setColor(GET(GET("apoo").colorSelec))
+  removeContent()
+  jump +365
+  if ((GET("sSelected") == GET("idNum"))) jump +13
+  (GET("sSelected") == GET("idNum"))
+  if (!!(GET("ssSelected") == undefined)) jump +327
+  sBack = 1
+  var apoo = GET("allData").GET("allData")._list.GET("mSelected")
+  var tmp = GET("main").sub.subsub
+  ssCount = (GET("apoo").GET("apoo")._list.GET("sSelected")._list.length - 1)
+  i = 1
+  if (!!(GET("i") > GET("ssCount"))) jump +133
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("i")).setColor(GET("grey"))
+  jump +47
+  GET("tmp").("m" + GET("i")).setColor(GET(GET("apoo").colorSelec))
+  i = GET("i")
+  jump -153
+  if (!!(GET("ssSelected") == undefined)) jump +19
+  removeContent()
+  clickMode = "sub"
+  sInit = 0.0
+  var tmp = GET("apoo").GET("apoo")._list.GET("idNum")
+  pAddress = GET("allData")
+  kAddress = GET("apoo")
+  cAddress = GET("apoo").GET("apoo")._list.GET("idNum")
+  GET("this").GET("cAddress").exception1(GET("cAddress").arg1)
+  ssSelected = undefined
+  pNum = GET("mSelected")
+  kNum = GET("idNum")
+}
+subRelease = <anonfn>
+function <anon>(idNum) {
+  sInit = 1
+  if (!(GET("sBack") == 0.0)) jump +812
+  aniMode = "subsubRetract"
+  scaleNavObj(20, 56.25, 133, 133)
+  var apoo = GET("allData").GET("allData")._list.GET("mSelected")
+  if (!(GET("apoo").GET("apoo")._list.GET("idNum")._list.length > 0.0)) jump +402
+  subHasSubs = 1
+  var tmp = GET("main").sub
+  i = 1
+  if (!!(GET("i") > GET("sCount"))) jump +216
+  GET("tmp").("m" + GET("i")).goal = 100
+  GET("tmp").("m" + GET("i")).onEnterFrame = GET("tmp").("m" + GET("i")).scaleEase
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("i")).setColor(GET("grey"))
+  jump +47
+  GET("tmp").("m" + GET("i")).setColor(GET(GET("apoo").colorSelec))
+  i = GET("i")
+  jump -236
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("idNum")).setColor(GET("black"))
+  jump +47
+  GET("tmp").("m" + GET("idNum")).setColor(GET(GET("apoo").colorSelec))
+  jump +254
+  subHasSubs = 0.0
+  var tmp = GET("main").sub
+  i = 1
+  if (!!(GET("i") > GET("mCount"))) jump +101
+  GET("tmp").("m" + GET("i")).goal = 100
+  GET("tmp").("m" + GET("i")).onEnterFrame = GET("tmp").("m" + GET("i")).scaleEase
+  i = GET("i")
+  jump -121
+  GET("tmp").("m" + GET("idNum")).goal = 133
+  GET("tmp").("m" + GET("idNum")).onEnterFrame = GET("tmp").("m" + GET("idNum")).scaleEase
+  jump +227
+  aniMode = "subsubExpand"
+  scaleNavObj(20, 56.25, 133, 133)
+  var tmp = GET("main").sub.subsub
+  i = 1
+  if (!!(GET("i") > GET("ssCount"))) jump +101
+  GET("tmp").("m" + GET("i")).goal = 100
+  GET("tmp").("m" + GET("i")).onEnterFrame = GET("tmp").("m" + GET("i")).scaleEase
+  i = GET("i")
+  jump -121
+}
+subSwitch = <anonfn>
+function <anon>(path, idNum, mClick) {
+  GET("_root").newSubsub = GET("idNum")
+  GET("_root").onEnterFrame = GET("navRun")
+  GET("_root").suspend = 0.0
+  mObj = GET("mSelected")
+  sObj = GET("sSelected")
+  ssObj = GET("idNum")
+  ssInit = 0.0
+  clickMode = "subsub"
+  ssSelectedOld = GET("ssSelected")
+  ssSelected = GET("idNum")
+  var apoo = GET("allData").GET("allData")._list.GET("mSelected")
+  var tmp = GET("main").sub.subsub
+  ssCount = (GET("apoo").GET("apoo")._list.GET("sSelected")._list.length - 1)
+  i = 1
+  if (!!(GET("i") > GET("ssCount"))) jump +133
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("i")).setColor(GET("grey"))
+  jump +47
+  GET("tmp").("m" + GET("i")).setColor(GET(GET("apoo").colorSelec))
+  i = GET("i")
+  jump -153
+  if (!(GET("apoo").colorSelec == undefined)) jump +45
+  GET("tmp").("m" + GET("idNum")).setColor(GET("black"))
+  jump +47
+  GET("tmp").("m" + GET("idNum")).setColor(GET(GET("apoo").colorSelec))
+  var tmp1 = GET("apoo").GET("apoo")._list.GET("sSelected")
+  var tmp2 = GET("tmp1").GET("tmp1")._list.GET("idNum")
+  pAddress = GET("apoo")
+  kAddress = GET("tmp1")
+  cAddress = GET("tmp1").GET("tmp1")._list.GET("idNum")
+  pNum = GET("sSelected")
+  kNum = GET("idNum")
+  GET("this").GET("cAddress").exception1(GET("cAddress").arg1)
+  if (!!(GET("ssSelectedOld") == GET("idNum"))) jump +19
+  removeContent()
+}
+subsubRelease = <anonfn>
+function <anon>(idNum) {
+  ssInit = 1
+  aniMode = "subsubSelected"
+  scaleNavObj(15, 42.1875, 133, 133)
+  var tmp = GET("main").sub.subsub
+  i = 1
+  if (!!(GET("i") > GET("ssCount"))) jump +101
+  GET("tmp").("m" + GET("i")).goal = 100
+  GET("tmp").("m" + GET("i")).onEnterFrame = GET("tmp").("m" + GET("i")).scaleEase
+  i = GET("i")
+  jump -121
+  GET("tmp").("m" + GET("idNum")).goal = 133
+  GET("tmp").onEnterFrame = GET("tmp").("m" + GET("idNum")).scaleEase
+}
+subsubSwitch = <anonfn>
+function <anon>(idNum) {
+  GET("_root").mode = GET("idNum")
+  GET("_root")._quality = "BEST"
+}
+portfolioExc = <anonfn>
+function <anon>() {
+  GET("_root").startMini = 1
+  GET("_root").miniMode = 0.0
+  if (!!(GET("_root").miniSiteLoaded == 1)) jump +26
+  GET("fb5Obj").loadMovie("swf/minisite.swf")
+  GET("_root").miniSiteLoadGo = 0.0
+}
+fb5LoadExc = <anonfn>
+function <anon>(idNum) {
+  GET("_root").miniMode = GET("idNum")
+  GET("_root").gb = 0.0
+}
+fb5Exc = <anonfn>
+function <anon>(idNum) {
+  GET("_root").gb = GET("idNum")
+}
+goodieBag = <anonfn>
+function <anon>() {
+  if (!!(GET("principals")._x == 69)) jump +151
+  level = GET("level")
+  GET("this").attachMovie("principalAni", "principals", GET("level"))
+  level = GET("level")
+  GET("principals")._x = 69
+  GET("principals")._y = 315
+  GET("principals")._xscale = 0.0
+  GET("principals")._yscale = GET("principals")._xscale
+  if (!(GET("principals")._currentframe > 1)) jump +25
+  GET("principals").play()
+  GET("principals").goal = 65
+  GET("principals").onEnterFrame = GET("principals").scaleEase
+}
+addPrincipals = <anonfn>
+function <anon>(pGoal) {
+  GET("principals").goal = GET("pGoal")
+  GET("principals").onEnterFrame = GET("principals").scaleEase
+  if (!(GET("principals")._currentframe > 1)) jump +25
+  GET("principals").play()
+}
+scalePrincipals = <anonfn>
+function <anon>(morphTo) {
+  if (!(GET("principals")._currentframe == 1)) jump +66
+  GET("_root").morphFrame = GET("morphTo")
+  GET("principals").play()
+  GET("_root").tempFrame = GET("morphTo")
+  jump +104
+  GET("_root").oldFrame = GET("_root").tempFrame
+  GET("_root").morphFrame = (GET("_root").oldFrame + GET("morphTo"))
+  GET("_root").tempFrame = GET("morphTo")
+  GET("principals").morph.play()
+}
+morphPrincipals = <anonfn>
+function <anon>(tNum, id) {
+  var cOffset = 15
+  var cBase = 5
+  GET("tmp").cNum = GET("tNum")
+  tmp = GET("bodyContent")
+  GET("tmp")._xscale = 100
+  GET("tmp")._yscale = GET("tmp")._xscale
+  GET("tmp").onEnterFrame = GET("textNavAni")
+  GET("tmp").chipRelease = GET("chipRelease")
+  GET("tmp").chipRollOver = GET("chipRollOver")
+  GET("tmp").chipRollOut = GET("chipRollOut")
+  level = GET("level")
+  GET("tmp").attachMovie("selector", "sel", GET("level"))
+  GET("tmp").sel._x = -43
+  GET("tmp").sel._alpha = 0.0
+  i = 1
+  if (!!(GET("i") > GET("tNum"))) jump +288
+  level = GET("level")
+  GET("bodyContent").attachMovie("chip", ("c" + GET("i")), GET("level"))
+  tmp = GET("bodyContent").("c" + GET("i"))
+  GET("tmp")._x = (20 * GET("i"))
+  GET("tmp")._y = -150
+  GET("tmp").xGoal = -40
+  GET("tmp").yGoal = (((GET("i") - 1) * GET("cOffset")) + GET("cBase"))
+  GET("tmp")._alpha = 0.0
+  GET("tmp").yGoal = GET("tmp")._y
+  GET("tmp").cObj = new Color(GET("tmp"))
+  i = GET("i")
+  jump -308
+  i = 1
+  if (!!(GET("i") > GET("bodyContent").cNum)) jump +535
+  level = GET("level")
+  GET("bodyContent").createEmptyMovieClip(("l" + GET("i")), GET("level"))
+  tmp = GET("bodyContent").("l" + GET("i"))
+  GET("tmp").createTextField("tField", GET("level"), 0.0, -5, 0.0, 0.0)
+  GET("tmp").tField.multiline = false
+  GET("tmp").tField.autoSize = "left"
+  GET("tmp").tField.wordWrap = false
+  GET("tmp").tField.selectable = false
+  GET("tmp").tField.embedFonts = true
+  GET("tmp").tField.text = GET("cAddress").("cLabel" + GET("i"))
+  GET("tmp").tField.setTextFormat(GET("labelFormat"))
+  GET("tmp")._y = GET("bodyContent").("c" + GET("i"))._y
+  GET("tmp")._x = ((GET("bodyContent").("c" + GET("i"))._x - GET("tmp")._width) - 12)
+  GET("tmp")._alpha = 0.0
+  GET("tmp").cObj = new Color(GET("tmp"))
+  GET("tmp").setColor(GET("grey"))
+  i = GET("i")
+  jump -561
+  if (!(GET("_root").GET("cAddress").label.length < 1)) jump +94
+  GET("_root").GET("cAddress").label = new Array()
+  GET("bodyContent").chipRollOver("c1")
+  GET("bodyContent").chipRelease("c1")
+  jump +256
+  i = 0.0
+  if (!!(GET("i") > (GET("_root").GET("cAddress").label.length - 1))) jump +72
+  GET("bodyContent").GET("_root").GET("cAddress").label.GET("i").setColor(GET("black"))
+  i = GET("i")
+  jump -120
+  GET("bodyContent").chipRollOver(GET("_root").(GET("cAddress").label + "LastSelected").0.0)
+  GET("bodyContent").chipRelease(GET("_root").(GET("cAddress").label + "LastSelected").0.0)
+}
+startTextNav = <anonfn>
+function <anon>(id) {
+  textInit = 0.0
+  var tmp = GET("bodyContent")
+  chipNum = GET("id").substring(1)
+  i = 1
+  if (!!(GET("i") > GET("bodyContent").cNum)) jump +118
+  if (!!(GET("i") == GET("chipNum"))) jump +80
+  GET("tmp").("c" + GET("i")).setColor(GET("grey"))
+  GET("tmp").("l" + GET("i")).setColor(GET("grey"))
+  i = GET("i")
+  jump -144
+  i = 0.0
+  if (!!(GET("i") > (GET("_root").GET("cAddress").label.length - 1))) jump +72
+  GET("tmp").GET("_root").GET("cAddress").label.GET("i").setColor(GET("black"))
+  i = GET("i")
+  jump -120
+  GET("_root").GET("cAddress").label.push(GET("id"))
+  GET("_root").GET("cAddress").label.push(("l" + GET("chipNum")))
+  GET("_root").(GET("cAddress").label + "LastSelected") = new Array()
+  GET("_root").(GET("cAddress").label + "LastSelected").push(GET("id"))
+  GET("tmp").GET("id").setColor(GET("red"))
+  GET("tmp").("l" + GET("chipNum")).setColor(GET("red"))
+  i = 1
+  if (!!(GET("i") > (GET("chipNum") - 1))) jump +113
+  GET("tmp").("c" + GET("i")).yGoal = ((0.0 - ((GET("chipNum") - GET("i")) * 15)) + 5)
+  i = GET("i")
+  jump -142
+  i = (GET("chipNum") + 1)
+  if (!!(GET("i") > GET("tmp").cNum)) jump +74
+  GET("tmp").("c" + GET("i")).yGoal = (((GET("i") - GET("chipNum")) * 15) + 5)
+  i = GET("i")
+  jump -100
+  GET("tmp").GET("id").yGoal = 5
+  GET("tmp").rOver = 0.0
+  GET("tmp").textObj.goal = 0.0
+  GET("tmp").textObj.onEnterFrame = GET("tmp").textObj.scaleEase
+  GET("bodyContent").thumb.xGoal = -259
+  GET("bodyContent").thumb._x = (-259 - GET("bodyContent").thumb._width)
+  GET("bodyContent").thumb.gotoAndStop(GET("chipNum"))
+}
+chipRelease = <anonfn>
+function <anon>(id) {
+  var tmp = GET("bodyContent")
+  GET("tmp").rOver = 1
+  GET("tmp").cRolled = GET("id")
+  GET("tmp").sel.yGoal = (GET("tmp").GET("id")._y - 3)
+}
+chipRollOver = <anonfn>
+function <anon>(id) {
+  var tmp = GET("bodyContent")
+  GET("tmp").rOver = 0.0
+}
+chipRollOut = <anonfn>
+function <anon>() {
+  var tmp = GET("bodyContent").sel
+  if (!!(GET("tmp").yGoal == (GET("bodyContent").GET("bodyContent").cRolled._y - 3))) jump +46
+  GET("tmp").yGoal = (GET("bodyContent").GET("bodyContent").cRolled._y - 3)
+  GET("tmp").easeIn("_y", GET("tmp").yGoal, GET("_root").speed)
+  if (!(GET("bodyContent").textObj._xscale == 100)) jump +62
+  GET("bodyContent").thumb.easeIn("_x", GET("bodyContent").thumb.xGoal, GET("_root").speed)
+  if (!(GET("bodyContent").chipPlaced == 1)) jump +188
+  i = 1
+  if (!!(GET("i") > GET("bodyContent").cNum)) jump +143
+  var tmp = GET("bodyContent").("c" + GET("i"))
+  GET("tmp").easeIn("_y", GET("tmp").yGoal, GET("_root").speed)
+  GET("tmp").easeIn("_x", GET("tmp").xGoal, GET("_root").speed)
+  i = GET("i")
+  jump -169
+  jump +520
+  GET("bodyContent").c1.easeIn("_y", GET("bodyContent").c1.yGoal, GET("_root").speed)
+  GET("bodyContent").c1.easeIn("_x", GET("bodyContent").c1.xGoal, GET("_root").speed)
+  i = 2
+  if (!!(GET("i") > GET("bodyContent").cNum)) jump +267
+  var tmp = GET("bodyContent").("c" + GET("i"))
+  if (!(GET("Math").abs(GET("bodyContent").("c" + (GET("i") - 1))._y) > GET("Math").abs((GET("bodyContent").("c" + (GET("i") - 1)).yGoal / 2)))) jump +100
+  GET("tmp").easeIn("_y", GET("tmp").yGoal, GET("_root").speed)
+  GET("tmp").easeIn("_x", GET("tmp").xGoal, GET("_root").speed)
+  i = GET("i")
+  jump -293
+  if (!(GET("bodyContent").("c" + GET("bodyContent").cNum)._y == GET("bodyContent").("c" + GET("bodyContent").cNum).yGoal)) jump +20
+  GET("bodyContent").chipPlaced = 1
+  if (!!(GET("textInit") == 1)) jump +41
+  !(GET("textInit") == 1)
+  if (!(GET("bodyContent").("c" + GET("bodyContent").cNum)._alpha > 90)) jump +62
+  (GET("bodyContent").("c" + GET("bodyContent").cNum)._alpha > 90)
+  if ((GET("bodyContent").textObj._xscale == 0.0)) jump +24
+  (GET("bodyContent").textObj._xscale == 0.0)
+  if (!(GET("bodyContent").textObj._xscale == undefined)) jump +208
+  GET("bodyContent").textObj.removeMovieClip()
+  level = GET("level")
+  GET("bodyContent").attachMovie(("history" + GET("chipNum")), "textObj", GET("level"))
+  tmp = GET("bodyContent").textObj
+  GET("tmp")._xscale = 1
+  GET("tmp")._yscale = GET("tmp")._xscale
+  GET("tmp").goal = 100
+  GET("tmp").onEnterFrame = GET("tmp").scaleEase
+  textInit = 1
+  i = 1
+  if (!!(GET("i") > GET("bodyContent").cNum)) jump +153
+  GET("bodyContent").("l" + GET("i"))._y = GET("bodyContent").("c" + GET("i"))._y
+  GET("bodyContent").("l" + GET("i"))._x = ((GET("bodyContent").("c" + GET("i"))._x - GET("bodyContent").("l" + GET("i"))._width) - 12)
+  i = GET("i")
+  jump -179
+  var tmp = GET("bodyContent").sel
+  if (!(GET("tmp")._alpha < 100)) jump +22
+  (GET("tmp")._alpha < 100)
+  if (!(GET("bodyContent").rOver == 1)) jump +38
+  GET("tmp")._alpha = (GET("tmp")._alpha + 10)
+  jump +94
+  if (!(GET("tmp")._alpha > 0.0)) jump +23
+  (GET("tmp")._alpha > 0.0)
+  if (!!(GET("bodyContent").rOver == 1)) jump +33
+  GET("tmp")._alpha = (GET("tmp")._alpha - 10)
+  var tmp = GET("bodyContent")
+  if (!(GET("tmp").c1._alpha < 100)) jump +81
+  GET("tmp").c1._alpha = (GET("tmp").c1._alpha + 10)
+  GET("tmp").l1._alpha = GET("tmp").c1._alpha
+  i = 2
+  if (!!(GET("i") > GET("bodyContent").cNum)) jump +218
+  if (!(GET("tmp").("c" + (GET("i") - 1))._alpha > 50)) jump +35
+  (GET("tmp").("c" + (GET("i") - 1))._alpha > 50)
+  if (!(GET("tmp").("c" + GET("i"))._alpha < 100)) jump +109
+  GET("tmp").("c" + GET("i"))._alpha = (GET("tmp").("c" + GET("i"))._alpha + 10)
+  GET("tmp").("l" + GET("i"))._alpha = GET("tmp").("c" + GET("i"))._alpha
+  i = GET("i")
+  jump -244
+}
+textNavAni = <anonfn>
+===== DoAction in sprite (tag@) len=10785 =====
+function <anon>() {
+  if (!GET("_root").suspend) jump +14
+  !GET("_root").suspend
+  if (!!GET("_root").suspend2) jump +9629
+  if (!(GET("aniMode") == "preLoad")) jump +926
+  var gbl = GET("_root").getBytesLoaded()
+  var gbt = GET("_root").getBytesTotal()
+  if (!(GET("gbt") > 1000)) jump +23
+  (GET("gbt") > 1000)
+  if (!!(GET("preloader").value == 100)) jump +59
+  GET("preloader").value = GET("Math").round(((GET("gbl") * 100) / GET("gbt")))
+  jump +756
+  if (!!(GET("importInit") == 1)) jump +16
+  !(GET("importInit") == 1)
+  if (!(GET("gbt") > 1000)) jump +22
+  (GET("gbt") > 1000)
+  if (!(GET("preloader").value == 100)) jump +86
+  buildImportObj()
+  GET("preloader").goal = 0.0
+  GET("preloader").onEnterFrame = GET("preloader").scaleEase
+  importInit = 1
+  jump +596
+  if (!(GET("importInit") == 1)) jump +575
+  var gblP = GET("portfolioObj").getBytesLoaded()
+  var gbtP = GET("portfolioObj").getBytesTotal()
+  if (!(GET("preLoader")._currentframe == 1)) jump +26
+  (GET("preLoader")._currentframe == 1)
+  if (!(GET("preloader").goal == 0.0)) jump +26
+  (GET("preloader").goal == 0.0)
+  if (!(GET("preloader")._xscale == 0.0)) jump +73
+  GET("preloader").gotoAndStop(2)
+  GET("preloader").goal = 100
+  GET("preloader").onEnterFrame = GET("preloader").scaleEase
+  if (!(GET("gbtP") > 1000)) jump +23
+  (GET("gbtP") > 1000)
+  if (!!(GET("preloader").pValue == 100)) jump +59
+  GET("preloader").pValue = GET("Math").round(((GET("gblP") * 100) / GET("gbtP")))
+  jump +239
+  if (!(GET("preloader").pValue == 100)) jump +212
+  GET("preloader").goal = 0.0
+  GET("preloader").onEnterFrame = GET("preloader").scaleEase
+  if (!(GET("_root")._currentframe == GET("_root")._totalframes)) jump +26
+  (GET("_root")._currentframe == GET("_root")._totalframes)
+  if (!(GET("preloader").goal == 0.0)) jump +26
+  (GET("preloader").goal == 0.0)
+  if (!(GET("preloader")._xscale == 0.0)) jump +67
+  buildMainNav()
+  buildMusic()
+  buildScaler()
+  aniMode = undefined
+  if ((GET("mSelected") == 1)) jump +20
+  (GET("mSelected") == 1)
+  if (!(GET("mSelected") == 0.0)) jump +102
+  var tmpX = (GET("logo")._x + ((GET("logo").sizer._width * GET("logo")._xscale) / 100))
+  GET("main").easeIn("_x", GET("tmpX"), GET("speed"))
+  jump +233
+  if (!!(GET("mOldSelected") == 1)) jump +211
+  GET("pt1").x = 343
+  GET("logo").localToGlobal(GET("pt1"))
+  GET("_parent").obj.globalToLocal(GET("pt1"))
+  var tmpX = (GET("pt1").x + ((((GET("main").m1.sizer._width * GET("main").m1._xscale) / 100) * GET("main")._xscale) / 100))
+  GET("main").easeIn("_x", GET("tmpX"), GET("speed"))
+  GET("main")._y = (GET("logo")._y + ((GET("logo").sizer._height * GET("logo")._yscale) / 100))
+  if (!GET("contentDone")) jump +5905
+  GET("main").("m" + GET("mSelected")).easeIn("_x", GET("mainOffset"), GET("speed"))
+  i = 1
+  if (!!(GET("i") > GET("mainNum"))) jump +438
+  if (!!(GET("i") == GET("mOldSelected"))) jump +15
+  !(GET("i") == GET("mOldSelected"))
+  if (!!(GET("i") == GET("mSelected"))) jump +136
+  var tmpX = ((GET("main").("m" + GET("i")).sizer._width * (0.0 - GET("main").("m" + GET("i"))._xscale)) / 100)
+  GET("main").("m" + GET("i")).easeIn("_x", GET("tmpX"), GET("speed"))
+  if (!(GET("i") > 1)) jump +221
+  GET("main").("m" + GET("i")).yGoal = ((GET("main").("m" + (GET("i") - 1))._y + ((GET("main").("m" + (GET("i") - 1)).sizer._height * GET("main").("m" + (GET("i") - 1))._yscale) / 100)) + GET("mLeading"))
+  GET("main").("m" + GET("i")).easeIn("_y", GET("main").("m" + GET("i")).yGoal, GET("speed"))
+  i = GET("i")
+  jump -458
+  if (!(GET("main").("m" + GET("mSelected"))._x == GET("mainOffset"))) jump +239
+  if (!!(GET("subNavInit") == 1)) jump +40
+  buildSubNav("main.sub.subsub", GET("mSelected"))
+  subNavInit = 1
+  if (!!(GET("main").sub._x == ((GET("main").("m" + GET("mSelected"))._x + GET("main").("m" + GET("mSelected")).sizer._width) - GET("horOffset")))) jump +82
+  GET("main").sub._x = ((GET("main").("m" + GET("mSelected"))._x + GET("main").("m" + GET("mSelected")).sizer._width) - GET("horOffset"))
+  jump +242
+  if (!!(GET("main").sub._x == (GET("main").("m" + GET("mOldSelected"))._x + (((GET("main").("m" + GET("mOldSelected")).sizer._width - GET("horOffset")) * GET("main").("m" + GET("mOldSelected"))._xscale) / 100)))) jump +117
+  GET("main").sub._x = (GET("main").("m" + GET("mOldSelected"))._x + (((GET("main").("m" + GET("mOldSelected")).sizer._width - GET("horOffset")) * GET("main").("m" + GET("mOldSelected"))._xscale) / 100))
+  if (!(GET("main").("m" + GET("mOldSelected"))._x == (0.0 - GET("main").("m" + GET("mOldSelected"))._width))) jump +12
+  (GET("main").("m" + GET("mOldSelected"))._x == (0.0 - GET("main").("m" + GET("mOldSelected"))._width))
+  if (!(GET("mSelected") == undefined)) jump +15
+  (GET("mSelected") == undefined)
+  if (!!(GET("mSelected") == GET("tmpSelected"))) jump +144
+  mSelected = GET("tmpSelected")
+  GET("_root").newMain = GET("mSelected")
+  GET("main").("m" + GET("mSelected")).xGoal = GET("mainOffset")
+  GET("main").("m" + GET("mSelected")).goal = 100
+  GET("main").("m" + GET("mSelected")).onEnterFrame = GET("main").("m" + GET("mSelected")).scaleEase
+  if (!(GET("aniMode") == "subRetract")) jump +551
+  if (!(GET("main").sub._xscale == 0.0)) jump +11
+  aniMode = "expand"
+  if (!(GET("main").sub.subsub._xscale == 0.0)) jump +37
+  GET("main").sub.subsub.removeMovieClip()
+  var tmp = GET("main").sub
+  if (!(GET("sSelectedOld") > 0.0)) jump +375
+  var tmpY = ((GET("tmp").("m" + GET("sSelectedOld"))._y + ((GET("tmp").("m" + GET("sSelectedOld")).sizer._height * GET("tmp").("m" + GET("sSelectedOld"))._xscale) / 100)) + GET("navSpace"))
+  GET("tmp").("m" + (GET("sSelectedOld") + 1)).easeIn("_y", GET("tmpY"), GET("speed"))
+  i = (GET("sSelectedOld") + 2)
+  if (!!(GET("i") > GET("sCount"))) jump +169
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -189
+  jump +4039
+  if (!(GET("aniMode") == "expand")) jump +15
+  (GET("aniMode") == "expand")
+  if (!!(GET("mSelected") == GET("tmpSelected"))) jump +262
+  mSelected = GET("tmpSelected")
+  GET("_root").newMain = GET("mSelected")
+  GET("main").("m" + GET("mSelected")).goal = 100
+  GET("main").("m" + GET("mSelected")).onEnterFrame = GET("main").("m" + GET("mSelected")).scaleEase
+  GET("main").("m" + GET("mSelected")).easeIn("_x", GET("mainOffset"), GET("speed"))
+  GET("main").("m" + GET("mOldSelected")).goal = 75
+  GET("main").("m" + GET("mOldSelected")).onEnterFrame = GET("main").("m" + GET("mOldSelected")).scaleEase
+  mOldSelected = undefined
+  jump +3737
+  if (!(GET("aniMode") == "subsubRetract")) jump +2303
+  if (!(GET("subHasSubsOld") == 1)) jump +1818
+  if (!(GET("main")._xscale == 56.25)) jump +28
+  (GET("main")._xscale == 56.25)
+  if (!(GET("main").sub._xscale == 133)) jump +38
+  (GET("main").sub._xscale == 133)
+  if (!(GET("main").sub.subsub._xscale > 0.0)) jump +1117
+  GET("main").sub.subsub._y = ((GET("main").sub.("m" + GET("sSelectedOld"))._y + ((GET("main").sub.("m" + GET("sSelectedOld")).sizer._height * GET("main").sub.("m" + GET("sSelectedOld"))._xscale) / 100)) + GET("navSpace"))
+  ssScale = 0.0
+  GET("main").sub.subsub.goal = GET("ssScale")
+  GET("main").sub.subsub.onEnterFrame = GET("main").sub.subsub.scaleEase
+  if (!(GET("sSelectedOld") > 1)) jump +175
+  GET("main").sub.("m" + GET("sSelectedOld"))._y = ((GET("main").sub.("m" + (GET("sSelectedOld") - 1))._y + ((GET("main").sub.("m" + (GET("sSelectedOld") - 1)).sizer._height * GET("main").sub.("m" + (GET("sSelectedOld") - 1))._xscale) / 100)) + GET("navSpace"))
+  var tmpY = ((GET("main").sub.("m" + GET("sSelectedOld"))._y + ((GET("main").sub.("m" + GET("sSelectedOld")).sizer._height * GET("main").sub.("m" + GET("sSelectedOld"))._xscale) / 100)) + GET("navSpace"))
+  GET("main").sub.("m" + (GET("sSelectedOld") + 1)).easeIn("_y", GET("tmpY"), GET("speed"))
+  i = (GET("tmpsSelected") + 1)
+  if (!!(GET("i") > GET("sCount"))) jump +15
+  !(GET("i") > GET("sCount"))
+  if (!!(GET("i") > GET("sSelectedOld"))) jump +193
+  GET("main").sub.("m" + GET("i"))._y = ((GET("main").sub.("m" + (GET("i") - 1))._y + ((GET("main").sub.("m" + (GET("i") - 1)).sizer._height * GET("main").sub.("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -235
+  i = (GET("sSelectedOld") + 2)
+  if (!!(GET("i") > GET("mCount"))) jump +193
+  GET("main").sub.("m" + GET("i"))._y = ((GET("main").sub.("m" + (GET("i") - 1))._y + ((GET("main").sub.("m" + (GET("i") - 1)).sizer._height * GET("main").sub.("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -213
+  jump +585
+  if (!(GET("main")._xscale == 56.25)) jump +28
+  (GET("main")._xscale == 56.25)
+  if (!(GET("main").sub._xscale == 133)) jump +74
+  (GET("main").sub._xscale == 133)
+  if ((GET("main").sub.subsub._xscale == 0.0)) jump +30
+  (GET("main").sub.subsub._xscale == 0.0)
+  if (!(GET("main").sub.subsub._xscale == undefined)) jump +204
+  GET("main").sub.subsub.removeMovieClip()
+  if (!(GET("subHasSubs") == 1)) jump +118
+  buildSubSubNav("main.sub", GET("tmpsSelected"))
+  ssScale = 133
+  GET("main").sub.subsub.goal = GET("ssScale")
+  GET("main").sub.subsub.onEnterFrame = GET("main").sub.subsub.scaleEase
+  sSelected = GET("tmpsSelected")
+  aniMode = "subsubExpand"
+  jump +234
+  i = (GET("tmpsSelected") + 1)
+  if (!!(GET("i") > GET("sCount"))) jump +193
+  GET("main").sub.("m" + GET("i"))._y = ((GET("main").sub.("m" + (GET("i") - 1))._y + ((GET("main").sub.("m" + (GET("i") - 1)).sizer._height * GET("main").sub.("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -213
+  jump +459
+  if (!(GET("subHasSubsOld") == 0.0)) jump +434
+  i = 2
+  if (!!(GET("i") > GET("sCount"))) jump +193
+  GET("main").sub.("m" + GET("i"))._y = ((GET("main").sub.("m" + (GET("i") - 1))._y + ((GET("main").sub.("m" + (GET("i") - 1)).sizer._height * GET("main").sub.("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -213
+  if (!(GET("main")._xscale == 56.25)) jump +28
+  (GET("main")._xscale == 56.25)
+  if (!(GET("main").sub._xscale == 133)) jump +141
+  buildSubSubNav("main.sub", GET("tmpsSelected"))
+  sSelected = GET("tmpsSelected")
+  ssScale = 133
+  GET("main").sub.subsub.goal = GET("ssScale")
+  GET("main").sub.subsub.onEnterFrame = GET("main").sub.subsub.scaleEase
+  aniMode = "subsubExpand"
+  jump +1416
+  if ((GET("aniMode") == "subsubExpand")) jump +13
+  (GET("aniMode") == "subsubExpand")
+  if (!(GET("aniMode") == "subsubSelected")) jump +1379
+  var tmp = GET("main").sub
+  if (!!(GET("tmp").subsub._y == ((GET("tmp").("m" + GET("sSelected"))._y + ((GET("tmp").("m" + GET("sSelected")).sizer._height * GET("tmp").("m" + GET("sSelected"))._xscale) / 100)) + GET("navSpace")))) jump +117
+  GET("tmp").subsub._y = ((GET("tmp").("m" + GET("sSelected"))._y + ((GET("tmp").("m" + GET("sSelected")).sizer._height * GET("tmp").("m" + GET("sSelected"))._xscale) / 100)) + GET("navSpace"))
+  if (!(GET("sSelected") > 1)) jump +151
+  GET("tmp").("m" + GET("sSelected"))._y = ((GET("tmp").("m" + (GET("sSelected") - 1))._y + ((GET("tmp").("m" + (GET("sSelected") - 1)).sizer._height * GET("tmp").("m" + (GET("sSelected") - 1))._xscale) / 100)) + GET("navSpace"))
+  if (!(GET("subHasSubs") == 1)) jump +496
+  GET("tmp").("m" + (GET("sSelected") + 1))._y = ((GET("tmp").subsub._y + GET("tmp").subsub._height) + GET("navSpace"))
+  i = 2
+  if (!!(GET("i") > GET("sSelected"))) jump +169
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -189
+  i = (GET("sSelected") + 2)
+  if (!!(GET("i") > GET("sCount"))) jump +169
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -189
+  jump +203
+  i = 2
+  if (!!(GET("i") > GET("sCount"))) jump +169
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -189
+  var tmp = GET("main").sub.subsub
+  i = 2
+  if (!!(GET("i") > GET("ssCount"))) jump +169
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -189
+  i = 2
+  if (!!(GET("i") > GET("ssCount"))) jump +169
+  GET("tmp").("m" + GET("i"))._y = ((GET("tmp").("m" + (GET("i") - 1))._y + ((GET("tmp").("m" + (GET("i") - 1)).sizer._height * GET("tmp").("m" + (GET("i") - 1))._xscale) / 100)) + GET("navSpace"))
+  i = GET("i")
+  jump -189
+  if (!!GET("cInit")) jump +1144
+  if (!(GET("clickMode") == "main")) jump +227
+  if (!(GET("main")._xscale == 75)) jump +28
+  (GET("main")._xscale == 75)
+  if (!(GET("main").sub._xscale == 133)) jump +35
+  (GET("main").sub._xscale == 133)
+  if (!(GET("main").("m" + GET("mSelected"))._xscale == 100)) jump +7
+  (GET("main").("m" + GET("mSelected"))._xscale == 100)
+  if (!GET("contentDone")) jump +104
+  addContent(GET("cAddress").content, GET("cAddress").cX, GET("cAddress").cY)
+  GET("this").GET("cAddress").exception2(GET("cAddress").arg2)
+  jump +899
+  if (!(GET("clickMode") == "sub")) jump +670
+  if (!(GET("subHasSubs") == 1)) jump +41
+  (GET("subHasSubs") == 1)
+  if (!(GET("main").sub.("m" + GET("tmpsSelected"))._xscale == 100)) jump +34
+  (GET("main").sub.("m" + GET("tmpsSelected"))._xscale == 100)
+  if (!(GET("main").sub.subsub._xscale == 133)) jump +13
+  (GET("main").sub.subsub._xscale == 133)
+  if (!(GET("aniMode") == "subsubExpand")) jump +7
+  (GET("aniMode") == "subsubExpand")
+  if (!GET("contentDone")) jump +34
+  GET("contentDone")
+  if (!(GET("main").sub.subsub.goal == 133)) jump +16
+  (GET("main").sub.subsub.goal == 133)
+  if (!(GET("sInit") == 1)) jump +26
+  (GET("sInit") == 1)
+  if (!(GET("main")._xscale == 56.25)) jump +96
+  addContent(GET("cAddress").content, GET("cAddress").cX, GET("cAddress").cY)
+  GET("this").GET("cAddress").exception2(GET("cAddress").arg2)
+  jump +328
+  if (!(GET("subHasSubs") == 0.0)) jump +41
+  (GET("subHasSubs") == 0.0)
+  if (!(GET("main").sub.("m" + GET("tmpsSelected"))._xscale == 133)) jump +7
+  (GET("main").sub.("m" + GET("tmpsSelected"))._xscale == 133)
+  if (!GET("contentDone")) jump +16
+  GET("contentDone")
+  if (!(GET("sInit") == 1)) jump +26
+  (GET("sInit") == 1)
+  if (!(GET("main")._xscale == 56.25)) jump +74
+  (GET("main")._xscale == 56.25)
+  if ((GET("main").sub.subsub._xscale == 0.0)) jump +30
+  (GET("main").sub.subsub._xscale == 0.0)
+  if (!(GET("main").sub.subsub._xscale == undefined)) jump +104
+  addContent(GET("cAddress").content, GET("cAddress").cX, GET("cAddress").cY)
+  GET("this").GET("cAddress").exception2(GET("cAddress").arg2)
+  jump +211
+  if (!(GET("clickMode") == "subsub")) jump +193
+  if (!(GET("main").sub.subsub.("m" + GET("ssSelected"))._xscale == 133)) jump +7
+  (GET("main").sub.subsub.("m" + GET("ssSelected"))._xscale == 133)
+  if (!GET("contentDone")) jump +16
+  GET("contentDone")
+  if (!(GET("ssInit") == 1)) jump +104
+  addContent(GET("cAddress").content, GET("cAddress").cX, GET("cAddress").cY)
+  GET("this").GET("cAddress").exception2(GET("cAddress").arg2)
+  if (!!(GET("contentDone") == 1)) jump +50
+  !(GET("contentDone") == 1)
+  if ((GET("bodyContent")._xscale == 0.0)) jump +18
+  (GET("bodyContent")._xscale == 0.0)
+  if (!(GET("bodyContent")._xscale == undefined)) jump +14
+  contentDone = 1
+  if (!(GET("clickMode") == "logo")) jump +17
+  (GET("clickMode") == "logo")
+  if (!!(GET("lInit") == 1)) jump +24
+  logoSwitch()
+  jump +241
+  if (!(GET("clickMode") == "main")) jump +17
+  (GET("clickMode") == "main")
+  if (!!(GET("mInit") == 1)) jump +7
+  !(GET("mInit") == 1)
+  if (!GET("contentDone")) jump +26
+  mainSwitch(GET("mSelected"))
+  jump +159
+  if (!(GET("clickMode") == "sub")) jump +17
+  (GET("clickMode") == "sub")
+  if (!!(GET("sInit") == 1)) jump +7
+  !(GET("sInit") == 1)
+  if (!GET("contentDone")) jump +26
+  subSwitch(GET("tmpsSelected"))
+  jump +77
+  if (!(GET("clickMode") == "subsub")) jump +17
+  (GET("clickMode") == "subsub")
+  if (!!(GET("ssInit") == 1)) jump +7
+  !(GET("ssInit") == 1)
+  if (!GET("contentDone")) jump +21
+  subsubSwitch(GET("ssSelected"))
+  if (!(GET("holdTime") < GET("holdMax"))) jump +22
+  (GET("holdTime") < GET("holdMax"))
+  if (!(GET("main")._xscale == 100)) jump +13
+  holdTime = GET("holdTime")
+  if (!(GET("holdTime") == GET("holdMax"))) jump +481
+  if (!!(GET("_root").newMain == GET("mObj"))) jump +45
+  mainRelease("main", GET("_root").newMain, 0.0)
+  if (!!(GET("_root").newSub == GET("sObj"))) jump +23
+  !(GET("_root").newSub == GET("sObj"))
+  if (!!(GET("main")._xscale > 75)) jump +21
+  !(GET("main")._xscale > 75)
+  if (!(GET("mObj") == GET("_root").newMain)) jump +28
+  (GET("mObj") == GET("_root").newMain)
+  if (!(GET("main").sub._xscale == 133)) jump +7
+  (GET("main").sub._xscale == 133)
+  if (!GET("contentDone")) jump +35
+  GET("contentDone")
+  if (!(GET("main").("m" + GET("mObj"))._x == -14)) jump +45
+  subRelease("main.sub", GET("_root").newSub, 0.0)
+  if (!!(GET("_root").newSubsub == GET("ssObj"))) jump +20
+  !(GET("_root").newSubsub == GET("ssObj"))
+  if (!!(GET("_root").newSubsub == undefined)) jump +58
+  !(GET("_root").newSubsub == undefined)
+  if ((GET("main")._xscale == 56.25)) jump +26
+  (GET("main")._xscale == 56.25)
+  if (!(GET("main")._xscale == 42.1875)) jump +21
+  (GET("main")._xscale == 42.1875)
+  if (!(GET("sObj") == GET("_root").newSub)) jump +34
+  (GET("sObj") == GET("_root").newSub)
+  if (!(GET("main").sub.subsub._xscale == 133)) jump +0
+}
+navRun = <anonfn>
+buildLogo()
+aniMode = "preLoad"
+buildPreloader()
+GET("this").onEnterFrame = GET("navRun")
+stop()
