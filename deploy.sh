@@ -15,7 +15,7 @@ cd "$(dirname "$0")"
 
 # Stage everything except repo/tooling files, then deploy the folder as-is.
 STAGE=$(mktemp -d)
-cp index.html "$STAGE/"
+cp index.html _redirects "$STAGE/"
 for d in */; do
   case "$d" in .git/|node_modules/) continue;; esac
   cp -R "${d%/}" "$STAGE/"   # strip trailing slash — BSD cp would copy contents, not the dir

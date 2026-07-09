@@ -1,0 +1,7 @@
+# the playground lives at the root — catch the name's spelling variants
+/expermnts / 301
+/expermnts/* /:splat 301
+/exprmnts / 301
+/exprmnts/* /:splat 301
+/experiments / 301
+/experiments/* /:splat 301
