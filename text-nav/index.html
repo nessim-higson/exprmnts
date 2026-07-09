@@ -210,6 +210,7 @@ function setColor(o,c){ o.baseColor=c; o.el.style.color=c; }
 
 /* ===== build (mirrors buildMainNav / buildSubNav / buildSubSubNav) ===== */
 function buildMain(){
+  logo.w = logoEl.offsetWidth; logo.h = logoEl.offsetHeight;
   mains = TREE.map((n,i)=> makeItem(n, mainEl, ()=>mainRelease(i)));
   // right-align: xGoal = -width (items tuck left so right edges meet origin)
   mains.forEach((o,i)=>{ o.x=0; o.xGoal=-o.w; o.y=0; o.s=100; });
@@ -258,10 +259,11 @@ function scaleNavObj(l,m,s,ss){
 }
 function logoRelease(){
   clickMode='logo'; mSel=-1; sSel=-1; ssSel=-1;
-  removeBox(sub,subs); sub=null; removeBox(subsub,subsubs); subsub=null;
+  pendSub=null; pendSubSub=null;
+  retire(subsub); subsub=null; subsubs=[];
+  retire(sub); sub=null; subs=[];
   scaleNavObj(K.logoHome, 100, 0, 0);
-  mains.forEach(o=>{ o.goal=100; o.xGoal=-o.w; setColor(o, o.node.red?K.red:K.grey); });
-  placeMainNav();
+  mains.forEach(o=>{ o.goal=100; setColor(o, o.node.red?K.red:K.grey); });
   removeContent(); setFieldMood('home');
 }
 function mainRelease(i){
@@ -269,15 +271,16 @@ function mainRelease(i){
   if (mSel===i && node.children){ logoRelease(); return; }   // toggle shut
   mSel=i; sSel=-1; ssSel=-1; clickMode='main';
   removeContent();
+  pendSub=null; pendSubSub=null;
+  retire(subsub); subsub=null; subsubs=[];
+  retire(sub); sub=null; subs=[];
   scaleNavObj(K.logoOpen, K.ladder*100, 0, 0);
   mains.forEach((o,j)=>{
     o.goal = j===i ? K.selected : K.sibling;
-    o.xGoal = j===i ? K.mainOffset : -o.w;
     setColor(o, j===i ? (node.red?K.red:K.black) : (o.node.red?K.red:K.grey));
   });
-  if (node.children){ buildSub(node); sub.goal=K.newcomer; }
-  else { mains[i].goal=K.leaf; }
-  placeMainNav();
+  if (node.children) pendSub = node;         // cascades once the ghost lands (navRun:918)
+  else mains[i].goal=K.leaf;
   contentPending = node.copy ? {node, at:'main'} : null;
   setFieldMood(node.label==='OUR PORTFOLIO' ? 'portfolio' : 'dim');
 }
@@ -289,14 +292,10 @@ function subRelease(i){
     setColor(o, j===i ? K.black : K.grey);
     o.goal = j===i ? (node.children?K.selected:K.leaf) : K.sibling;
   });
-  if (node.children){
-    scaleNavObj(K.logoOpen, K.ladder*K.ladder*100, K.newcomer, 0);
-    buildSubSub(node);
-    subsub.goal=K.newcomer;
-  } else {
-    scaleNavObj(K.logoOpen, K.ladder*K.ladder*100, K.newcomer, 0);
-    removeBox(subsub,subsubs); subsub=null;
-  }
+  pendSubSub=null;
+  retire(subsub); subsub=null; subsubs=[];
+  scaleNavObj(K.logoOpen, K.ladder*K.ladder*100, K.newcomer, 0);
+  if (node.children) pendSubSub = node;
   if (node.layout){ curLayout=node.layout; layouts[curLayout](); setFieldMood('portfolio'); }
   else if (TREE[mSel].label!=='OUR PORTFOLIO') setFieldMood('dim');
   contentPending = node.copy ? {node, at:'sub'} : null;
@@ -317,14 +316,15 @@ function subsubRelease(i){
 function removeContent(){ content.goal=0; contentShown=null; }
 function addContent(pend){
   contentEl.textContent = pend.node.copy;
+  contentEl.style.textAlign = pend.at==='main' ? 'right' : 'left';
   // place beside/below the deepest column, in nav-local coords
   let x=0,y=0;
   if (pend.at==='subsub' && subsub){
     x = subXAbs() + (subsub.xGoal ?? subsub.x)*absScale(sub)/100 + 10;
     y = subYAbs() + (subsub.y + colH(subsubs)*(subsub.s/100))*absScale(sub)/100 + 14;
   } else if (pend.at==='sub' && sub){
-    x = subXAbs() + 6;
-    y = subYAbs() + colH(subs)*absScale(sub)/100 + 14;
+    x = subXAbs() - (pend.at==='main' ? 46 : -6);
+    y = subYAbs() + colH(subs)*absScale(sub)/100 + 26;
   } else {
     x = main.x + 6; y = main.y + colH(mains)*(main.s/100) + 16;
   }
@@ -341,28 +341,72 @@ function apply(o){
   o.el.style.transform = 'translate('+o.x+'px,'+o.y+'px) scale('+(Math.max(0,o.s)/100)+')';
 }
 
-/* ===== navRun — the master tick, 60Hz fixed-step like the SWF ===== */
+/* ===== navRun — the master tick, 60Hz fixed-step, rules verbatim ===== */
+let pendSub=null, pendSubSub=null, dying=[];   // deferred cascades + retracting boxes
 function navTick(dt60){
   scaleEase(logo, dt60); scaleEase(main, dt60);
-  mains.forEach(o=>{ scaleEase(o,dt60); easeIn(o,'x',o.xGoal,dt60); });
-  if (sub){ scaleEase(sub,dt60); subs.forEach(o=>scaleEase(o,dt60)); chainYs(subs); }
-  if (subsub){ scaleEase(subsub,dt60); easeIn(subsub,'x',subsub.xGoal,dt60);
+
+  // the stack top tracks the logo's bottom edge; its x eases toward the
+  // logo's right edge — the whole column rides the shrinking logo (navRun:903,894)
+  main.y = logo.y + logo.h*(logo.s/100);
+  easeIn(main, 'x', logo.x + logo.w*(logo.s/100), dt60);
+
+  // main items: follow-the-leader chain with EASING — the ripple (navRun:914)
+  mains.forEach((o,i)=>{
+    scaleEase(o,dt60);
+    const xg = (i===mSel) ? K.mainOffset : -(o.w*o.s/100);   // scaled width (navRun:911)
+    easeIn(o,'x',xg,dt60);
+    if (i>0){
+      const p=mains[i-1];
+      easeIn(o,'y', p.y + p.h*(p.s/100) + K.mLeading, dt60);
+    }
+  });
+
+  // sub cascades only once the ghost ARRIVES at mainOffset (navRun:918-921)
+  if (pendSub && mSel>=0 && mains[mSel].x===K.mainOffset){
+    buildSub(pendSub); sub.goal=K.newcomer; pendSub=null;
+  }
+  if (sub){
+    scaleEase(sub,dt60); subs.forEach(o=>scaleEase(o,dt60)); chainYs(subs);
+    // the child column hangs off the ghost's right edge − horOffset (navRun:923)
+    const g=mains[mSel];
+    if (g){ sub.x = g.x + g.w - K.horOffset;
+            sub.y = g.y + g.h*(g.s/100) + K.sLeading; }
+  }
+  // subsub cascades once the selected sub item settles (symmetry w/ navRun)
+  if (pendSubSub && sSel>=0 && subs[sSel] && subs[sSel].s===subs[sSel].goal){
+    buildSubSub(pendSubSub); subsub.goal=K.newcomer; pendSubSub=null;
+  }
+  if (subsub){
+    scaleEase(subsub,dt60); easeIn(subsub,'x',subsub.xGoal,dt60);
     subsubs.forEach(o=>scaleEase(o,dt60)); chainYs(subsubs);
-    // subsub container y chains under the selected sub item, live (navRun verbatim)
-    if (sSel>=0 && subs[sSel]) subsub.y = subs[sSel].y + subs[sSel].h*(subs[sSel].s/100) + K.navSpace;
-    if (sSel>=0 && subs[sSel]) subsub.xGoal = subs[sSel].x + subs[sSel].w - K.horOffset;
-    // sub items after the selected re-chain below the subsub block, live
+    if (sSel>=0 && subs[sSel]){
+      subsub.y = subs[sSel].y + subs[sSel].h*(subs[sSel].s/100) + K.navSpace;
+      subsub.xGoal = subs[sSel].x + subs[sSel].w - K.horOffset;
+    }
+    // sub items after the selected: first one eases below the block, rest chain (navRun:944-948)
     for(let i=sSel+1;i<subs.length;i++){
-      const prev = i===sSel+1
-        ? { y: subsub.y + colH(subsubs)*(subsub.s/100), h:0, s:100 }
-        : subs[i-1];
-      subs[i].y = prev.y + prev.h*(prev.s/100) + K.navSpace;
+      if (i===sSel+1){
+        const gy = subsub.y + colH(subsubs)*(subsub.s/100) + K.navSpace;
+        easeIn(subs[i],'y',gy,dt60);
+      } else {
+        const p=subs[i-1];
+        subs[i].y = p.y + p.h*(p.s/100) + K.navSpace;
+      }
     }
   }
+  // retracting boxes ease to 0 then unload (aniMode subRetract)
+  dying = dying.filter(box=>{
+    scaleEase(box,dt60); apply(box);
+    if (box.s<=0.5){ box.el.remove(); return false; }
+    return true;
+  });
+
   scaleEase(content, dt60);
   // threshold choreography: content pops once the nav has settled
   if (contentPending){
-    const settled = atGoal(logo)&&atGoal(main)&&mains.every(atGoal)
+    const settled = !pendSub && !pendSubSub
+      && atGoal(logo)&&atGoal(main)&&mains.every(atGoal)
       && (!sub || (atGoal(sub)&&subs.every(atGoal)))
       && (!subsub || (atGoal(subsub)&&subsubs.every(atGoal)));
     if (settled){ addContent(contentPending); contentPending=null; }
@@ -374,6 +418,7 @@ function navTick(dt60){
   apply(content);
 }
 const atGoal = o => o.s===o.goal;
+function retire(box){ if(!box) return; box.goal=0; box.speed=P.speed/1.5; dying.push(box); }
 
 /* ===== anchor + showAll-style stage scaling (like the SWF embed) ===== */
 function anchorNav(){
