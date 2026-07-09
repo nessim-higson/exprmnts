@@ -18,7 +18,7 @@ STAGE=$(mktemp -d)
 cp index.html "$STAGE/"
 for d in */; do
   case "$d" in .git/|node_modules/) continue;; esac
-  cp -R "$d" "$STAGE/"
+  cp -R "${d%/}" "$STAGE/"   # strip trailing slash — BSD cp would copy contents, not the dir
 done
 
 npx --yes wrangler pages deploy "$STAGE" --project-name="$PROJECT" --branch=main --commit-dirty=true
