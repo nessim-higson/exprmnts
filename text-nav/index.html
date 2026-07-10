@@ -30,7 +30,15 @@
   #logo sup{font-size:11px; letter-spacing:0}
   #content{position:absolute; transform-origin:0 0; will-change:transform;
     width:330px; font-weight:700; font-size:12.5px; line-height:1.55; color:#8a8880;
-    pointer-events:none}
+    white-space:pre-line}
+  #content .chips{float:left; margin:2px 14px 4px 0; font-size:10px; line-height:1.7;
+    letter-spacing:.06em; color:#999}
+  #content .chips b{display:block; font-weight:700; cursor:pointer}
+  #content .chips b.on{color:#e03a30}
+  #content .chips b:hover{color:#ece9e3}
+  #sil{position:absolute; transform-origin:0 0; will-change:transform; pointer-events:none}
+  #sil svg{width:190px; height:117px; display:block; overflow:visible}
+  #sil g{transition:opacity .5s}
 
   /* ------- control strip ------- */
   #ctl{position:fixed; right:22px; bottom:20px; z-index:6; display:flex; align-items:center; gap:18px;
@@ -54,6 +62,7 @@
 <div id="nav">
   <div id="logo">firstborn<sup>®</sup></div>
   <div id="main" class="box"></div>
+  <div id="sil"><svg id="silsvg" viewBox="-60 -60 130 80" xmlns="http://www.w3.org/2000/svg"><g id="silM" transform="translate(-25.5 7.3) scale(0.9)"><path d="M-3.4 -41.7 Q-3.35 -40 -2.7 -39.15 L-2.45 -39.4 L-2.3 -36.95 L-2.55 -36.6 L-2.85 -35.95 L-2.85 -36 L-5.25 -34.85 L-11.5 -32.9 L-12.15 -32.75 L-12.65 -32.4 L-13.3 -30.55 L-15.1 -22.9 L-15.75 -15.9 L-16.25 -13.75 L-16.25 -12.9 L-15.3 -9.15 L-15.05 -7.2 L-12.85 0.15 L-12.2 -1.25 L-11.3 -2.1 L-10.8 -2.45 L-11.3 -1.6 L-12.1 1.15 L-10.65 3.8 L-10.4 5.75 L-9.65 8.5 L-8.25 19.3 L-8.25 21.9 L-7.6 26.05 L-7.95 39.25 L-7.35 39.45 L-8.9 42.5 L-10.15 43.9 L-10.85 45.45 L-10.95 46.35 L-10.8 46.8 L-9.65 47.35 L-8.6 47.5 L-7.05 47.25 L-5.8 46.7 L-4.95 46 L-3.35 43.75 L-1.15 42.4 L-0.9 41.9 L-1 40.7 L-0.15 40.3 L-0.55 30.15 L-0.35 27.45 L-0.9 19.2 L-0.25 8.5 L1.15 16.7 L2.6 36.3 L2.6 39.8 L3.25 40.4 L3.25 42.7 L3.55 43.2 L5.15 44.3 L5.55 44.85 L6.45 46.8 L7.35 47.75 L8.35 48.3 L9.75 48.75 L10.15 48.75 L11.1 48.65 L11.95 48.45 Q12.15 47.35 11.95 46.3 Q11.65 44.8 10.9 43.4 L10.15 41.95 L9.8 41.25 L10.6 41.1 L10.15 38.35 L10.1 37.65 L9.3 33.4 L9.3 25.4 L9.6 22.15 L9.3 18.7 L9.95 4.9 L10.15 4.9 L11.85 4.45 L13.2 3.75 L15.3 -0.7 L15.2 -0.85 L15.5 -0.95 L15.65 -2.5 L16.3 -2.1 L15.85 -11.1 L15.3 -16.6 L14.9 -18.7 L13.5 -24.65 L11.9 -31.85 L10.85 -32.65 L10.15 -33 L7.05 -33.75 L4.05 -35.2 L3.75 -35.55 L3.75 -36.3 L4.55 -38.6 L5.05 -38.65 Q6.1 -40.65 6 -41.65 L5.8 -42.05 L5.5 -41.75 L5.5 -43.2 Q5.55 -46.05 4.25 -47.55 Q3.1 -48.85 1.35 -48.65 Q-0.35 -48.45 -1.55 -46.9 Q-2.9 -45.15 -2.85 -42.5 Q-3.45 -43.45 -3.4 -41.7 M10.15 -9.65 L10.35 -6.4 L10.6 -3.7 L10.8 -3.7 L10.6 -2.5 L11.1 -2.4 L10.25 -1.45 L10.25 -2.3 L10.15 -2.9 L9.25 -9.65 L9.3 -15.2 L9.9 -13.45 L10.15 -9.65" fill="#8f8d86" fill-rule="evenodd"/></g><g id="silV" transform="translate(20.15 -3.5) scale(0.9)"><path d="M10.45 -44.4 L10.25 -43 L11.05 -41.35 L10.65 -40.7 L10.8 -39.65 L10.45 -39.4 L10.7 -38.7 L8.95 -37.9 L8.65 -37.05 L9.95 -35.8 L11.55 -34.25 L11.6 -33.7 Q13 -32.75 14.35 -31.75 Q15.3 -31.05 15.85 -30.05 Q16.85 -28.1 17.25 -25.95 L17.05 -23 L16.3 -19.7 Q15.05 -14.95 14.15 -10.15 Q13.85 -8.5 13.85 -6.8 L14.4 3.8 L13.05 4.6 L12.55 4.8 L12.55 4.95 L12.5 8.85 L12.55 10.5 L13.05 16.6 L13.3 19.5 L13.5 22.45 L14.15 26.6 L14.05 37.5 L13.95 39.35 L13.95 40.45 L13.35 47.15 L13 47.35 Q12.3 47.55 11.65 47.9 L9.95 48.6 L8.3 49.2 L7.2 49.35 L6 49.3 Q4.75 49.4 3.6 48.55 L5.3 45.7 L2.95 46.35 L0.3 47 L-1.9 47.25 L-3 47.2 L-3.6 47.15 Q-4.7 47.15 -4.55 46.25 L-3.55 45.2 L-0.35 42.8 L-0.9 40.45 L-1.1 38 L-2.05 29.5 L-3.15 20.9 Q-3.1 20.15 -3.2 19.35 L-4 10.5 L-4.35 4.8 L-4.95 4.45 L-4.9 2.65 L-4.3 -8.5 L-4.3 -8.8 L-6.75 -8.4 L-7.1 -9.45 L-7.45 -11.05 L-9.05 -10.9 L-9.1 -11.75 L-9.1 -12.4 L-9.2 -12.4 L-10.5 -12.5 L-11.6 -12.75 L-13.9 -14 L-16.3 -14.95 L-17.2 -15.2 L-17.35 -15.45 L-17.35 -15.6 L-17.25 -15.8 L-17.2 -15.85 L-16.55 -15.9 L-14.9 -15.85 L-16.15 -16.65 L-17.2 -17.45 L-17.25 -17.6 L-17.25 -17.75 L-17.2 -17.95 L-16.95 -18.1 L-17 -18.3 L-17.05 -18.55 L-16.95 -18.65 L-16.55 -18.7 L-14.95 -18.2 L-13.25 -17.4 L-13.65 -17.9 L-14.65 -18.6 L-15.55 -18.95 L-15.75 -19.2 L-15.8 -19.4 L-15.8 -19.55 L-15.55 -19.7 L-14.35 -19.45 L-12.95 -18.75 L-11.45 -17.3 L-11.3 -17.3 L-9.95 -16.25 L-9 -15.45 L-8.9 -15.35 L-8.85 -15.65 L-8.75 -15.7 L-7.3 -16.15 L-3.8 -16.8 L-3.7 -16.9 L-3.7 -16.95 L-1.95 -24.45 Q-1.1 -27.8 0.1 -30 L1.7 -32.45 L1.7 -32.5 L1.75 -32.55 L2.35 -33.7 L2.65 -34.5 L2.9 -35.6 L2.55 -35.95 L1.95 -36.15 Q1.85 -36.15 1.75 -36.25 L1.55 -36.3 L1.3 -36.7 L0.95 -38.35 L0.5 -38.75 L0.4 -39.25 L0.25 -39.4 L-0.5 -39.2 L-0.9 -39.35 L-0.9 -39.7 Q-1.05 -40.35 -0.55 -41.5 L-2.1 -41.65 Q-3.1 -41.85 -4 -42.7 L-0.55 -44.75 L0.2 -46.2 L1.4 -48 L2.1 -48.25 L2.25 -48.75 L3.3 -49.1 L4.35 -49.35 L6.9 -49.05 Q8.15 -48.6 9.25 -47.75 L9.7 -47.2 L10.2 -46.05 L10.45 -44.4" fill="#8f8d86" fill-rule="evenodd"/></g></svg></div>
   <div id="content"></div>
 </div>
 
@@ -76,43 +85,73 @@
    Copy transcribed from the 2003 original where recoverable.
    ===================================================================== */
 const TREE = [
- { label:'WHO WE ARE',
+ { label:'WHO WE ARE', cX:107, cY:169, sil:'show',
    copy:"Firstborn is a talented and imaginative interactive agency founded in New York City in 1997. Our story is one of hard work, determination and a strong desire to create the best user experiences possible. Our team specializes in producing digital, interactive designs for high-profile clients mainly in fashion, cosmetics, sports and entertainment.",
    children:[
-     { label:'PRINCIPALS' },
-     { label:'DESIGN PHILOSOPHY' },
-     { label:'BUSINESS PHILOSOPHY' },
-     { label:'HISTORY' },
- ]},
- { label:'WHAT WE DO',
-   copy:"Firstborn creates digital design projects that corporate clients use in many areas of their businesses. Our work helps heavily branded companies more effectively sell, market, train and communicate, via the computer. Generally, this means we make websites, intranet sites, and laptop and CD-ROM presentations.",
-   children:[
-     { label:'THE BASICS',
-       copy:"We don't do extended consulting, market research, usability testing, or focus groups. That may be worth repeating. We don't do focus groups. We limit usability testing to our staff and our client's staff. We envision, manage, DESIGN, program and deliver." },
-     { label:'TYPES OF PROJECTS',
-       copy:"There are many ways of using \"new media\" to improve basic needs in everyday business. All businesses strive to communicate more clearly, more efficiently and more cost-effectively with their employees, clients and potential clients.",
+     { label:'PRINCIPALS', cX:251, cY:215, sil:'full',
+       copy:"Firstborn is owned and operated by two individuals from varying backgrounds and skill sets.\n\nMichael handles the business and Vas handles the creative. If you work with Firstborn, you can count on them to be actively involved with your project. No project leaves our office without their blessing.",
        children:[
-         { label:'SALES' },
-         { label:'MARKETING/PR' },
-         { label:'COMMUNICATIONS',
-           copy:"All companies communicate with their employees and clients on a regular basis. To the clients we work with, the way they communicate is almost as important as what they are communicating. Interactive media is a great way to deliver company memos, annual reports, employee orientation materials, press, news and other important information." },
-         { label:'TRAINING' },
+         { label:'MICHAEL FERDMAN', cX:187, cY:194, sil:'michael', copy:"Michael is responsible for the financial matters of our company. In addition to being our President and Chief Financial Officer, Michael anchors Firstborn's sales efforts. He is often the first point of contact for those who later become our clients. Before starting Firstborn, Michael worked for 15 years in the fashion industry, owning and operating small businesses. Michael is a graduate of the University of Wisconsin. He resides in New York City." },
+         { label:'VAS SLOUTCHEVSKY', cX:187, cY:194, sil:'vas', copy:"Vas is responsible for all design and development of Firstborn projects. As our Vice President and Creative Director, Vas' job is to make sure all of our work is outstanding. Vas comes from a family of artists and has been a graphic designer his entire life. He and his team have created high-profile digital designs for Calvin Klein, L'Oreal, the Beatles, Madonna, Gucci and lots of other well-known names. He also wrote a chapter and tutorial for the best-selling book \"New Masters of Flash: 2002 Annual\". Vas is a graduate of the Moscow Stroganoff Institute. He lives in New York City." },
      ]},
-     { label:'TYPES OF DELIVERY',
-       children:[
-         { label:'WEBSITES' },
-         { label:'INTRANET SITES' },
-         { label:'LAPTOP PRESENTATIONS' },
-         { label:'CD-ROMS' },
+     { label:'DESIGN PHILOSOPHY', cX:151, cY:128, copy:"There are key principles that shape our design philosophy. Keep things simple. Hide elements, but leave them accessible. Subtract, allowing the most important elements to rise to the surface. These mantras equally apply to traditional and interactive design. We study and follow the best examples of contemporary graphic design and typography. We read books on geometry, physics and trigonometry, and we appl y ou r knowledg e to interactive design. This results in simple yet sophisticated user experiences that we, and our clients, are very proud of. We believe that what is happenning to interactive design now is similar to the graphic design revolutio n o f th e past . W e maintai n goo d relations with many leading graphic designers and feel that exchanging ideas leads to the further development of our trade." },
+     { label:'BUSINESS PHILOSOPHY', cX:151, cY:128, copy:"We are eager to work on the best projects with the best clients. In a perfect world, our clients have a specific project with a specific budget in mind. They care very much about design, branding and image. Together we outline the scope of the project and the deliverables. We focus on utilizing all the design nuances of our clients' brands and extend them into a digital medium. You can always expect us to deliver a superior product in terms of the overall creative execution, the project experience, and the technology used to develop it. We make it our business to have the most talented people working at Firstborn; from designers to programmers to project managers. Everyone pulls their weight. We are dedicated to creating incredible work in an extremely efficient way. Take a look at our portfolio and judge for yourself. Get to know us. We think you will like what you see." },
+     { label:'HISTORY', cX:151, cY:180,
+       chips:[
+         {label:'1997', copy:"The atmosphere in the city at this time was frenetic. There were IPOs, ridiculous salaries, all-nighters, multi-million dollar deals. There were focus groups. There were focus groups about how to conduct focus groups. There were meetings, and \"pre-meetings.\" Words like \"usability\" and \"synergy\" were being over-heard in taxi cabs and in martini bars. It was just a terrible time to be a human being. We wrote our business plan, looked for space, created our logo and set up shop. We launched our website and started looking for clients."},
+         {label:'1998', copy:"We ignored the hype as much as possible and focused on finding and doing good work. One of our earliest projects was for Calvin Klein, a CD-ROM featuring his Fall runway show. The project was a big success. It was the kind of work we knew we could do. With the Calvin Klein piece now part of our portfolio, we landed work at Redken and L'Oreal. We also began a long-standing relationship with the New York Racing Association when we designed the official Belmont Stakes website. When the year ended, we found time and money to make our second website. And hire a few really talented people."},
+         {label:'1999', copy:"We consistently worked hard and steered clear of hyperbole. No advertising, no PR. We charged fair prices for superior work. Over and over again. We were organized, accountable and flexible during projects. We picked up some new clients including Business Week, Federated, Antonio Fusco, and Comedy Central. We did work with Chanel, Columbia University, Dell and fragrance-giant Dragoco. And of course, we found time to re-do our own website."},
+         {label:'2000', copy:"Early in 2000, we launched a site for fashion designer Yigal-Azrouel. It became very well known for its inventive use of navigation and motion. It was critically acclaimed, featured prominently on Macromedia's website and won several awards. Later that year, we worked with Ralph Lauren, Lancome, and had just started a project with Lam Research. Then one day we got a call from Madonna's manager, asking if we would be interested in working on a website for her upcoming album. We were extremely interested."},
+         {label:'2001', copy:"We continued to do what we do best. Focus on the work. Never use words like \"synergy\" and \"usability.\" Just stay focused on \"quality.\" That's a word we understand. In 2001 we were proud to have continued relationships with companies we worked with in the past; Redken, Estee Lauder, Ralph Lauren and also to begin new ones with companies like Sergio Rossi, Madstone Films and John Frieda. We're looking forward to 2002, unbelievably our fifth year in business."},
+         {label:'2002', copy:"2002 started off with a bang and found us feverously working on projects for our stable of clients, including Lam Research, NYRA, L'Oreal and Calvin Klein. Then, when summer hit, things really picked up! Before we could blink we found ourselves with a bevy of new projects from great new clients. We designed a Video on Demand interface for Diet Coke, a sexy promotional website for Bacardi, a touch-screen kiosk for cosmetic giant Shiseido, and a playful website for the VH1/Vogue Fashion Awards 2002, just to name a few."},
      ]},
  ]},
- { label:'HOW WE DO IT',      /* [edit] children are stand-ins */
+ { label:'WHAT WE DO', cX:460, cY:149,
+   copy:"Firstborn creates digital design projects that corporate clients use in many areas of their businesses. Our work helps heavily branded companies more effectively sell, market, train and communicate, via the computer. Generally, this means we make websites, intranet sites,\n\nWe don't do extended consulting, market research, usability testing, or focus groups. That may be worth repeating. We don't do focus groups. We limit usability testing to our staff and our client's staff. We envision, manage,",
    children:[
-     { label:'OUR PROCESS' },
-     { label:'TECHNOLOGY' },
-     { label:'AWARDS' },
+     { label:'THE BASICS', cX:202, cY:245, copy:"Working with images, copy, video and audio, we are able to create signature pieces that make our clients proud. Creating a great interactive design can seem very complex, but to us it's not. We work as a team and each of us understand the process and our roles; what it is we are supposed to do and when are we supposed to do it. Our managers manage and our designers design. Our programmers program and we all deliver.",
+       children:[
+         { label:'ENVISION', cX:348, cY:191, copy:"is a highly creative thing, and other times it is as straightforward as a simple website outline. Things start with an idea for applying new media to improve a basic business function and steamroll from there. A Firstborn producer will work with your business to flush out the foundation of the project idea. Once the idea is documented, our producers review them with our Creative Director and together they further articulate how we envision the project. The details of the idea are documented in a proposal, which contains an outline of content to be included in the project, a budget and a schedule. It's basically a road map of what's to come." },
+         { label:'MANAGE',   cX:348, cY:191, copy:"resourceful and flexible professionals who know how to get the job done. Our producers are the conduit for all information between our clients and our creative team. They work with clients to kick off the project, identify, collect and label project assets, review creative work, document feedback, anticipate challenges and ultimately deliver a piece that makes everyone proud." },
+         { label:'DESIGN',   cX:348, cY:191, copy:"that users find intelligent, enticing and charming. Our studio contains the latest equipment and software. But perhaps more important, it contains the oldest and truest of all artistic equipment and software; pencils, paper and a handful of creative minds and artistic souls." },
+         { label:'PROGRAM',  cX:348, cY:191, copy:"Flash websites or Director presentations as we are implementing complex databases and setting up web servers. We know SQL, C++, JSP, ASP, Lotus Notes, Unix, Cold Fusion, you name it. Our code is always delivered to our clients in a clean and logical manner so that others can work with it if necessary in the future." },
+         { label:'DELIVER',  cX:348, cY:191, copy:"has a proven track record of delivering exceptional work for thrilled clients. We take a brand's imagery, understand its philosophy and go a long way with both. We get intrinsically involved with our clients and we're proud of the fact that we do repeat work with lots of them. The truest test in any business is whether your clients come back for more. Ours do." },
+     ]},
+     { label:'TYPES OF PROJECTS', cX:189, cY:230, copy:"There are many ways of using \"new media\" to improve basic needs in everyday business. All businesses strive to communicate more clearly, more efficiently and more cost-effectively with their employees, clients and potential clients. We create works that are used by companies, via the computer, to sell, market, train and communicate. The computer, and in particular interactive design, is the biggest thing to hit communications since",
+       children:[
+         { label:'SALES', cX:304, cY:180, copy:"There are lots of ways to use interactive design to support sales efforts. An effective laptop presentation can greatly enhance most sales presentations, delivering a consistent, entertaining and impressive message to your audience. An effective website can market and sell a clients' goods and services immediately via the Internet. Kiosk presentations can take tradeshow booths to another level. A password protected extranet site could be a great service to your existing clients, allowing them to re- order without faxing forms. Firstborn will spend time learning about how your company currently sells and offer suggestions for adding new media to your arsenal." },
+         { label:'MARKETING/PR', cX:304, cY:180, copy:"These days, people are looking at their computer screens as often as they look at television, magazines, outdoor billboards, and other traditional media. The computer is an increasingly powerful outlet for delivering your messages. There are the obvious ways via the web, email campaigns, etc. And there are some less obvious ways. Firstborn will meet with your marketing team to explore potential for applying new media to your company's marketing efforts." },
+         { label:'COMMUNICATIONS', cX:304, cY:240, copy:"All companies communicate with their employees and clients on a regular basis. To the clients we work with, the way they communicate is almost as important as what they are communicating. Interactive media is a great way to deliver company memos, annual reports, employee orientation materials, press, news and other important information. Firstborn will learn how your company currently communicates and offer suggestions for applying new media to your practices." },
+         { label:'TRAINING', cX:304, cY:180, copy:"It's been proven that using interactive media in a training or education environment will exponentially increase chances for the participants' retention of material. More and more companies are turning to computer- based, interactive presentations to teach their employees how to more effectively do their jobs. Firstborn will work with your company to explore ideas for transforming antiquated ways into contemporary, engaging presentations that will engage and excite your audience." },
+     ]},
+     { label:'TYPES OF DELIVERY', cX:400, cY:209, copy:"When you look at interactive designs, what you see on the monitor can be delivered to the computer in many different ways. You may be looking at a presentation on a laptop while traveling, or at a kiosk in a mall, or at your desk at work, or in the comfort of your own home. Most of Firstborn's work is delivered in the form of websites or",
+       children:[
+         { label:'WEB SITES', cX:295, cY:164, copy:"We create many presentations in the form of websites. Websites can be very effective because people can see your stuff day and night from anywhere on the planet. Websites are great because they can constantly change and evolve, from day-to-day or season-to-season. Firstborn has created memorable websites for a wide range of clients. Our websites are impressive multimedia experiences." },
+         { label:'CD-ROMS',   cX:295, cY:164, copy:"CD-ROMs are a great way of delivering digital design presentations. Many people have been saying for years that the \"CD-ROM is dead.\" Wrong. CD-ROMs are terrific when you do not have access to the Internet or when your presentations include a lot of video and motion graphics. And they are very inexpensive to duplicate, package and/or mail." },
+         { label:'INTRANETS', cX:295, cY:164, copy:"Intranet sites seem very much like websites, but they are limited to a particular audience. They are websites that only certain people can gain access to, usually with a password. Intranet sites are great for companies who are looking to share information and presentations with their colleagues and clients, but that they don't want to share with the rest of the world." },
+     ]},
  ]},
- { label:'OUR PORTFOLIO',
+ { label:'HOW WE DO IT', cX:509, cY:149,
+   copy:"There are no secrets to creating incredible interactive design. It does not take endless brainstorming meetings, ping-pong tables in the lunchroom, or a \"proprietary methodology\". It takes talented, determined people who know what they are doing. We are a company of highly",
+   children:[
+     { label:'THE BASICS', cX:202, cY:245, copy:"W e wor k a s a tea m at Firstborn. W e ar e producers, designers, productio n artists\n\ninteractive presentations. We understand our roles and we",
+       children:[
+         { label:'ENVISION', cX:245, cY:202, copy:"We study companies and the way they currently communicate with their clients or employees. We hope to find that current methods can be vastly improved by the use of interactive design. We look at methods of cost, presentation, their impact and overall effectiveness. Our producers further develop ideas by planning a hypothetical project. They think through the overall objectives, the content to be presented, the history of the brand, the design considerations, the audience point-of-view, the delivery method, etc. The entire concept is flushed out in a formal proposal." },
+         { label:'MANAGE',   cX:245, cY:202, copy:"Managing creativity is an oxymoron. So we concentrate on managing the tangible things inherent to creative projects, like collecting assets and watching the schedule and budget. We trust our designers and \"manage\" them as little as possible during the creative process. When the time comes to present their designs to our clients, our producers are adept at documenting and communicating input and feedback. From the initial concepts to the delivered piece, our producers are involved in every last detail. It isn't always easy, but they manage." },
+         { label:'DESIGN',   cX:245, cY:202, copy:"Like any art form, interactive design requires imagination, taste and inspiration. We work with client-supplied materials and existing elements of a brand's identity. Inspiration can strike at any time. Our designers carry sketchbooks everywhere. From initial sketches we create comps in Photoshop. We may do a bit of prototyping in Flash, as well. The germ of what later becomes a finished design takes only a week or two to develop." },
+         { label:'PROGRAM',  cX:245, cY:202, copy:"Before presenting layouts and design concepts to our clients, we share them with our programmers. That's because it's important to have them thinking about how things can be done early on in the project. They can also offer insights and ideas to our designers on the latest technology, which may spark a new creative solution. Later, when the client is comfortable with design direction, our programmers can do their thing. They've already been thinking about it." },
+         { label:'DELIVER',  cX:245, cY:202, copy:"When we're nearing completion, we deliver a \"test\" or \"beta\" version of the piece to our client. We also deliver a paper copy of each and every screen in the project for proofreading purposes. After a round or two of proofreading, we deliver a final piece, along with all digital assets and code created for the project. These files are organized, labeled and delivered in a logical, clear manner so that everything can be easily altered or updated in the future." },
+     ]},
+     { label:'CASE STUDIES', cX:331, cY:217, copy:"There are interesting\n\nall of our projects. We enjoy creating and designing interactive projects for our clients. We've met wonderful characters along the way, and we've learned a ton. We hope you enjoy a few of the stories behind some of our projects and at the same time get a feel for how a potential project",
+       children:[
+         { label:'REDKEN', cX:169, cY:177, copy:"Each month, we work with Redken to produce a multimedia laptop presentation delivered via CD-ROM to their nationwide sales force. This project started as a concept in 1998, when we first worked with the folks who lead Redken's sales department. At the time, we were creating a multimedia slideshow for their National Sales Meeting. They were impressed with our work and they wondered if we might be able to do something to spice up their monthly sales meetings.\n\nWe scheduled a sit-down to learn more about what they were doing at their meetings. They were relying primarily on small posters and their charisma as they stood in front of an average audience of forty people per week. When the meetings ended, they would leave behind the posters at the front of the room. These posters were costly, and they were producing large quantities of them each month.\n\nWe asked if we could borrow copies of the \"sales kits\" from the previous several months. We studied them to generate some ideas. In looking through the materials, we came to understand that they advertised promotions in specific product categories each month. We could see that they had beautiful images of models and products. We knew we could create a fantastic presentation.\n\nWe suggested a prototype, or a dummy, of the project. Redken gave us a budget that would later be applied to the actual project. In designing the prototype, we created a modern, multimedia version of the sales presentation. We proved that we could produce a great piece each month for less money than Redken was currently spending on creating the print materials.\n\nToday, the laptop presentations are a staple of Redken's overall sales process. Monthly meetings are made exciting and entertaining with the help of the interactive designs we develop together." },
+         { label:'MADONNA', cX:169, cY:177, copy:"We were sitting around the office one evening ready to call it a day when the phone rang. Someone at the other end asked us, \"How'd you like to do a website for Madonna?\" At first we were a bit skeptical. We checked things out the next day, and it turned out to be no hoax. Madonna's manager had picked us as one of the firms to pitch a website to support her upcoming album, Music.\n\nWe did all that we could to try and win the project. We wrote letters, asked friends in the entertainment industry to put in a good word, and eventually were given a chance to present our portfolio to her manager. She liked what she saw and we armed her with CD-ROMs and websites to show Madonna. We were awarded the project.\n\nWe had to move quickly. It was mid-July and the first phase of the project had to be launched by August 4th, the same day the first single was released to radio. MTV and VH1 were promoting the album, the single and (gulp) the new website around the clock. Pressure was mounting.\n\nWe conceived the idea of creating a music mixer in Flash, and we went about designing and programming at a furious pace. We would check in with Madonna's camp on a near daily basis by sending overnight packages and secret web addresses. They would report back positive feedback from Madonna herself. It was an exciting time for everyone involved with the project.\n\nWhen the mixer site was posted, it had an overwhelmingly positive response from fans around the world. As might be expected of Madonna fans, thousands of emails were sent offering praise, admiration and congratulations. We had little time to celebrate and began work immediately on the \"official\" album site. Just upon completion, we were given an opportunity to present the final piece to Madonna in person, which was a great honor." },
+         { label:'FEDERATED', cX:169, cY:177, copy:"This project was created way back in 1998. Federated was preparing to launch a new bath and body line called Souson, which they would sell exclusively in Federated department stores. A dedicated group of people in their cosmetics division had conceived the line and written a business plan, with branding and package design ideas. They were preparing to make internal presentations to company executives.\n\nThey became aware of Firstborn by word of mouth. The Federated Senior VP of Cosmetics was friendly with the CEO of one of our clients. When discussing the launch of her new project, the subject of presentations came up. It was recommended to her that she see some of the things we were doing.\n\nWe met with her and discussed her goals. She needed to cover basic information about the line, including business objectives and strategies. But she also needed to convey an important part of the concept, which revolved around 11 products made up of a combination of colors and fragrances. It needed to be strong visually.\n\nHer first meeting was met with rave reviews. She went on to give successful presentations and people were asking her for copies of the interactive piece. They found it to be helpful in sharing information about the Souson launch with colleagues. CD-ROMs were duplicated and it was ultimately shared with the press, merchandising managers, retailers and beauty advisors." },
+         { label:'CALVIN KLEIN', cX:169, cY:177, copy:"Calvin Klein is a company that is concerned with consistent presentation of its brand. They rely heavily on retail partners to adhere to the merchandising designs that are put in place each season. Twice a year, department store employees receive merchandising manuals, or as Calvin calls them, Visual Merchandising Directives. They are filled with step-by-step instructions and photographic examples that are used during the stages of setting up a new retail environment.\n\nIn an effort to train these people more effectively, Calvin asked us to create a multimedia version of the same information. We studied the existing materials and designed interactive ways of illustrating the standards. We incorporated the seasonal ad looks and overall brand creative direction in the design.\n\nMerchandisers can request a CD-ROM of seasonal standards for window displays, mannequin placements, folding techniques and other pertinent, timely information. And more recently, department stores and other retailers have access to the Visual Merchandising Directives via a password protected extranet site." },
+     ]},
+ ]},
+ { label:'OUR PORTFOLIO', cX:446, cY:243,
+   copy:"We're very proud of our portfolio. It's been a prolific four years. By browsing through this section, you can take a look at most of our web-based work in its entirety, as well as screen shots from CD-ROMs and laptop presentations.",
    children:[
      { label:'BY CLIENT (A-Z)',    layout:'client'  },
      { label:'BY CHRONOLOGY',      layout:'chrono'  },
@@ -120,10 +159,26 @@ const TREE = [
      { label:'BY DELIVERY MEDIA',  layout:'media'   },
      { label:'BY THUMBNAIL',       layout:'scatter' },
  ]},
- { label:'FIRSTBORN IS 5!', red:true,
-   copy:"Five years of hard work, determination and a strong desire to create the best user experiences possible." },
- { label:'CONTACT US',
-   copy:"Thinking about working with Firstborn? We'd love to hear from you." },
+ { label:'FIRSTBORN IS 5!', red:true, cX:543, cY:303,
+   children:[
+     { label:'PARTY PHOTOS', red:true },
+     { label:'ANNIVERSARY VIDEO', red:true },
+     { label:'POSTER', red:true },
+     { label:'GOODIE BAG', red:true,
+       children:[
+         { label:'INVITATION', red:true },
+         { label:'RED T-SHIRT', red:true },
+         { label:'WHITE T-SHIRT', red:true },
+         { label:'CD MAILER', red:true },
+     ]},
+ ]},
+ { label:'CONTACT US', cX:391, cY:240,
+   copy:"Please feel free to contact us if you're interested in discussing a potential project, or if you're interested in working at Firstborn.",
+   children:[
+     { label:'ADDRESS', cX:216, cY:184, copy:"We're located at 630 9th Avenue in New York City, which is between 44th and 45th Streets. Our zip code is 10036. We are about two blocks away from Times Square. We have three offices, Suites 605, 606 and 401.\n\nAll correspondence should be sent to Suite 605." },
+     { label:'EMAIL',   cX:216, cY:184, copy:"You can email us at any of the following addresses: info@firstbornmultimedia.com sales@firstbornmultimedia.com work@firstbornmultimedia.com creativedirector@firstbornmultimedia.com" },
+     { label:'PHONE',   cX:216, cY:184, copy:"Our phone number is 212-581-1100." },
+ ]},
 ];
 
 /* =====================================================================
@@ -193,6 +248,16 @@ let mains=[], sub=null, subs=[], subsub=null, subsubs=[];
 let mSel=-1, sSel=-1, ssSel=-1;           // selected indices
 let clickMode='logo', contentPending=null, contentShown=null;
 const content = { el:contentEl, x:0, y:0, s:0, goal:0, speed: K.speed/2 };
+const silEl = document.getElementById('sil');
+const sil = { el:silEl, x:69, y:315-46, s:0, goal:0 };   // addPrincipals: (69,315), logo-space
+function silState(mode){
+  // '' hide | 'show' 65 | 'full' 100 | 'michael' | 'vas'   (scalePrincipals/morphPrincipals)
+  if (!mode){ sil.goal=0; }
+  else if (mode==='show') sil.goal=65;
+  else sil.goal=100;
+  document.getElementById('silM').style.opacity = mode==='vas' ? 0.3 : 1;
+  document.getElementById('silV').style.opacity = mode==='michael' ? 0.3 : 1;
+}
 
 function makeItem(node, parentEl, onClick){
   const el=document.createElement('div');
@@ -257,6 +322,17 @@ function scaleNavObj(l,m,s,ss){
   if(sub) sub.goal=s;
   if(subsub) subsub.goal=ss;
 }
+function currentSil(){
+  const chain=[];
+  if (mSel>=0) chain.push(TREE[mSel]);
+  if (mSel>=0 && sSel>=0 && TREE[mSel].children) chain.push(TREE[mSel].children[sSel]);
+  if (mSel>=0 && sSel>=0 && ssSel>=0 && TREE[mSel].children[sSel].children) chain.push(TREE[mSel].children[sSel].children[ssSel]);
+  let mode='';
+  for(const n of chain){ if(n.sil) mode=n.sil; else if(mode && !n.sil && n!==chain[0]) mode=mode; }
+  // outside the WHO WE ARE branch entirely → hide
+  if (!(mSel>=0 && TREE[mSel].sil)) mode='';
+  return mode;
+}
 function logoRelease(){
   clickMode='logo'; mSel=-1; sSel=-1; ssSel=-1;
   pendSub=null; pendSubSub=null;
@@ -265,6 +341,7 @@ function logoRelease(){
   scaleNavObj(K.logoHome, 100, 0, 0);
   mains.forEach(o=>{ o.goal=100; setColor(o, o.node.red?K.red:K.grey); });
   removeContent(); setFieldMood('home');
+  silState('');
 }
 function mainRelease(i){
   const node=TREE[i];
@@ -281,15 +358,16 @@ function mainRelease(i){
   });
   if (node.children) pendSub = node;         // cascades once the ghost lands (navRun:918)
   else mains[i].goal=K.leaf;
-  contentPending = node.copy ? {node, at:'main'} : null;
+  contentPending = (node.copy||node.chips) ? {node, at:'main'} : null;
   setFieldMood(node.label==='OUR PORTFOLIO' ? 'portfolio' : 'dim');
+  silState(currentSil());
 }
 function subRelease(i){
   const node=TREE[mSel].children[i];
   sSel=i; ssSel=-1; clickMode='sub';
   removeContent();
   subs.forEach((o,j)=>{
-    setColor(o, j===i ? K.black : K.grey);
+    setColor(o, j===i ? (o.node.red?K.red:K.black) : (o.node.red?K.red:K.grey));
     o.goal = j===i ? (node.children?K.selected:K.leaf) : K.sibling;
   });
   pendSubSub=null;
@@ -298,7 +376,8 @@ function subRelease(i){
   if (node.children) pendSubSub = node;
   if (node.layout){ curLayout=node.layout; layouts[curLayout](); setFieldMood('portfolio'); }
   else if (TREE[mSel].label!=='OUR PORTFOLIO') setFieldMood('dim');
-  contentPending = node.copy ? {node, at:'sub'} : null;
+  contentPending = (node.copy||node.chips) ? {node, at:'sub'} : null;
+  silState(currentSil());
 }
 function subsubRelease(i){
   const node=TREE[mSel].children[sSel].children[i];
@@ -306,17 +385,43 @@ function subsubRelease(i){
   removeContent();
   scaleNavObj(K.logoOpen, K.ladder*K.ladder*K.ladder*100, K.newcomer, K.newcomer);
   subsubs.forEach((o,j)=>{
-    setColor(o, j===i ? K.black : K.grey);
+    setColor(o, j===i ? (o.node.red?K.red:K.black) : (o.node.red?K.red:K.grey));
     o.goal = j===i ? K.leaf : K.sibling;
   });
-  contentPending = node.copy ? {node, at:'subsub'} : null;
+  contentPending = (node.copy||node.chips) ? {node, at:'subsub'} : null;
+  silState(currentSil());
 }
 
 /* ===== content (addContent/removeContent: scale pop, speed/2) ===== */
 function removeContent(){ content.goal=0; contentShown=null; }
+function renderChips(node){
+  contentEl.innerHTML='';
+  const chipBox=document.createElement('div'); chipBox.className='chips';
+  const txt=document.createElement('div'); txt.className='ctext';
+  contentEl.appendChild(chipBox); contentEl.appendChild(txt);
+  node.chips.forEach((c,i)=>{
+    const b=document.createElement('b'); b.textContent=c.label;
+    if(i===0) b.classList.add('on');
+    b.addEventListener('click',()=>{
+      chipBox.querySelectorAll('b').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      content.s=0;                     // re-pop, like the original swap
+      txt.textContent=c.copy;
+    });
+    chipBox.appendChild(b);
+  });
+  txt.textContent=node.chips[0].copy;
+}
 function addContent(pend){
-  contentEl.textContent = pend.node.copy;
-  contentEl.style.textAlign = pend.at==='main' ? 'right' : 'left';
+  if (pend.node.chips) renderChips(pend.node);
+  else contentEl.textContent = pend.node.copy;
+  contentEl.style.textAlign = (pend.at==='main' && !pend.node.chips) ? 'right' : 'left';
+  if (pend.node.cX!==undefined){
+    content.x = logo.x + pend.node.cX;
+    content.y = logo.y + pend.node.cY;
+    content.s=0; content.goal=100; contentShown=pend.node;
+    return;
+  }
   // place beside/below the deepest column, in nav-local coords
   let x=0,y=0;
   if (pend.at==='subsub' && subsub){
@@ -403,6 +508,7 @@ function navTick(dt60){
   });
 
   scaleEase(content, dt60);
+  scaleEase(sil, dt60); apply(sil);
   // threshold choreography: content pops once the nav has settled
   if (contentPending){
     const settled = !pendSub && !pendSubSub

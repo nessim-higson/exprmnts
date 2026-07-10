@@ -43,6 +43,21 @@ the archived original running in Ruffle.
   mouse repulsion) against the archival pure-ease feel. Sliders for stiffness / damping / repel
   radius. Static-by-default: tiles spawn settled; motion is opt-in.
 
+## The recovered content (v4)
+- **Every copy block on the 2003 site, decoded from the binary** — I wrote a DefineText/DefineFont
+  glyph-table decoder; static Flash text stores glyph indices, the font's code table maps them back
+  to characters. 44 blocks: section intros, THE BASICS process steps, case studies (Redken, Madonna,
+  Federated, Calvin Klein), the year-by-year HISTORY entries, contact details — all verbatim, all at
+  their original stage coordinates (cX/cY from the decompiled `initData`).
+- **The founders** — Michael Ferdman & Vas Sloutchevsky, with their real bios, and their silhouettes
+  extracted as vectors (DefineShape → SVG converter) from `principalAni`: the pair appears at
+  (69,315) scaling to 65 when WHO WE ARE opens, to 100 on PRINCIPALS, and each founder dims the
+  other when selected (`addPrincipals` / `scalePrincipals` / `morphPrincipals`, verbatim).
+- **HISTORY year-chips** — 1997–2002 chip list with the real annual entries, selected chip red
+  (`startTextNav`'s chip behavior, simplified).
+- **FIRSTBORN IS 5! runs red** through its whole subtree (`colorSelec`), incl. the GOODIE BAG.
+- More mined vectors in `assets/`: sil-pointing, sil-phone, sil-plane (the tiny paper-plane man).
+
 ## Notes
 - Canvas 2D, DPR-aware; tiles brighten + scale on cursor proximity (as in the original).
 - Deterministic seeded PRNG so the scatter is stable.
