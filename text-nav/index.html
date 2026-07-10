@@ -838,7 +838,7 @@ function fieldTick(dt){
     p.b+=(tb-p.b)*Math.min(1,10*dt);
     p.s+=(ts-p.s)*Math.min(1,10*dt);
     if (p.img.complete&&p.img.naturalWidth){
-      const k2 = (curLayout==='type') ? 0.42*stageK : 1;
+      const k2 = ((curLayout==='type') ? 0.42 : 0.55) * stageK;   // stage-scaled, like portfolio.swf
       const w=TW*p.s*k2, h=TH*p.s*k2;
       cx.globalAlpha=p.b;
       cx.drawImage(p.img,p.x-w/2,p.y-h/2,w,h);
