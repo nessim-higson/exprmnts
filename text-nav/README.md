@@ -71,6 +71,19 @@ the archived original running in Ruffle.
   still unparsed; composition approximates the archived scene). PRINCIPALS isolates the pair.
 - **Stage furniture**: the scaler box, top hairlines, and left dashes.
 
+## v6 — true coordinates (no more approximations)
+The rebuild now runs entirely on numbers read from the binary:
+- **Stage 800×650 @60fps**, showAll-scaled and centered; the nav sprite at its real (105,60).
+- **Every menu item is its real `sizer` box** — exact width per item (WHO WE ARE 174.9,
+  OUR PORTFOLIO 207.0, ENVISION 122.1…), 20px tall, label at 28px inset at the decoded
+  per-symbol offset. The chain math now reproduces the original's spacing to the pixel
+  (23px sibling pitch, 28px at the selected — emergent, not tuned).
+- **The real vector logotype** (DefineShape 11 → SVG), 389.9×45, in place of HTML text.
+- Furniture at stage coordinates (scaler 11,11; hairlines; dashes).
+
+Remaining gaps to full 1:1: the embedded fonts as a webfont (glyph outlines are extractable),
+the morph-shape crowd figures, and the content chip/thumb module animations.
+
 ## Notes
 - Canvas 2D, DPR-aware; tiles brighten + scale on cursor proximity (as in the original).
 - Deterministic seeded PRNG so the scatter is stable.
