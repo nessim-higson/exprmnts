@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPINE · nav variants · exprmnts</title>
+<style>
+@font-face{font-family:'FBNav'; src:url('../../text-nav/assets/fb-nav.ttf'); font-display:block}
+@font-face{font-family:'FBBody'; src:url('../../text-nav/assets/fb-body.ttf'); font-display:block}
+*{box-sizing:border-box;margin:0} html,body{height:100%}
+
+body{background:#0b0b0e; color:#e8e6df; font-family:"Helvetica Neue",Helvetica,sans-serif; overflow:hidden}
+#stage{position:fixed; left:50vw; top:16vh}
+.lvl{position:absolute; transform-origin:50% 0}
+.node{position:absolute; font-size:30px; font-weight:700; letter-spacing:.14em; line-height:1;
+  white-space:nowrap; cursor:pointer; color:#8f8d86; transform-origin:50% 0; transition:color .15s}
+.node:hover{color:#e8e6df}
+.node.sel{color:#3c3b36}
+.node.accent{color:#c8ff2e}
+#copy{position:fixed; width:400px; margin-left:-200px; text-align:center; font-size:13px;
+  line-height:1.65; color:#87857e; opacity:0; transform:scale(.94); transition:opacity .5s, transform .5s}
+#copy.on{opacity:1; transform:scale(1)}
+#ctl{color:#6d6b64} #ctl input{accent-color:#c8ff2e}
+.crumb{color:#6d6b64}
+
+#ctl{position:fixed; right:22px; bottom:18px; z-index:9; display:flex; gap:16px;
+  font-size:10px; letter-spacing:.16em; opacity:.75}
+#ctl label{display:flex; align-items:center; gap:7px}
+#ctl input{width:80px; height:2px}
+#ctl .val{min-width:22px; font-variant-numeric:tabular-nums}
+.crumb{position:fixed; top:18px; left:22px; z-index:9; font-size:10px; font-weight:600;
+  letter-spacing:.22em; text-transform:uppercase; opacity:.55}
+.crumb a{color:inherit; text-decoration:none}
+</style></head>
+<body>
+<div class="crumb"><a href="../">nav variants</a> / b · spine</div>
+<div id="stage"></div>
+<div id="copy"></div>
+<div id="ctl">
+  <label>SPEED <input type="range" id="speed" min="1.5" max="8" step="0.5" value="3"><span class="val" id="speedV">3</span></label>
+  <label>LADDER <input type="range" id="ladder" min="50" max="92" value="75"><span class="val" id="ladderV">75</span></label>
+  <label>ARRIVE <input type="range" id="newk" min="100" max="180" value="133"><span class="val" id="newkV">133</span></label>
+</div>
+
+<script>
+const TREE = [
+ { label:'STUDIO', copy:"We are a small bureau working slowly on fast things. Founded on a kitchen table; still fond of kitchens. We believe a navigation is a place, not a chore \u2014 you should want to stand in it.",
+   children:[
+     { label:'PEOPLE', copy:"Five of us. Two draw, two build, one argues. The arguing one is essential." },
+     { label:'VALUES', copy:"Slow is smooth. Smooth is fast. Delete the third thing. Ship the second thing. Keep the first thing secret." },
+     { label:'ROOMS',  copy:"A studio is a room that remembers. Ours remembers plotter ink, burnt coffee, and one very good winter." },
+ ]},
+ { label:'WORK',
+   copy:"Selected commissions and self-initiated trouble. We show little; we keep receipts.",
+   children:[
+     { label:'SELECTED', copy:"Twelve projects we would do again. Nine clients who would have us again. The overlap is the portfolio." },
+     { label:'PROCESS', copy:"Everything begins as a verb.",
+       children:[
+         { label:'LISTEN', copy:"The brief under the brief. We ask until the real one surfaces \u2014 it is usually smaller and braver." },
+         { label:'SKETCH', copy:"Cheap ideas in expensive quantities. Paper first. The screen flatters too early." },
+         { label:'BUILD',  copy:"The sketch that survived becomes a machine. We keep its skeleton visible." },
+         { label:'SHIP',   copy:"Deadlines are design material. We compose with them, not against them." },
+     ]},
+     { label:'ARCHIVE', copy:"Old work stays online. Rot is honest; redirects are lies." },
+ ]},
+ { label:'JOURNAL',
+   copy:"Occasional writing. No cadence, no newsletter, no apology.",
+   children:[
+     { label:'ESSAYS', copy:"Long thoughts, cooled slowly." },
+     { label:'NOTES',  copy:"Short thoughts, served warm." },
+     { label:'TALKS',  copy:"Things said out loud, regretted quietly." },
+ ]},
+ { label:'MANIFESTO', accent:true,
+   copy:"Motion is meaning. Hierarchy is a camera. Type is architecture. Everything else is furniture." },
+ { label:'CONTACT',
+   copy:"Say hello. We reply between 10 and 11, most Tuesdays.",
+   children:[
+     { label:'WRITE', copy:"studio@dummy.example \u2014 letters welcome, attachments suspicious." },
+     { label:'VISIT', copy:"Third floor, the door with no sign. Knock like you mean it." },
+ ]},
+];
+const CFG={
+  ladder:0.72, newcomer:138,
+  layout(L,d,levels,dt,ease){
+    // the splice: children insert below the selected item and push
+    // the following siblings down — the original's displacement, on an axis
+    const child = (levels[d+1] && levels[d+1].parentLevel===L) ? levels[d+1] : null;
+    const selIdx = L.items.findIndex(o=>o.sel);
+    let y=0;
+    L.items.forEach((o,i)=>{
+      o.x.t = -(o.w/2)*(o.s.v/100);
+      o.s.t = o.sel ? 118 : (L.box.classList.contains('hasSel')?62:100);
+      o.y.t = y; y += o.h*(o.s.v/100) + 14;
+      if (child && i===selIdx){
+        y += (child.contentH||0)*(child.s.v/100) + 34;
+      }
+    });
+    L.contentH = y;
+    if(L.parentItem){
+      L.x.t = 0;
+      L.y.t = L.parentItem.y.v + L.parentItem.h*(L.parentItem.s.v/100) + 24;
+      ease(L.x,dt); ease(L.y,dt);
+    }
+  },
+  placeCopy(el,L,it,levels){
+    const r=levels[0].box.getBoundingClientRect();   // whole tree incl. children
+    el.style.left=(innerWidth/2)+'px';
+    el.style.top=(r.bottom+38)+'px';
+  }
+};
+
+/* ===== the '03 grammar, distilled =====================================
+   x += (goal-x)/speed @60fps, snap<=1 | container ladder 0.75 | newcomers 133
+   arrival-gated: retract -> tuck -> out -> cascade | follow-the-leader chains */
+const P={ speed:3, ladder:CFG.ladder, newcomer:CFG.newcomer };
+const sv=v=>({v,t:v});
+function ease(o,dt){ const d=o.t-o.v; if(Math.abs(d)>1) o.v+=(d/P.speed)*dt; else o.v=o.t; }
+
+const stageEl=document.getElementById('stage');
+let levels=[];   // [{box, items:[{el,node,x,y,s,w,h,sel}], parent, s, sGoal, x,y}]
+let pend=null, dying=[], seq=null, copyEl=document.getElementById('copy');
+let copyPend=null;
+
+function makeLevel(nodes, parentBox){
+  const box=document.createElement('div'); box.className='lvl';
+  (parentBox||stageEl).appendChild(box);
+  const L={box, items:[], s:sv(0), x:sv(0), y:sv(0)};
+  L.s.t=P.newcomer;
+  nodes.forEach((n,i)=>{
+    const el=document.createElement('div'); el.className='node'+(n.accent?' accent':'');
+    el.textContent=n.label;
+    box.appendChild(el);
+    const it={el,node:n,x:sv(0),y:sv(0),s:sv(100),sel:false,idx:i};
+    it.w=el.offsetWidth; it.h=el.offsetHeight;
+    el.addEventListener('click',e=>{e.stopPropagation(); pick(L,it);});
+    L.items.push(it);
+  });
+  return L;
+}
+function depthOf(L){ return levels.indexOf(L); }
+function retire(L){ L.s.t=0; dying.push(L); }
+
+function pick(L,it){
+  const d=depthOf(L);
+  if(d<0||seq) return;
+  const deeper=levels.slice(d+1);
+  const reselect = it.sel;
+  if(deeper.length||reselect){
+    seq={phase:'retract', L, it, d, reopen: reselect?null:it};
+    deeper.forEach(retire);
+    levels=levels.slice(0,d+1);
+    L.items.forEach(o=>{o.sel=false;});
+    hideCopy();
+    return;
+  }
+  openItem(L,it);
+}
+function openItem(L,it){
+  L.items.forEach(o=>o.sel=false);
+  it.sel=true;
+  L.box.classList.add('hasSel');
+  if(it.node.children){ pend={L,it}; }
+  copyPend=it.node.copy?{L,it}:null;
+  hideCopy();
+}
+function hideCopy(){ copyEl.classList.remove('on'); }
+let lastCopy=null;
+function showCopy(L,it){
+  copyEl.textContent=it.node.copy;
+  lastCopy={L,it};
+  CFG.placeCopy(copyEl,L,it,levels);
+  copyEl.classList.add('on');
+}
+
+/* master tick, fixed 60Hz */
+function tick(dt){
+  if(seq&&seq.phase==='retract'){
+    const gone=dying.every(D=>D.s.v<=1);
+    if(gone){
+      dying.forEach(D=>D.box.remove()); dying=[];
+      seq.L.box.classList.toggle('hasSel', !!seq.reopen);
+      if(seq.reopen){ const t=seq.reopen; seq=null; openItem(levelsAt(t), t); }
+      else seq=null;
+    }
+  }
+  dying.forEach(D=>{ ease(D.s,dt); apply(D); });
+  levels.forEach((L,d)=>{
+    // container scale: deepest -> newcomer target; ancestors -> ladder
+    const gen=levels.length-1-d;
+    L.s.t = P.newcomer*Math.pow(P.ladder,gen)* (d===0?100/P.newcomer:1);
+    ease(L.s,dt);
+    CFG.layout(L,d,levels,dt,ease);
+    L.items.forEach(o=>{ ease(o.x,dt); ease(o.y,dt); ease(o.s,dt);
+      o.el.style.transform='translate('+o.x.v+'px,'+o.y.v+'px) scale('+(o.s.v/100)+')';
+      o.el.classList.toggle('sel',o.sel);
+    });
+    apply(L);
+  });
+  // arrival gates
+  if(pend){
+    const it=pend.it;
+    if(Math.abs(it.x.v-it.x.t)<=1 && Math.abs(it.s.v-it.s.t)<=1){
+      const NL=makeLevel(pend.it.node.children, pend.L.box);
+      NL.parentItem=pend.it; NL.parentLevel=pend.L;
+      levels.push(NL);
+      pend=null;
+    }
+  }
+  if(lastCopy && copyEl.classList.contains('on')) CFG.placeCopy(copyEl,lastCopy.L,lastCopy.it,levels);
+  if(copyPend && !pend && !seq){
+    const settled=levels.every(L=>Math.abs(L.s.v-L.s.t)<=1 && L.items.every(o=>Math.abs(o.x.v-o.x.t)<=1&&Math.abs(o.y.v-o.y.t)<=1));
+    if(settled){ showCopy(copyPend.L,copyPend.it); copyPend=null; }
+  }
+}
+function levelsAt(it){ return levels.find(L=>L.items.includes(it)); }
+function apply(L){
+  L.box.style.transform='translate('+(L.x?L.x.v:0)+'px,'+(L.y?L.y.v:0)+'px) scale('+(L.s.v/100)+')';
+}
+levels.push(makeLevel(TREE, null));
+levels[0].s.v=100; levels[0].s.t=100;
+
+let last=performance.now(), acc=0;
+function frame(now){
+  acc+=Math.min(0.05,(now-last)/1000); last=now;
+  while(acc>=1/60){ tick(1); acc-=1/60; }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* DNA sliders */
+const bind=(id,f)=>{ const el=document.getElementById(id), v=document.getElementById(id+'V');
+  if(!el) return;
+  el.addEventListener('input',()=>{ f(+el.value); v.textContent=el.value; }); };
+bind('speed',x=>P.speed=x); bind('ladder',x=>P.ladder=x/100); bind('newk',x=>P.newcomer=x);
+document.body.addEventListener('click',e=>{
+  if(e.target.closest('.node')||e.target.closest('#ctl')) return;
+  if(levels.length>1||levels[0].items.some(o=>o.sel)){
+    seq={phase:'retract',L:levels[0],reopen:null,d:0};
+    levels.slice(1).forEach(retire); levels=[levels[0]];
+    levels[0].items.forEach(o=>o.sel=false);
+    levels[0].box.classList.remove('hasSel');
+    hideCopy();
+  }
+});
+
+</script>
+</body></html>

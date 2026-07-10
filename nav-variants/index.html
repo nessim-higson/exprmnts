@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nav Variants · exprmnts</title>
+<style>
+  :root{ --ink:#09090a; --white:#ece9e3; --mute:#96948c; --faint:#605e58;
+         --hairline:#2c2b28; --crimson:#b2222a; --parchment:#e7e1d6 }
+  *{box-sizing:border-box; margin:0}
+  body{background:var(--ink); color:var(--white); min-height:100vh;
+    font:15px/1.5 "Helvetica Neue",-apple-system,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; padding:64px; display:flex; flex-direction:column}
+  .crumb{color:var(--faint); font-size:11px; font-weight:600; letter-spacing:.22em;
+    text-transform:uppercase; margin-bottom:26px}
+  .crumb a{color:var(--faint); text-decoration:none}
+  .crumb a:hover{color:var(--white)}
+  .eyebrow{display:flex; align-items:center; gap:14px; color:var(--crimson);
+    font-size:12px; font-weight:600; letter-spacing:.28em; text-transform:uppercase}
+  .eyebrow::before{content:""; width:26px; height:2px; background:var(--crimson)}
+  h1{font-size:84px; font-weight:800; letter-spacing:-.03em; margin:28px 0 6px}
+  .sub{color:var(--mute); font-size:13px; letter-spacing:.18em; text-transform:uppercase; margin-bottom:64px}
+  .row{display:flex; align-items:baseline; gap:26px; padding:30px 4px;
+    border-top:1px solid var(--hairline); text-decoration:none; color:var(--white)}
+  .row:last-of-type{border-bottom:1px solid var(--hairline)}
+  .row .k{font-size:12px; font-weight:700; letter-spacing:.2em; color:var(--crimson); min-width:44px}
+  .row h2{font-size:24px; font-weight:700}
+  .row p{color:var(--mute); font-size:13.5px; flex:1}
+  .row .arr{color:var(--faint); font-size:20px; transition:transform .15s}
+  .row:hover .arr{color:var(--white); transform:translateX(6px)}
+  .row:hover h2{color:var(--parchment)}
+  footer{margin-top:auto; padding-top:60px; color:var(--faint); font-size:11px;
+    letter-spacing:.18em; text-transform:uppercase}
+  @media(max-width:700px){ body{padding:28px} h1{font-size:48px} .row{flex-direction:column; gap:8px} }
+</style>
+</head>
+<body>
+  <div class="crumb"><a href="../">exprmnts</a> &nbsp;/&nbsp; 003 · nav variants</div>
+  <div class="eyebrow">Same DNA, new bodies · after Firstborn '03</div>
+  <h1>Nav Variants.</h1>
+  <div class="sub">x += (goal−x)/3 @60 · ladder ×0.75 · arrive at 133 · arrival-gated — dummy copy, live DNA sliders</div>
+
+  <a class="row" href="a-paper/">
+    <span class="k">A</span>
+    <h2>PAPER</h2>
+    <p>The grammar inverted into daylight — warm paper, ink, the real 2003 letterforms in a light world. Right-aligned classic.</p>
+    <span class="arr">→</span>
+  </a>
+  <a class="row" href="b-spine/">
+    <span class="k">B</span>
+    <h2>SPINE</h2>
+    <p>Everything centered on a vertical axis — children cascade down the spine, ancestors recede up it. Acid accent.</p>
+    <span class="arr">→</span>
+  </a>
+  <a class="row" href="c-rail/">
+    <span class="k">C</span>
+    <h2>RAIL</h2>
+    <p>The grammar rotated 90° — horizontal rows, each depth a new rail stepping down. A typographic staircase.</p>
+    <span class="arr">→</span>
+  </a>
+
+  <footer>I AM ALWAYS HUNGRY · A PLAYGROUND</footer>
+</body>
+</html>
