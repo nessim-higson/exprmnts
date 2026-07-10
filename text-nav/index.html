@@ -230,7 +230,7 @@ const K = {
   grey:'#999999', black:'#4a4a4a', red:'#e03a30', hover:'#ece9e3',
   stageW: 800, stageH: 650, navX: 105, navY: 60,   // from the SWF header + root timeline
   ladder: 0.75, newcomer: 133,
-  logoHome: 66.5, logoOpen: 29.7,
+  logoHome: 66.5, logoOpen: 29.7, logoDeep: 22.3,   /* 29.7 x 0.75 — the logo ladders too */
   sibling: 75, selected: 100, leaf: 133,
   subsubFlyX: 400,
 };
@@ -497,7 +497,8 @@ function applySub(i){
   pendSubSub=null;
   retire(subsub); subsub=null; subsubs=[];
   // branch: main deepens to 56.25; leaf: main STAYS 75 (measured against the original)
-  scaleNavObj(K.logoOpen, node.children ? K.ladder*K.ladder*100 : K.ladder*100, K.newcomer, 0);
+  scaleNavObj(node.children ? K.logoDeep : K.logoOpen,
+              node.children ? K.ladder*K.ladder*100 : K.ladder*100, K.newcomer, 0);
   if (node.children) pendSubSub = node;
   if (node.layout){ curLayout=node.layout; layouts[curLayout](); setFieldMood('portfolio'); }
   else if (TREE[mSel].label!=='OUR PORTFOLIO') setFieldMood('dim');
@@ -508,7 +509,7 @@ function subsubRelease(i){
   const node=TREE[mSel].children[sSel].children[i];
   ssSel=i; clickMode='subsub';
   removeContent();
-  scaleNavObj(K.logoOpen, K.ladder*K.ladder*K.ladder*100, K.newcomer, K.newcomer);
+  scaleNavObj(K.logoDeep, K.ladder*K.ladder*100, K.newcomer, K.newcomer);
   subsubs.forEach((o,j)=>{
     setColor(o, j===i ? (o.node.red?K.red:K.black) : (o.node.red?K.red:K.grey));
     o.goal = j===i ? K.leaf : K.sibling;
@@ -627,7 +628,10 @@ function navTick(dt60){
   // the stack top tracks the logo's bottom edge; its x eases toward the
   // logo's right edge — the whole column rides the shrinking logo (navRun:903,894)
   main.y = logo.y + logo.h*(logo.s/100);
-  easeIn(main, 'x', logo.x + logo.w*(logo.s/100), dt60);
+  const mainAnchor = (mSel>=0)
+    ? logo.x + 343*(logo.s/100) + mains[0].w*(mains[0].s/100)*(main.s/100)   // navRun:898-901
+    : logo.x + logo.w*(logo.s/100);                                          // home: logo right edge
+  easeIn(main, 'x', mainAnchor, dt60);
 
   // main items: follow-the-leader chain with EASING — the ripple (navRun:914)
   const selIdx = (seq && seq.phase==='tuck') ? -1 : mSel;   // tucking ghost is no longer "out"
