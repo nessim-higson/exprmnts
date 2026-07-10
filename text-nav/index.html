@@ -861,6 +861,10 @@ function frame(now){
 
 /* ===== boot ===== */
 buildMain();
+/* deep link parity: the original (siteSize=1) auto-opens OUR PORTFOLIO > BY THUMBNAIL */
+if (new URLSearchParams(location.search).get('boot')==='portfolio'){
+  setTimeout(()=>{ mainRelease(3); setTimeout(()=>{ if(subs[4]) subRelease(4); }, 1400); }, 900);
+}
 /* calibrate label glyph-runs to the decoded Flash text widths (pixel-true) */
 document.fonts.ready.then(()=>{
   window.__calibrate=o=>{
