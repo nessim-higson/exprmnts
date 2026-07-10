@@ -58,6 +58,19 @@ the archived original running in Ruffle.
 - **FIRSTBORN IS 5! runs red** through its whole subtree (`colorSelec`), incl. the GOODIE BAG.
 - More mined vectors in `assets/`: sil-pointing, sil-phone, sil-plane (the tiny paper-plane man).
 
+## v5 — the reshuffle + line-accurate everything
+- **Sequenced branch switching** (the original's `aniMode` chain, now ported): switching branches
+  runs retract → tuck → slide-out → cascade — the open sub column scales to zero, the old ghost
+  tucks back into the stack, the new ghost slides out, and only then does the new column cascade.
+  Clicking mid-sequence retargets it. This is the "shuffling and reshuffling" of the original.
+- **Line-accurate copy**: every copy block renders line-by-line at its decoded x/y/size from the
+  binary — the original's two-column layouts (lead-in insets, rags, alignments) reproduce
+  automatically.
+- **The crowd**: WHO WE ARE shows a group scene composed from the extracted silhouette cast
+  (the original's exact crowd arrangement lives partly in DefineMorphShape targets — 3 shapes
+  still unparsed; composition approximates the archived scene). PRINCIPALS isolates the pair.
+- **Stage furniture**: the scaler box, top hairlines, and left dashes.
+
 ## Notes
 - Canvas 2D, DPR-aware; tiles brighten + scale on cursor proximity (as in the original).
 - Deterministic seeded PRNG so the scatter is stable.
