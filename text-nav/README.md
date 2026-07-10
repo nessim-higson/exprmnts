@@ -71,6 +71,17 @@ the archived original running in Ruffle.
   still unparsed; composition approximates the archived scene). PRINCIPALS isolates the pair.
 - **Stage furniture**: the scaler box, top hairlines, and left dashes.
 
+## v7 — the real fonts, the real pair
+- **The embedded fonts, rebuilt as webfonts** — a SWF-glyph→TTF converter (fontTools) turns the
+  binary's own outlines into `fb-nav.ttf` (Helvetica 65 Medium uppercase subset — the nav labels),
+  `fb-body.ttf` (Helvetica 65 Medium — all copy; advances derived per-glyph from usage), and
+  `fb-roman.ttf` (Helvetica 55 Roman). The letterforms are literally the 2003 cuts.
+- **The founders' morph, verbatim** — walking `principalAni`'s timeline frame by frame gave the
+  exact choreography: select Michael and he grows to ×1.75 at (50.9,−30.6) while Vas shrinks to
+  nothing, and vice versa (frames 1–23 / 47–67). The invented crowd is gone — the ~11-figure group
+  scene turns out to be the 2007 site's; the 2003 binary contains only the pair. Correctness > more.
+- **HISTORY chips** nudge apart around the selection, per `startTextNav`.
+
 ## v6 — true coordinates (no more approximations)
 The rebuild now runs entirely on numbers read from the binary:
 - **Stage 800×650 @60fps**, showAll-scaled and centered; the nav sprite at its real (105,60).
