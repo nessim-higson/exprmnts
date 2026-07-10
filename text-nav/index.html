@@ -542,6 +542,13 @@ function addContent(pend){
   }
   else contentEl.textContent = pend.node.copy;
   if (!(pend.node.ck && CL[pend.node.ck])) contentEl.style.textAlign = (pend.at==='main' && !pend.node.chips) ? 'right' : 'left';
+  if (pend.node.ck==='whoWeAreText'){
+    // the crowd ships inside the whoWeAreText symbol — shape 377 at (63.6,165.8)
+    const im=document.createElement('img');
+    im.src='assets/crowd.svg'; im.draggable=false;
+    im.style.cssText='position:absolute;left:32.5px;top:103.6px;width:150.2px;height:191.7px;pointer-events:none';
+    contentEl.appendChild(im);
+  }
   if (pend.node.cX!==undefined){
     content.x = logo.x + pend.node.cX;
     content.y = logo.y + pend.node.cY;
@@ -725,18 +732,32 @@ const parts = IDS.map((id,i)=>{
 });
 function safeZone(x,y){ return x > 0.06*W && x < 0.42*W && y > 0.22*H && y < 0.8*H; }
 const layouts = {
-  scatter(){ parts.forEach(p=>{
+  scatter(){ clearFieldLabels(); parts.forEach(p=>{
     let x,y,tries=0;
     do { x=30+rnd()*(W-60); y=60+rnd()*(H-120); tries++; } while (safeZone(x,y)&&tries<40);
     p.hx=x; p.hy=y; });},
-  client(){ grid(parts.slice().sort((a,b)=>a.i-b.i)); },
-  chrono(){ grid(parts.slice().sort((a,b)=>b.i-a.i)); },
-  type(){ const KC=5, cs=[];
-    for(let k=0;k<KC;k++) cs.push([0.5*W+rnd()*0.44*W, 0.16*H+rnd()*0.68*H]);
-    parts.forEach((p,j)=>{ const c=cs[j%KC];
-      const a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*Math.min(W,H)*0.12;
-      p.hx=c[0]+Math.cos(a)*r; p.hy=c[1]+Math.sin(a)*r; }); },
-  media(){ const rows=4;
+  client(){ clearFieldLabels(); grid(parts.slice().sort((a,b)=>a.i-b.i)); },
+  chrono(){ clearFieldLabels(); grid(parts.slice().sort((a,b)=>b.i-a.i)); },
+  type(){ // grouped grid with category labels, like portfolio.swf's byProjectType
+    const stage=(x,y)=>[stageOX+(K.navX+x)*stageK, stageOY+(K.navY+y)*stageK];
+    const GROUPS=[['MARKETING',0,0,9],['COMMUNICATIONS',252,0,4],['SALES',364,0,3],['TRAINING',460,0,2]];
+    clearFieldLabels();
+    let gi=0, counts=[0,0,0,0];
+    parts.forEach((p,j)=>{ counts[j%7<4?0:(j%7<5?1:(j%7<6?2:3))]++; });
+    const idx=[0,0,0,0];
+    parts.forEach((p,j)=>{
+      const g = j%7<4?0:(j%7<5?1:(j%7<6?2:3));
+      const [label,gx,gy,cols]=GROUPS[g];
+      const i=idx[g]++;
+      const [sx,sy]=stage(135+gx+(i%cols)*(TW*0.42+3), 275+gy+Math.floor(i/cols)*(TH*0.42+3));
+      p.hx=sx; p.hy=sy;
+    });
+    GROUPS.forEach(([label,gx])=>{
+      const [lx,ly]=stage(135+gx, 262);
+      addFieldLabel(label, lx, ly);
+    });
+  },
+  media(){ clearFieldLabels(); const rows=4;
     parts.forEach((p,j)=>{ const r=j%rows, n=Math.ceil(parts.length/rows), k=Math.floor(j/rows);
       p.hx = 0.48*W + (k/(n-1))*0.48*W;
       p.hy = 0.22*H + r*(0.56*H/(rows-1)) + (rnd()-0.5)*8; }); },
@@ -755,9 +776,23 @@ resize();
 layouts.scatter();
 parts.forEach(p=>{ p.x=p.hx; p.y=p.hy; });
 
-let fieldMood='home';
+let fieldMood='home', fieldScale=1;
 function setFieldMood(m){ fieldMood=m; }
-const moodBase = ()=> fieldMood==='dim' ? 0.05 : (fieldMood==='portfolio' ? 0.26 : 0.18);
+function fieldLabelBox(){
+  let lb=document.getElementById('fieldLabels');
+  if(!lb){ lb=document.createElement('div'); lb.id='fieldLabels';
+    lb.style.cssText='position:fixed;inset:0;z-index:3;pointer-events:none';
+    document.body.appendChild(lb); }
+  return lb;
+}
+function clearFieldLabels(){ fieldLabelBox().innerHTML=''; }
+function addFieldLabel(t,x,y){
+  const el=document.createElement('div');
+  el.textContent=t;
+  el.style.cssText='position:absolute;font:400 '+(10*stageK)+'px FBBody,Helvetica;letter-spacing:.06em;color:#88867f;left:'+x+'px;top:'+(y-12*stageK)+'px';
+  fieldLabelBox().appendChild(el);
+}
+const moodBase = ()=> fieldMood==='dim' ? 0.0 : (fieldMood==='portfolio' ? 0.26 : 0.18);
 
 const mouse = { x:-9e3, y:-9e3 };
 addEventListener('pointermove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
@@ -769,7 +804,8 @@ function fieldTick(dt){
   cx.clearRect(0,0,W,H);
   const base = moodBase();
   for(const p of parts){
-    const dx0=Math.sin(t*0.35+p.i*1.7)*7, dy0=Math.cos(t*0.28+p.i*2.3)*5;
+    const drift = curLayout==='scatter' ? 1 : 0.15;   // grids sit still, like portfolio.swf
+    const dx0=Math.sin(t*0.35+p.i*1.7)*7*drift, dy0=Math.cos(t*0.28+p.i*2.3)*5*drift;
     const tx=p.hx+dx0, ty=p.hy+dy0;
     if (P.mode==='spring'){
       let fx=(tx-p.x)*Math.min(P.k,140), fy=(ty-p.y)*Math.min(P.k,140);
@@ -795,7 +831,8 @@ function fieldTick(dt){
     p.b+=(tb-p.b)*Math.min(1,10*dt);
     p.s+=(ts-p.s)*Math.min(1,10*dt);
     if (p.img.complete&&p.img.naturalWidth){
-      const w=TW*p.s, h=TH*p.s;
+      const k2 = (curLayout==='type') ? 0.42*stageK : 1;
+      const w=TW*p.s*k2, h=TH*p.s*k2;
       cx.globalAlpha=p.b;
       cx.drawImage(p.img,p.x-w/2,p.y-h/2,w,h);
     }

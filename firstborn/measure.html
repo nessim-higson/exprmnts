@@ -1,0 +1,12 @@
+<!doctype html><html><head><style>body{margin:0;background:#111}#box{width:800px;height:650px;background:#000}</style></head>
+<body><div id="box"></div>
+<script src="ruffle/ruffle.js"></script>
+<script>
+window.RufflePlayer=window.RufflePlayer||{};
+const r=window.RufflePlayer.newest();
+const player=r.createPlayer();
+player.style.width='800px'; player.style.height='650px';
+document.getElementById('box').appendChild(player);
+player.load({url:'swf/firstborn-2003.swf', parameters:'siteSize=1', autoplay:'on',
+  scale:'exactFit', letterbox:'off', preferredRenderer:'canvas', backgroundColor:'#000000', allowScriptAccess:true});
+</script></body></html>

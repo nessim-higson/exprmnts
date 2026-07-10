@@ -71,6 +71,19 @@ the archived original running in Ruffle.
   still unparsed; composition approximates the archived scene). PRINCIPALS isolates the pair.
 - **Stage furniture**: the scaler box, top hairlines, and left dashes.
 
+## v8 — the crowd found + portfolio truth
+- **THE CROWD EXISTS IN 2003** — it's DefineShape 377 (1036 path segments: the pointing man, the
+  bicycle with spokes, the woman, the pairs), shipped *inside the `whoWeAreText` content symbol* at
+  (63.6, 165.8). It hid behind a byte-alignment bug in the shape parser (NewStyles records are
+  byte-aligned). Now extracted (`assets/crowd.svg`) and rendered with the WHO WE ARE copy, exactly
+  where the original placed it. The founder pair still appears beside it via `principalAni` at
+  (69,315) — both were in your screenshot all along.
+- **The field is portfolio.swf, not ambience** — outside OUR PORTFOLIO the original shows pure
+  black; the rebuild now hides the field there. BY PROJECT TYPE renders the labeled grouped grid
+  (MARKETING / COMMUNICATIONS / SALES / TRAINING) like the portfolio module; grids sit still,
+  only BY THUMBNAIL drifts. (Group membership is bucketed — the true mapping lives in
+  portfolio.swf's data, minable later.)
+
 ## v7 — the real fonts, the real pair
 - **The embedded fonts, rebuilt as webfonts** — a SWF-glyph→TTF converter (fontTools) turns the
   binary's own outlines into `fb-nav.ttf` (Helvetica 65 Medium uppercase subset — the nav labels),
