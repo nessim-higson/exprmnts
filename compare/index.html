@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Original vs Rebuild · exprmnts</title>
+<style>
+  :root{ --ink:#000; --white:#ece9e3; --mute:#96948c; --faint:#5a5852;
+         --hairline:#26251f; --crimson:#e03a30 }
+  *{box-sizing:border-box; margin:0}
+  html,body{height:100%}
+  body{background:var(--ink); color:var(--white); overflow:hidden;
+    font:15px/1.4 "Helvetica Neue",-apple-system,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased; display:flex; flex-direction:column}
+  header{display:flex; align-items:baseline; gap:18px; padding:18px 26px;
+    border-bottom:1px solid var(--hairline)}
+  header .crumb{color:var(--faint); font-size:11px; font-weight:600;
+    letter-spacing:.22em; text-transform:uppercase}
+  header .crumb a{color:var(--faint); text-decoration:none}
+  header .crumb a:hover{color:var(--white)}
+  header h1{font-size:15px; font-weight:700; letter-spacing:.02em}
+  header .hint{margin-left:auto; color:var(--faint); font-size:11px; letter-spacing:.08em}
+  .panes{flex:1; display:flex; min-height:0}
+  .pane{flex:1; display:flex; flex-direction:column; min-width:0}
+  .pane+.pane{border-left:1px solid var(--hairline)}
+  .pane .bar{display:flex; align-items:center; gap:12px; padding:10px 16px;
+    border-bottom:1px solid var(--hairline)}
+  .pane .bar .k{font-size:11px; font-weight:700; letter-spacing:.2em; color:var(--crimson);
+    text-transform:uppercase}
+  .pane .bar .t{font-size:12px; color:var(--mute); letter-spacing:.04em}
+  .pane .bar a{margin-left:auto; color:var(--faint); font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; text-decoration:none}
+  .pane .bar a:hover{color:var(--white)}
+  iframe{flex:1; width:100%; border:0; background:#000}
+  @media(max-width:900px){ .panes{flex-direction:column} .pane+.pane{border-left:0; border-top:1px solid var(--hairline)} }
+</style>
+</head>
+<body>
+<header>
+  <span class="crumb"><a href="/">exprmnts</a> &nbsp;/&nbsp; compare</span>
+  <h1>The Text Nav — original vs rebuild</h1>
+  <span class="hint">drive them in parallel · same clicks, 23 years apart</span>
+</header>
+<div class="panes">
+  <div class="pane">
+    <div class="bar">
+      <span class="k">2003 · Original</span>
+      <span class="t">the archived .swf, live in Ruffle</span>
+      <a href="/firstborn/" target="_blank">open full ↗</a>
+    </div>
+    <iframe src="/firstborn/" title="Original 2003 build (Ruffle)"></iframe>
+  </div>
+  <div class="pane">
+    <div class="bar">
+      <span class="k">2026 · Rebuild</span>
+      <span class="t">vanilla JS · ported from the decompiled AS2</span>
+      <a href="/text-nav/" target="_blank">open full ↗</a>
+    </div>
+    <iframe src="/text-nav/" title="Rebuild (JS port)"></iframe>
+  </div>
+</div>
+</body>
+</html>
