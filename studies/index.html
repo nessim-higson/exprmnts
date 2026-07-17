@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STUDIES — index</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0b0d;
+      color: #eaeaea;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      padding: 64px clamp(24px, 8vw, 120px) 120px;
+    }
+    header { margin-bottom: 64px; }
+    h1 {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.4em;
+      color: rgba(255, 255, 255, 0.85);
+    }
+    header p {
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: rgba(255, 255, 255, 0.3);
+    }
+    header code {
+      font-family: ui-monospace, Menlo, monospace;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    section { margin-bottom: 48px; }
+    h2 {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      color: rgba(255, 255, 255, 0.32);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 10px;
+      margin-bottom: 4px;
+    }
+    .row {
+      display: flex;
+      align-items: baseline;
+      gap: 18px;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .row a.name {
+      font-size: 15px;
+      letter-spacing: 0.18em;
+      color: #e8e8e6;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+    .row a.name:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+    .row .note {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.28);
+      flex: 1;
+    }
+    .row .links { display: flex; gap: 14px; }
+    .row .links a {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      color: rgba(255, 255, 255, 0.45);
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 2px;
+      padding: 4px 9px;
+      white-space: nowrap;
+    }
+    .row .links a:hover { color: #fff; border-color: rgba(255, 255, 255, 0.5); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>STUDIES</h1>
+    <p>
+      every study, one link — frozen versions never change.
+      freeze the current state of a study with
+      <code>./snapshot.sh &lt;study&gt;</code>
+      &nbsp;·&nbsp; <a href="https://nessim-higson.github.io/" style="color:rgba(255,255,255,0.5)">all public repos ↗</a>
+      &nbsp;·&nbsp; WWW = live on the public internet
+    </p>
+  </header>
+  <main id="list"></main>
+
+  <script>
+    // Served from anywhere, one file:
+    //   local     — python http.server on :4190 at /hub/ (studies live at /)
+    //   elsewhere — links resolve absolutely to the public studies site
+    const LOCAL = location.port === '4190'
+    const B = LOCAL ? '/' : 'https://nessim-higson.github.io/studies/'
+
+    // ── Add a study: one line here. ──────────────────────────────
+    // live:      primary link (path relative to the studies root, or full URL)
+    // www:       public deployment — renders a WWW badge (works from anywhere)
+    // versions:  link to the frozen-version archive (omit if none yet)
+    // localOnly: client/confidential — hidden unless served locally on :4190
+    const GROUPS = [
+      {
+        title: 'NAVIGATION & INTERACTION',
+        items: [
+          {
+            name: 'Nevverland',
+            // dev server locally; frozen latest build on the public site
+            live: LOCAL ? 'http://localhost:4189/' : B + 'firstborn-tree/',
+            note: 'four experiments — organic cascade · orbs · structure · imagery (uniqlock stills)',
+            versions: B + '_versions/firstborn-tree/',
+          },
+          { name: 'Orb studies', live: B + 'orb-studies/', note: 'orbs-as-content probes — metaball merge · quiet well · dilation' },
+          { name: 'Kunumi', live: B + 'kunumi/', note: 'kunuminst.org rebuild — particle field + intro sequence + dynamic island' },
+          { name: 'Kunumi nav', live: B + 'kunumi-nav/', note: 'nevverland organic tree re-rendered in the kunumi visual language' },
+          { name: 'Dragable', live: LOCAL ? B + 'dragable/' : 'https://no7.iamalwayshungry.com/', www: 'https://no7.iamalwayshungry.com/', note: 'iaah v7 rebuilt as a modern drag-canvas engine' },
+          { name: 'Card toss', live: B + 'card-toss/', note: 'marvin schwaibold stack — throw physics + 4 morphing layouts' },
+          { name: 'Card unfold', live: LOCAL ? B + 'card-unfold/' : 'https://nessim-higson.github.io/card-unfold/', www: 'https://nessim-higson.github.io/card-unfold/', note: 'marvin study #2 — page→card clip-path constriction' },
+          { name: 'Minis carousel', live: B + 'minis-carousel/', note: '' },
+          { name: 'Quarry house', live: B + 'mfisher-quarry-house/', note: 'm.fisher arc-wheel carousel — 24° geometry decoded from the live DOM' },
+        ],
+      },
+      {
+        title: 'WKNDR',
+        items: [
+          { name: 'Landing', live: B + 'wkndr-landing/', note: 'maneken-style marketing site, weather-cycling hero' },
+          { name: 'Site 02', live: B + 'wkndr-site-02/', note: 'scroll-driven card-deck landing — editable color deck' },
+          { name: 'Watercolor', live: B + 'wkndr-watercolor/', note: 'tyler hobbs polygon-deform, 6 weather recipes' },
+          { name: 'Fluid', live: B + 'wkndr-fluid/', note: '' },
+          { name: 'Aura', live: B + 'wkndr-aura/', note: '' },
+          { name: 'Riso', live: B + 'wkndr-riso/', note: '' },
+          { name: 'Seasons', live: B + 'wkndr-seasons/', note: '' },
+          { name: 'Spirit', live: B + 'wkndr-spirit/', note: '' },
+          { name: 'Forms', live: B + 'wkndr-forms/', note: '' },
+          { name: 'Weather', live: B + 'wkndr-weather/', note: 'ambient field engine' },
+        ],
+      },
+      {
+        title: 'ARENA',
+        items: [
+          { name: 'Ring engine', live: B + 'arena-ring/', note: 'instanced three.js teaser recreation' },
+          { name: 'Guidelines', live: LOCAL ? '/arena-guidelines/' : 'https://nessim-higson.github.io/arena-guidelines/', www: 'https://nessim-higson.github.io/arena-guidelines/', note: 'live brand guidelines · own deployment' },
+          { name: 'Arena', live: B + 'arena/', note: '' },
+        ],
+      },
+      {
+        title: 'TYPE & BRAND',
+        items: [
+          { name: 'Typeforge — breeding', live: LOCAL ? '/typeforge/explorations/breeding/' : B + 'typeforge-breeding/', note: 'breeding-R explorer' },
+          { name: 'JustPlai brand', live: B + 'justplai-brand/', note: 'one-pager' },
+        ],
+      },
+      {
+        title: 'ENGINES & SINGLES',
+        items: [
+          { name: 'IAAH clock', live: LOCAL ? '/index.html' : B + 'clock/', note: 'uniqlock-style scenes / shader / audio — root prototype' },
+          { name: 'Uniqlock', live: B + 'uniqlock-v2/', note: 'v2', versions: B + '_versions/uniqlock/' },
+          { name: 'Coltrane', live: LOCAL ? 'http://localhost:4197/' : 'https://nessim-higson.github.io/coltrane/', www: 'https://nessim-higson.github.io/coltrane/', note: 'uniqlock orchestra fork — breathe (grid-breathing) + refine builds' },
+          { name: 'Fields', live: LOCAL ? 'http://localhost:4196/' : 'https://nessim-higson.github.io/fields/', www: 'https://nessim-higson.github.io/fields/', note: 'generative abstract engines · own repo — spectra (chromatic light-field) + more' },
+          { name: 'Fovea', live: LOCAL ? 'http://localhost:4188/' : 'https://nessim-higson.github.io/fovea/', www: 'https://nessim-higson.github.io/fovea/', note: 'portfolio engine — lens-tunnel WebGL + effect registry' },
+          { name: 'Vincent Lowe lens', live: B + 'vincent-lowe-style.html', note: 'recovered lens-pass GLSL rebuild' },
+          { name: 'Ideation engine', live: LOCAL ? B + 'ideation-engine/' : 'https://nessim-higson.github.io/ideation-engine/', www: 'https://nessim-higson.github.io/ideation-engine/', note: 'domain × domain × human tension → the seam' },
+          { name: 'Naming engine', live: LOCAL ? B + 'naming-engine/' : 'https://nessim-higson.github.io/naming-engine/', www: 'https://nessim-higson.github.io/naming-engine/', note: 'multi-lens naming prototypes — clearing · corridor · orbit · worlds' },
+          { name: 'Site hybrid', live: B + 'site-hybrid/', note: 'MINIMAL sketch 001 — marvin × nternet dial + ask' },
+          { name: 'AI archive', live: B + 'ai-archive-v10.html', note: 'v10' },
+          { name: 'Prototype 01', live: B + 'prototype-01.html', note: '' },
+          { name: 'Colorful fields', live: B + 'experiments/002-colorful-fields/', note: '', versions: B + 'experiments/003-colorful-fields-2/' },
+        ],
+      },
+      {
+        title: 'ARCHIVE & REVIVAL',
+        items: [
+          { name: 'IAAH archive', live: LOCAL ? '/iaah-revival/' : 'https://archive.iamalwayshungry.com/', www: 'https://archive.iamalwayshungry.com/', note: 'the museum — flash years 2003–2011 via ruffle + the html deep archive · own deployment' },
+          { name: 'iaah.work — ported', live: LOCAL ? '/iaah-revival/sites/iaah-work/' : 'https://archive.iamalwayshungry.com/sites/iaah-work/', www: 'https://archive.iamalwayshungry.com/sites/iaah-work/', note: 'the current cargo site ported static in its entirety — 39 projects, zero cargo dependency' },
+          { name: 'SWF inspiration', live: LOCAL ? B + 'swf-inspiration/' : 'https://nessim-higson.github.io/swf-inspiration/', www: 'https://nessim-higson.github.io/swf-inspiration/', note: 'ruffle gallery — 45 saved early-2000s flash pieces' },
+          { name: 'exprmnts', live: 'https://lab.iamalwayshungry.com/exprmnts/', www: 'https://lab.iamalwayshungry.com/exprmnts/', note: 'public playground — firstborn ruffle · text-nav rebuild · swf archaeology' },
+        ],
+      },
+    ]
+
+    const list = document.getElementById('list')
+    for (const g of GROUPS) {
+      const items = g.items.filter(it => LOCAL || !it.localOnly)
+      if (!items.length) continue
+      const sec = document.createElement('section')
+      sec.innerHTML = `<h2>${g.title}</h2>`
+      for (const it of items) {
+        const row = document.createElement('div')
+        row.className = 'row'
+        row.innerHTML =
+          `<a class="name" href="${it.live}">${it.name}</a>` +
+          `<span class="note">${it.note || ''}</span>` +
+          `<span class="links">` +
+          `<a href="${it.live}">LIVE</a>` +
+          (it.www ? `<a href="${it.www}">WWW</a>` : '') +
+          (it.versions ? `<a href="${it.versions}">VERSIONS</a>` : '') +
+          `</span>`
+        sec.appendChild(row)
+      }
+      list.appendChild(sec)
+    }
+  </script>
+</body>
+</html>
