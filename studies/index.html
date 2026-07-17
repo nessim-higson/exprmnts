@@ -82,7 +82,7 @@
       every study, one link — frozen versions never change.
       freeze the current state of a study with
       <code>./snapshot.sh &lt;study&gt;</code>
-      &nbsp;·&nbsp; <a href="https://nessim-higson.github.io/" style="color:rgba(255,255,255,0.5)">all public repos ↗</a>
+      &nbsp;·&nbsp; <a href="https://nessim-higson.github.io/" target="_blank" rel="noopener" style="color:rgba(255,255,255,0.5)">all public repos ↗</a>
       &nbsp;·&nbsp; WWW = live on the public internet
     </p>
   </header>
@@ -189,13 +189,14 @@
       for (const it of items) {
         const row = document.createElement('div')
         row.className = 'row'
+        const T = 'target="_blank" rel="noopener"'
         row.innerHTML =
-          `<a class="name" href="${it.live}">${it.name}</a>` +
+          `<a class="name" href="${it.live}" ${T}>${it.name}</a>` +
           `<span class="note">${it.note || ''}</span>` +
           `<span class="links">` +
-          `<a href="${it.live}">LIVE</a>` +
-          (it.www ? `<a href="${it.www}">WWW</a>` : '') +
-          (it.versions ? `<a href="${it.versions}">VERSIONS</a>` : '') +
+          `<a href="${it.live}" ${T}>LIVE</a>` +
+          (it.www ? `<a href="${it.www}" ${T}>WWW</a>` : '') +
+          (it.versions ? `<a href="${it.versions}" ${T}>VERSIONS</a>` : '') +
           `</span>`
         sec.appendChild(row)
       }
