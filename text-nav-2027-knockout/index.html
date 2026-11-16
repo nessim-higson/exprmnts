@@ -1,0 +1,795 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Text Nav, Knockout · exprmnts</title>
+<meta name="description" content="005 in Helvetica Neue knockout: every word is cut out of the page, and weight decides how much of the work shows through.">
+<link rel="icon" href="data:,">
+<style>
+/* ---------- tokens ---------- */
+:root{
+  --hn:'Helvetica Neue','HelveticaNeue',Helvetica,Arial,sans-serif;
+  --bg:#F1F0EC; --ink:#0E0E0E; --mute:#9B9993; --line:rgba(14,14,14,.10); --accent:#E8321F;
+  --fs:96px; color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){ --bg:#0B0B0B; --ink:#F0EFEA; --mute:#6F6D68; --line:rgba(240,239,234,.11); --accent:#FF4A2E; color-scheme:dark }
+}
+:root[data-theme="dark"]{ --bg:#0B0B0B; --ink:#F0EFEA; --mute:#6F6D68; --line:rgba(240,239,234,.11); --accent:#FF4A2E; color-scheme:dark }
+
+*{box-sizing:border-box}
+html,body{height:100%; margin:0; background:var(--bg); color:var(--ink); overflow:hidden; overscroll-behavior:none}
+body{font-family:var(--hn); font-kerning:normal; -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent; transition:background .4s}
+
+#field{display:none}
+#wall,#surface{position:fixed; inset:0; width:100%; height:100%; pointer-events:none}
+#wall{z-index:0} #surface{z-index:1}
+/* the words stay in the DOM for hit-testing, focus and screen readers; the canvas draws them as holes */
+#world .item, #world .item.red{color:transparent; -webkit-text-stroke-color:transparent}
+.item sup{color:var(--mute)}
+#spine{z-index:2}
+#spine{position:fixed; top:0; bottom:0; left:0; width:1px; background:var(--line); z-index:1; pointer-events:none; opacity:0; transition:opacity .8s}
+#world{position:fixed; left:0; top:0; z-index:2; opacity:0; transition:opacity .6s}
+#world.ready{opacity:1}
+#world.ready ~ #spine{opacity:1}
+
+/* the grid, on G: twelve columns and a 4px baseline, the way the page is actually set */
+#grid{position:fixed; inset:0; z-index:1; pointer-events:none; opacity:0; transition:opacity .3s;
+  background-image:linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size:100% 8px}
+#grid i{position:absolute; top:0; bottom:0; background:rgba(232,50,31,.05); border-left:1px solid rgba(232,50,31,.18); border-right:1px solid rgba(232,50,31,.18)}
+#grid.on{opacity:1}
+
+/* ---------- the nav ---------- */
+.col{position:absolute; left:0; top:0; display:flex; flex-direction:column; align-items:flex-start; transform-origin:0 0}
+.col.root{align-items:flex-end}
+/* one face, one weight: Helvetica Neue Light, and the stroke supplies every weight above it, continuously */
+.item{all:unset; display:block; position:relative; cursor:pointer; white-space:nowrap;
+  font:300 var(--fs)/.87 var(--hn); color:var(--ink); padding:.045em 0 .015em;
+  -webkit-text-stroke:var(--sw,0em) currentColor; paint-order:stroke fill;
+  transform-origin:0 50%; will-change:transform,opacity}
+.item.red{color:var(--accent)}
+.item sup{font:400 .165em/1 var(--hn); -webkit-text-stroke:0; letter-spacing:0; vertical-align:top; position:relative; top:.56em; margin-left:.3em;
+  color:var(--mute); font-variant-numeric:tabular-nums}
+.item.red sup{color:var(--accent); opacity:.55}
+/* catalogue numbers hang in the gutter of the live column */
+.item[data-n]::before{content:attr(data-n); position:absolute; right:calc(100% + .62em); top:.62em; font:400 .145em/1 var(--hn); -webkit-text-stroke:0;
+  letter-spacing:0; color:var(--mute); font-variant-numeric:tabular-nums; opacity:0; transition:opacity .4s}
+.col.live .item[data-n]::before{opacity:1}
+.item:focus-visible{outline:1.5px solid var(--accent); outline-offset:.06em}
+
+/* ---------- copy ---------- */
+#copy{position:fixed; left:0; top:0; z-index:3; width:min(31rem, calc(100vw - 32px)); overflow-y:auto; scrollbar-width:none;
+  font:400 15px/1.5 var(--hn); color:var(--ink); visibility:hidden}
+#copy::-webkit-scrollbar{display:none}
+#copy.scroll{mask-image:linear-gradient(#000 calc(100% - 40px), transparent); -webkit-mask-image:linear-gradient(#000 calc(100% - 40px), transparent)}
+#copy.on{visibility:visible}
+#copy .lab{display:flex; gap:1.2em; align-items:baseline; font:500 12px/1.2 var(--hn); color:var(--ink); margin-bottom:1.15em}
+#copy .lab span{color:var(--accent); font-weight:400; font-variant-numeric:tabular-nums}
+#copy p{margin:0 0 .9em; max-width:44ch; text-wrap:pretty; hanging-punctuation:first}
+#copy .w{display:inline-block; opacity:0; transform:translateY(.55em);
+  transition:opacity .5s ease, transform .75s cubic-bezier(.16,.84,.24,1)}
+#copy.on .w{opacity:1; transform:none}
+#copy.leaving{opacity:0; transition:opacity .16s}
+
+/* ---------- chrome ---------- */
+.bar{position:fixed; left:var(--M,24px); right:var(--M,24px); z-index:6; display:flex; justify-content:space-between; align-items:center; gap:20px;
+  font:400 12px/1.2 var(--hn); color:var(--mute)}
+.bar.top{top:max(14px, env(safe-area-inset-top))}
+.bar.bot{bottom:max(12px, env(safe-area-inset-bottom))}
+.bar a,.bar button{all:unset; cursor:pointer; padding:8px 0; transition:color .2s}
+.bar a:hover,.bar button:hover,.bar a:focus-visible,.bar button:focus-visible{color:var(--ink)}
+.bar :focus-visible{outline:1.5px solid var(--accent); outline-offset:2px}
+.bar .grp{display:flex; gap:18px; align-items:center; min-width:0}
+.bar b{font-weight:500; color:var(--ink)}
+.bar .sep{opacity:.5}
+#path{display:flex; gap:6px; align-items:center; min-width:0; overflow:hidden; white-space:nowrap}
+#path button.cur{color:var(--ink)}
+#path .sl{opacity:.45}
+
+#dna{position:fixed; right:var(--M,24px); bottom:52px; z-index:7; width:250px; padding:16px 16px 10px;
+  background:color-mix(in oklab, var(--bg) 88%, transparent); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--line); border-radius:2px; font:400 11px/1.3 var(--hn); color:var(--mute); display:none}
+#dna.open{display:block}
+#dna .seg{display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line); overflow:hidden; margin-bottom:14px}
+#dna .seg button{all:unset; text-align:center; padding:7px 0; cursor:pointer}
+#dna .seg button[aria-pressed="true"]{background:var(--ink); color:var(--bg)}
+#dna label{display:grid; grid-template-columns:64px 1fr 34px; align-items:center; gap:10px; margin:0 0 10px}
+#dna input{width:100%; accent-color:var(--accent); height:14px}
+#dna output{text-align:right; font-variant-numeric:tabular-nums; color:var(--ink)}
+#dna .note{margin:4px 0 4px; line-height:1.45; opacity:.8}
+
+@media (max-width:720px){
+  .bar .wide{display:none}
+  #copy{font-size:14.5px}
+  #dna{left:var(--M,16px); right:var(--M,16px); width:auto}
+}
+</style>
+</head>
+<body>
+<canvas id="field" aria-hidden="true"></canvas>
+<canvas id="wall" aria-hidden="true"></canvas>
+<canvas id="surface" aria-hidden="true"></canvas>
+<nav id="world" aria-label="Site"></nav>
+<div id="spine" aria-hidden="true"></div>
+<div id="grid" aria-hidden="true"></div>
+<article id="copy" aria-live="polite"></article>
+
+<div class="bar top">
+  <div class="grp">
+    <a href="../">exprmnts</a><span class="sep">/</span><b>005 · Text Nav, Knockout</b>
+    <span class="wide">After Firstborn, 2003. An unofficial study.</span>
+  </div>
+  <div class="grp">
+    <a class="wide" href="../firstborn/">The original</a>
+    <a class="wide" href="../text-nav-2027/">005</a>
+    <a class="wide" href="../text-nav-2027-helvetica/">Helvetica</a>
+    <button id="theme" type="button" aria-label="Toggle light or dark">Dark</button>
+  </div>
+</div>
+
+<div class="bar bot">
+  <div id="path" aria-label="Path"></div>
+  <div class="grp"><button id="gridBtn" type="button" aria-pressed="false">Grid</button><button id="dnaBtn" type="button" aria-expanded="false" aria-controls="dna">Physics</button></div>
+</div>
+
+<div id="dna" role="group" aria-label="Physics">
+  <div class="seg">
+    <button type="button" data-engine="spring" aria-pressed="true">Spring · 2027</button>
+    <button type="button" data-engine="03" aria-pressed="false">Ease · 2003</button>
+  </div>
+  <label>Tension <input type="range" id="k" min="60" max="420" step="5"><output></output></label>
+  <label>Damping <input type="range" id="z" min="0.35" max="1.2" step="0.01"><output></output></label>
+  <label>Ladder <input type="range" id="ladder" min="0.3" max="0.85" step="0.01"><output></output></label>
+  <label>Cascade <input type="range" id="cascade" min="0" max="140" step="2"><output></output></label>
+  <div class="note">Ease · 2003 is the original engine: <i>x += (goal − x) / 3</i> at 60fps, snapping when within a pixel.</div>
+</div>
+
+<script src="../text-nav-2027/tree.js"></script>
+<script>
+/* =====================================================================
+   TEXT NAV, 2027 — after Firstborn (2003)
+   What is kept from '03: right-aligned stack, children hanging off the
+   selected item's edge, ancestors receding as one organism (the ladder),
+   arrival-gated choreography (retract -> tuck -> cascade -> copy), the
+   thumbnail field that the portfolio sorts re-home.
+   What is new: the ladder is a variable-font axis (ancestors condense and
+   lighten, not just shrink), real springs with follow-through, a camera
+   that follows the newest column, deep links, keyboard, a living field.
+   ===================================================================== */
+const TREE = window.TREE;
+const $ = s => document.querySelector(s);
+const world = $('#world'), copyEl = $('#copy'), spineEl = $('#spine'), pathEl = $('#path');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const P = { engine:'spring', k:200, z:.72, ladder:.5, cascade:44 };
+if (reduce){ P.k = 420; P.z = 1; P.cascade = 0; }
+
+/* the axis map: the ladder is typographic */
+/* the ladder in Helvetica: Light for everything, the stroke adds weight continuously (em of the item's own size).
+   With paint-order stroke-under-fill the stem gains exactly the stroke width:
+   0 = Light 300 · .02 ≈ Regular · .042 ≈ Medium · .07 ≈ Bold. Tracking opens as the size falls. */
+const AX = {
+  sw:  g => g===0 ? 0.06 : 0,             // live column a Bold window, ancestors a Light hairline
+  sc:  g => 1/(1 + (1/P.ladder - 1)*g),   // 1, .5, .33, .25 at ladder .5
+  ls:  s => -0.052 + 0.046*Math.min(1, Math.max(0, (1 - s)/0.75)),   // −.052em at full size → −.006em when small
+};
+const SEL_SW = 0.05, HOVER_SW = 0.035;
+
+/* sentence case, with the proper nouns the 2003 copy uses */
+const KEEP = ['Firstborn','Michael','Ferdman','Vas','Sloutchevsky','Redken','Madonna','Federated','Calvin','Klein','PR','CD-ROMs','A–Z','T-shirt','CD'];
+function nice(label){
+  if (/^\d{4}$/.test(label)) return label;
+  let t = label.toLowerCase().replace('(a-z)','(A–Z)').replace('cd-roms','CD-ROMs').replace('t-shirt','T-shirt').replace('marketing/pr','marketing/PR').replace(/\bcd\b/,'CD');
+  KEEP.forEach(k => { t = t.replace(new RegExp('\\b'+k.toLowerCase().replace(/[-–]/g,'.')+'\\b','g'), k); });
+  return t.charAt(0).toUpperCase() + t.slice(1);
+}
+
+/* ---------- one value type for both engines ---------- */
+class V{
+  constructor(v, eps){ this.v=v; this.t=v; this.u=0; this.eps=eps; }
+  set(v){ this.v=this.t=v; this.u=0; }
+  step(h){
+    const d = this.t - this.v;
+    if (P.engine==='03'){                         // the 2003 engine, verbatim in spirit
+      if (Math.abs(d) <= this.eps){ this.v=this.t; this.u=0; return; }
+      this.v += d*(1 - Math.pow(2/3, h*60)); this.u=0; return;
+    }
+    const c = 2*Math.sqrt(P.k)*P.z;
+    this.u += (P.k*d - c*this.u)*h;
+    this.v += this.u*h;
+    if (Math.abs(this.t-this.v) < this.eps*.05 && Math.abs(this.u) < this.eps*.5){ this.v=this.t; this.u=0; }
+  }
+  near(f=1){ return Math.abs(this.t-this.v) <= this.eps*f && Math.abs(this.u) <= this.eps*f*40; }
+}
+
+/* ---------- state ---------- */
+let W=0, H=0, M=24, FS=96;
+let levels = [], dead = [];
+let want = [];                 // the path we want open: [i0, i1, ...]
+let hover = null, kbd = false;
+const cam = { x:new V(0,1), y:new V(0,1) };
+let copyFor = null, copyShown = null, copyMode = 'below', inPortfolio = false;
+
+const slug = s => s.toLowerCase().replace(/!/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+const nodeAt = (path) => { let ns=TREE, n=null; for (const i of path){ n = ns && ns[i]; if(!n) return null; ns = n.children; } return n; };
+
+/* ---------- levels ---------- */
+function makeLevel(nodes, depth, red){
+  const el = document.createElement('div');
+  el.className = 'col' + (depth===0 ? ' root' : '');
+  world.appendChild(el);
+  const L = { el, nodes, depth, red, items:[], sel:-1, born:clock, died:0,
+    s:new V(1,.004), x:new V(0,1), y:new V(0,1), sw:new V(AX.sw(0),.0005), w:0, h:0, ls:'' };
+  nodes.forEach((n,i)=>{
+    const b = document.createElement('button');
+    b.type='button'; b.className = 'item' + ((red||n.red)?' red':'');
+    const lab = document.createElement('span'); lab.textContent = nice(n.label); b.appendChild(lab);
+    if (depth>0) b.dataset.n = String(i+1).padStart(2,'0');
+    if (n.children){ const s=document.createElement('sup'); s.textContent=n.children.length; b.appendChild(s);
+      b.setAttribute('aria-expanded','false'); }
+    el.appendChild(b);
+    const it = { el:b, node:n, i, e:new V(0,.01), o:new V(1,.01), h:new V(0,.01), k:new V(0,.01), left:0, top:0, w:0, fv:'' };
+    b.addEventListener('click', ev=>{ ev.stopPropagation(); kbd = ev.detail===0; pick(L, i); });
+    b.addEventListener('pointerenter', ev=>{ if (ev.pointerType==='mouse') hover = it; });
+    b.addEventListener('pointerleave', ()=>{ if (hover===it) hover = null; });
+    L.items.push(it);
+  });
+  return L;
+}
+function retire(L){ L.died = clock; dead.push(L); }
+
+function pick(L, i){
+  const d = levels.indexOf(L); if (d<0) return;
+  if (want[d]===i && want.length===d+1) want = want.slice(0,d);   // tap the open one again: fold it
+  else want = want.slice(0,d).concat(i);
+  writeHash();
+}
+function up(){
+  if (!want.length) return;
+  const d = want.length-1, i = want[d];
+  want = want.slice(0,d); writeHash();
+  if (kbd && levels[d]) levels[d].items[i].el.focus({preventScroll:true});
+}
+
+/* ---------- reconcile: the choreography, state-driven ---------- */
+function reconcile(now){
+  // 1. selections follow `want`; a changed selection retracts everything deeper first
+  for (let d=0; d<levels.length; d++){
+    const L = levels[d], w = (want[d]===undefined) ? -1 : want[d];
+    if (L.sel !== w){
+      levels.splice(d+1).forEach(retire);
+      L.sel = w;
+      L.items.forEach((it,j)=> it.node.children && it.el.setAttribute('aria-expanded', String(j===w)));
+      break;
+    }
+  }
+  // 2. spawn: only once the old branch is gone AND the selection has arrived (reorganise, then reveal)
+  const top = levels[levels.length-1];
+  if (top.sel>=0 && !dead.length){
+    const n = top.nodes[top.sel], it = top.items[top.sel];
+    if (n.children && it.k.near(3) && it.e.near(6) && top.x.near(4) && top.s.near(6)){
+      const NL = makeLevel(n.children, levels.length, top.red || n.red);
+      const r = selRight(top);
+      NL.x.set(r + gapFor()); NL.y.set(top.y.v + it.top*top.s.v); NL.s.set(.62);
+      NL.sw.set(0);
+      levels.push(NL);
+      if (kbd) requestAnimationFrame(()=> NL.items[0].el.focus({preventScroll:true}));
+    }
+  }
+  // 3. which node's words should be showing
+  const p0 = want.length ? TREE[want[0]] : null;
+  inPortfolio = !!(p0 && p0.label.includes('PORTFOLIO'));
+  const deepest = want.length ? nodeAt(want) : null;
+  // in the portfolio the work does the talking; on small screens the words step out of its way
+  const target = deepest && deepest.copy && !(inPortfolio && W < 900) ? deepest : null;
+  if (target !== copyFor){ copyFor = target; hideCopy(); }
+  if (copyFor && copyShown !== copyFor && settled()) showCopy(copyFor);
+  // 4. field mood
+  if (inPortfolio){
+    const sort = want.length>1 ? TREE[want[0]].children[want[1]] : null;
+    setMood('portfolio', sort ? sort.layout : 'scatter');
+  } else setMood(want.length ? 'dim' : 'home');
+}
+function settled(){
+  if (dead.length) return false;
+  const top = levels[levels.length-1];
+  if (top.sel>=0 && top.nodes[top.sel].children) return false;   // a branch is still on its way
+  if (!top.items.every(it=>it.e.v>.9)) return false;
+  return top.x.near(6) && top.s.near(10) && cam.x.near(8);
+}
+
+/* ---------- geometry ---------- */
+const gapFor = () => FS*.2;
+function selRight(L){
+  const it = L.items[L.sel];
+  // children hang off the column's edge, not the word's: every column is a clean vertical axis
+  return L.x.v + L.w*L.s.v + it.k.v*.14*FS*L.s.v;
+}
+function measure(){
+  for (const L of levels.concat(dead)){
+    L.w = L.el.offsetWidth; L.h = L.el.offsetHeight;
+    for (const it of L.items){ it.left = it.el.offsetLeft; it.top = it.el.offsetTop; it.w = it.el.offsetWidth; }
+  }
+}
+function targets(now){
+  const n = levels.length;
+  levels.forEach((L,d)=>{
+    const g = n-1-d;
+    L.sw.t = AX.sw(g); L.el.classList.toggle('live', g===0 && d>0);
+    let fit = 1;
+    if (g===0 && L.w){
+      // prefer shrinking into the room to the right of the ancestors; only below 60% does the camera pan instead
+      const roomFit = (W - M - (d ? L.x.t : M))/L.w;
+      const fullFit = Math.min(1, (W - 2*M)/L.w);
+      fit = Math.min(1, Math.max(roomFit, fullFit*.6), (H - 150)/Math.max(1,L.h));
+      if (inPortfolio) fit = Math.min(fit, (W*(W < 720 ? .92 : .3))/L.w, (H*(W < 720 ? .3 : .55))/Math.max(1,L.h));
+    }
+    L.s.t = AX.sc(g)*fit;
+    if (d===0){ L.x.t = M; L.y.t = topY(); }
+    else {
+      const p = levels[d-1], pit = p.items[p.sel];
+      L.x.t = selRight(p) + gapFor()*Math.min(1, L.s.v*1.4);
+      L.y.t = p.y.v + pit.top*p.s.v;
+    }
+    const hasSel = L.sel>=0;
+    L.items.forEach((it,i)=>{
+      it.e.t = (now - L.born >= i*P.cascade) ? 1 : 0;
+      it.k.t = (i===L.sel) ? 1 : 0;
+      it.o.t = !hasSel ? (g===0 ? 1 : .55) : (i===L.sel ? 1 : (g===0 ? .3 : .22));
+      it.h.t = (hover===it || (kbd && document.activeElement===it.el)) ? 1 : 0;
+    });
+  });
+  for (const L of dead){
+    const nI = L.items.length;
+    L.items.forEach((it,i)=>{ it.e.t = (now - L.died >= (nI-1-i)*P.cascade*.5) ? 0 : 1; it.h.t=0; });
+  }
+  // camera: follow the newest column (and its words)
+  const top = levels[n-1];
+  const right = top.x.t + top.w*top.s.t;
+  const wantRight = copyMode==='right' && copyFor ? right + 40 + copyW() : right;
+  cam.x.t = Math.min(0, (W - M) - wantRight);
+  let bottom = Math.max(...levels.map(L=>L.y.t + L.h*L.s.t));
+  if (copyFor && copyMode==='below') bottom += 28 + Math.min(260, H*.36);
+  cam.y.t = Math.min(0, (H - 56) - bottom);
+}
+function topY(){
+  const r = levels[0];
+  const h = (r ? r.h : FS*5.5) * (r ? r.s.t : 1);
+  return Math.max(70, (H - h)*.4);
+}
+const copyW = () => Math.min(31*16, W - 2*M);
+
+/* ---------- physics ---------- */
+const HSTEP = 1/120;
+function stepAll(h){
+  for (const L of levels.concat(dead)){
+    L.s.step(h); L.x.step(h); L.y.step(h); L.sw.step(h);
+    for (const it of L.items){ it.e.step(h); it.o.step(h); it.h.step(h); it.k.step(h); }
+  }
+  cam.x.step(h); cam.y.step(h);
+}
+
+/* ---------- render ---------- */
+function render(){
+  world.style.transform = `translate3d(${cam.x.v.toFixed(2)}px,${cam.y.v.toFixed(2)}px,0)`;
+  for (const L of levels.concat(dead)){
+    L.el.style.transform = `translate3d(${L.x.v.toFixed(2)}px,${L.y.v.toFixed(2)}px,0) scale(${L.s.v.toFixed(4)})`;
+    const ls = AX.ls(L.s.v).toFixed(4)+'em'; if (ls !== L.ls){ L.el.style.letterSpacing = ls; L.ls = ls; }
+    for (const it of L.items){
+      const e = Math.max(0, Math.min(1.08, it.e.v));
+      const ty = -it.top*(1-e);                                    // born folded onto the first row, then cascades
+      const tx = it.k.v*.14*FS + it.h.v*.035*FS;
+      const op = Math.max(0, Math.min(1, e)) * (it.o.v + it.h.v*(1-it.o.v)*.75);
+      it.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,0)`;
+      it.el.style.opacity = op.toFixed(3);
+      const sw = Math.max(0, L.sw.v + it.k.v*SEL_SW + it.h.v*HOVER_SW);
+      const fv = sw.toFixed(4);
+      if (fv !== it.fv){ it.el.style.setProperty('--sw', fv+'em'); it.fv = fv; }
+      it.el.style.pointerEvents = e > .5 && !L.died ? '' : 'none';
+    }
+  }
+  // remove what has fully folded away
+  dead = dead.filter(L=>{
+    if (L.items.every(it=>it.e.v < .03 && it.e.t===0)){ L.el.remove(); return false; }
+    return true;
+  });
+  // the spine: the root's right-aligned edge, made visible
+  const r = levels[0];
+  spineEl.style.transform = `translateX(${(cam.x.v + r.x.v + r.w*r.s.v + 1).toFixed(1)}px)`;
+  placeCopy();
+}
+
+/* ---------- copy ---------- */
+function hideCopy(){
+  if (!copyShown) return;
+  copyShown = null;
+  copyEl.classList.add('leaving');
+  setTimeout(()=>{ if (!copyShown){ copyEl.classList.remove('on','leaving'); copyEl.innerHTML=''; } }, 170);
+}
+function showCopy(n){
+  copyShown = n;
+  const d = want.length-1, sib = nodeAt(want.slice(0,d)) ;
+  const count = d===0 ? TREE.length : sib.children.length;
+  copyEl.classList.remove('on','leaving');
+  copyEl.innerHTML = '';
+  const lab = document.createElement('div'); lab.className='lab';
+  lab.innerHTML = `<span>${String(want[d]+1).padStart(2,'0')} / ${String(count).padStart(2,'0')}</span>`;
+  lab.append(document.createTextNode(nice(n.label)));
+  copyEl.appendChild(lab);
+  let wi = 0;
+  n.copy.split(/\n\s*\n/).forEach(par=>{
+    const p = document.createElement('p');
+    par.trim().split(/\s+/).forEach((w,j)=>{
+      if (j) p.appendChild(document.createTextNode(' '));
+      const s = document.createElement('span'); s.className='w'; s.textContent = w;
+      s.style.transitionDelay = Math.min(wi++*9, 650) + 'ms';
+      p.appendChild(s);
+    });
+    copyEl.appendChild(p);
+  });
+  copyEl.scrollTop = 0;
+  placeCopy();
+  void copyEl.offsetWidth;
+  copyEl.classList.add('on');
+}
+function placeCopy(){
+  if (!copyFor) return;
+  const top = levels[levels.length-1];
+  const right = top.x.v + top.w*top.s.v;
+  let cw = copyW();
+  copyMode = (!inPortfolio && W >= 900 && right + 40 + cw <= W - M + 1) ? 'right' : 'below';
+  if (inPortfolio) cw = Math.min(cw, Math.max(280, top.w*top.s.v));
+  let x, y;
+  if (copyMode==='right'){ x = right + 40; y = top.y.v + top.h*top.s.v*.0 + 4; }
+  else { x = top.x.v; y = Math.max(...levels.map(L=>L.y.v + L.h*L.s.v)) + 28; }   // clear every column, not just the live one
+  x += cam.x.v; y += cam.y.v;
+  x = Math.max(M, Math.min(x, W - M - cw));
+  const maxH = Math.max(120, H - y - 60);
+  copyEl.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0)`;
+  copyEl.style.width = cw + 'px';
+  copyEl.style.maxHeight = maxH + 'px';
+  copyEl.classList.toggle('scroll', copyEl.scrollHeight > maxH + 2);
+}
+
+/* ---------- path + hash ---------- */
+function renderPath(){
+  pathEl.innerHTML = '';
+  const mk = (label, k, cur) => { const b=document.createElement('button'); b.type='button'; b.textContent=label;
+    if (cur) b.className='cur', b.setAttribute('aria-current','location');
+    b.addEventListener('click', ev=>{ ev.stopPropagation(); want = want.slice(0,k); writeHash(); }); pathEl.appendChild(b); };
+  mk('Index', 0, !want.length);
+  let ns = TREE;
+  want.forEach((i,k)=>{ const n=ns[i]; const s=document.createElement('span'); s.className='sl'; s.textContent='/'; pathEl.appendChild(s);
+    mk(nice(n.label), k+1, k===want.length-1); ns = n.children || []; });
+}
+function writeHash(){
+  let ns = TREE; const parts = want.map(i=>{ const n=ns[i]; ns=n.children||[]; return slug(n.label); });
+  const h = '#/' + parts.join('/');
+  if (location.hash !== h && !(h==='#/' && !location.hash)) history.pushState(null, '', h==='#/' ? location.pathname : h);
+  renderPath();
+}
+function readHash(){
+  const parts = decodeURIComponent(location.hash.replace(/^#\/?/,'')).split('/').filter(Boolean);
+  const out = []; let ns = TREE;
+  for (const p of parts){ const i = (ns||[]).findIndex(n=>slug(n.label)===p); if (i<0) break; out.push(i); ns = ns[i].children; if(!ns) break; }
+  want = out; renderPath();
+}
+addEventListener('popstate', readHash);
+
+/* ---------- the field: 109 thumbnails mined from portfolio.swf ---------- */
+const IDS = ['012','014','016','018','020','022','024','026','028','030','032','034','036','038','040','042','044','046','048','050','052','054','056','058','060','062','064','066','070','072','074','076','078','080','082','084','086','088','090','092','094','096','098','100','102','104','106','108','110','112','114','116','118','122','124','126','128','130','132','134','136','138','146','148','150','152','154','156','158','160','162','164','166','170','172','174','178','184','186','188','190','196','198','200','202','204','206','208','212','216','218','220','222','224','226','228','230','232','234','236','238','240','242','244','248','250','254','256','258'];
+const TW=66, TH=31, AR=TH/TW;
+const cv = $('#field'), cx = cv.getContext('2d');
+let DPR = 1, seed = 20270101;
+const rnd = () => (seed = (seed*1664525 + 1013904223)>>>0, seed/4294967296);
+const tiles = IDS.map((id,i)=>{
+  const img = new Image(); img.src = '../text-nav/assets/t'+id+'.jpg';
+  const t = { img, gray:null, i, u:-.04+rnd()*1.08, v:-.04+rnd()*1.08, z:Math.pow(rnd(),.8), su:rnd(), sv:rnd(), ph:rnd()*6.28,
+    x:0, y:0, w:0, a:0, c:0, m:0, vx:0, vy:0, vw:0, go:0, ready:false };
+  img.onload = () => { t.gray = toGray(img); t.ready = true; };
+  return t;
+});
+function toGray(img){
+  const c = document.createElement('canvas'); c.width=img.naturalWidth; c.height=img.naturalHeight;
+  const g = c.getContext('2d'); g.drawImage(img,0,0);
+  try{ const d=g.getImageData(0,0,c.width,c.height), p=d.data;
+    for (let j=0;j<p.length;j+=4){ const l=p[j]*.3+p[j+1]*.59+p[j+2]*.11; p[j]=p[j+1]=p[j+2]=l; }
+    g.putImageData(d,0,0); }catch(e){}
+  return c;
+}
+let mood='home', layout='scatter', moodAt=0, labels=[], labA=0;
+function setMood(m, l){
+  l = l || 'scatter';
+  if (m===mood && (m!=='portfolio' || l===layout)) return;
+  mood = m; layout = l; moodAt = clock;
+  // a wave: tiles leave in reading order for sorts, from the nav outward otherwise
+  tiles.forEach(t=>{ t.go = moodAt + (m==='portfolio' ? t.i*5 : t.u*260); });
+}
+const ptr = { x:-1e4, y:-1e4, nx:0, ny:0 };
+addEventListener('pointermove', e=>{ ptr.x=e.clientX; ptr.y=e.clientY; ptr.nx=e.clientX/W*2-1; ptr.ny=e.clientY/H*2-1; }, {passive:true});
+document.addEventListener('pointerleave', ()=>{ ptr.x=ptr.y=-1e4; });
+
+function region(){
+  const top = levels[levels.length-1];
+  const right = cam.x.v + top.x.v + top.w*top.s.v;
+  const bottom = cam.y.v + top.y.v + top.h*top.s.v;
+  let x0 = right + Math.max(40, W*.05), y0 = 76, x1 = W - M, y1 = H - 64;
+  if (x1 - x0 < Math.min(360, W*.45)){ x0 = M; y0 = Math.min(H*.7, bottom + 28); }
+  return { x0, y0, x1, y1 };
+}
+function bestGrid(n, rw, rh, gap, extraRows=0, extraH=0){
+  let best = { cols:6, tw:8 };
+  for (let cols=3; cols<=40; cols++){
+    const tw = (rw - (cols-1)*gap)/cols; if (tw<6) break;
+    const rows = Math.ceil(n/cols) + extraRows, h = rows*tw*AR + (rows-1)*gap + extraH;
+    if (h <= rh && tw > best.tw) best = { cols, tw };
+  }
+  best.tw = Math.min(best.tw, 128);
+  return best;
+}
+const GROUP_T = ['Marketing','Communications','Sales','Training'];
+const GROUP_M = ['Web sites','CD-ROMs','Intranets'];
+function portfolioTargets(){
+  const R = region(), rw = R.x1-R.x0, rh = R.y1-R.y0, gap = Math.max(3, Math.min(8, rw/160));
+  const out = new Array(tiles.length); labels = [];
+  const grid = (list, x0, y0, cols, tw) => list.forEach((t,j)=>{ out[t.i] = { x:x0+(j%cols)*(tw+gap), y:y0+Math.floor(j/cols)*(tw*AR+gap), w:tw }; });
+  if (layout==='client' || layout==='chrono'){
+    const list = layout==='client' ? tiles.slice() : tiles.slice().reverse();
+    const { cols, tw } = bestGrid(list.length, rw, rh, gap);
+    grid(list, R.x0, R.y0, cols, tw);
+  } else if (layout==='type'){
+    const groups = GROUP_T.map(()=>[]); tiles.forEach((t,j)=> groups[j%7<4?0:(j%7<5?1:(j%7<6?2:3))].push(t));
+    const LH = 26; let tw = 64, cols = 6;
+    for (cols=4; cols<=40; cols++){ const w=(rw-(cols-1)*gap)/cols; const h = groups.reduce((s,g)=>s+Math.ceil(g.length/cols)*(w*AR+gap)+LH,0); if (h<=rh){ tw=Math.min(w,110); break; } }
+    let y = R.y0;
+    groups.forEach((g,k)=>{ labels.push({ t:GROUP_T[k], x:R.x0, y:y+12, n:g.length }); grid(g, R.x0, y+LH-6, cols, tw); y += LH + Math.ceil(g.length/cols)*(tw*AR+gap); });
+  } else if (layout==='media'){
+    const groups = GROUP_M.map(()=>[]); tiles.forEach((t,j)=> groups[j%3].push(t));
+    const colW = (rw - 2*gap*4)/3;
+    groups.forEach((g,k)=>{
+      const x0 = R.x0 + k*(colW + gap*4);
+      const { cols, tw } = bestGrid(g.length, colW, rh-26, gap);
+      labels.push({ t:GROUP_M[k], x:x0, y:R.y0+12, n:g.length });
+      grid(g, x0, R.y0+20, cols, tw);
+    });
+  } else { // scatter: a loose, breathing field inside the region
+    const tw = Math.max(26, Math.min(76, Math.sqrt(rw*rh/tiles.length)*.62));
+    tiles.forEach(t=>{ out[t.i] = { x:R.x0 + t.su*(rw-tw), y:R.y0 + t.sv*(rh-tw*AR), w:tw*(.75+.5*(1-t.z)) }; });
+  }
+  return out;
+}
+const FK = 70, FZ = .82;
+function field(dt, now){
+  const pt = mood==='portfolio' ? portfolioTargets() : null;
+  const t0 = now/1000;
+  for (const t of tiles){
+    if (!t.ready) continue;
+    let tx, ty, tw, ta, tc;
+    if (pt){ ({x:tx, y:ty, w:tw} = pt[t.i]); ta = 1; tc = 1;
+      if (layout==='scatter' && !reduce){ tx += Math.sin(t0*.35+t.ph)*4; ty += Math.cos(t0*.3+t.ph)*3; }
+    } else {
+      const depth = 1 - t.z, s = (.55 + .85*depth*depth) * Math.min(1, Math.sqrt(W/1100));
+      const drift = reduce ? 0 : 1;
+      tx = t.u*W + (-ptr.nx*34*depth) + Math.sin(t0*.12+t.ph)*10*drift;
+      ty = t.v*H + (-ptr.ny*24*depth) + Math.cos(t0*.1+t.ph)*7*drift;
+      tw = TW*s; ta = (mood==='home' ? .07 + .33*depth : .03 + .09*depth)*fieldDim; tc = 0;
+    }
+    if (now < t.go){ tx = t.x; ty = t.y; tw = t.w || tw; }     // still waiting for the wave
+    if (!t.w){ t.x=tx; t.y=ty; t.w=tw; }
+    const c = 2*Math.sqrt(FK)*FZ, h = Math.min(dt, 1/30);
+    t.vx += (FK*(tx-t.x) - c*t.vx)*h; t.x += t.vx*h;
+    t.vy += (FK*(ty-t.y) - c*t.vy)*h; t.y += t.vy*h;
+    t.vw += (FK*(tw-t.w) - c*t.vw)*h; t.w += t.vw*h;
+    if (now >= t.go){ t.a += (ta - t.a)*Math.min(1, dt*3); t.c += (tc - t.c)*Math.min(1, dt*2.4); }
+    const cxp = t.x + t.w/2, cyp = t.y + t.w*AR/2;
+    const dm = Math.hypot(ptr.x-cxp, ptr.y-cyp);
+    const mt = pt ? Math.pow(Math.max(0, 1 - dm/120), 2) : 0;
+    t.m += (mt - t.m)*Math.min(1, dt*10);
+  }
+  labA += ((mood==='portfolio' && labels.length ? 1 : 0) - labA)*Math.min(1, dt*3);
+  draw();
+}
+let ink = '#121210', mute = '#8D8A82', bgc = '#EBE9E3', fieldDim = 1;
+function readColors(){ const cs = getComputedStyle(document.documentElement);
+  ink = cs.getPropertyValue('--ink').trim(); mute = cs.getPropertyValue('--mute').trim(); bgc = cs.getPropertyValue('--bg').trim(); }
+function draw(){
+  cx.clearRect(0,0,W,H);
+  const order = tiles.filter(t=>t.ready && t.a>.004).sort((a,b)=> (b.z-a.z)*(1-a.c) + (a.m-b.m)*4);
+  for (const t of order){
+    const s = 1 + 1.5*t.m, w = t.w*s, h = w*AR;
+    const x = t.x + t.w/2 - w/2, y = t.y + t.w*AR/2 - h/2;
+    cx.globalAlpha = t.a*(1 - t.c);
+    if (cx.globalAlpha > .004) cx.drawImage(t.gray, x, y, w, h);
+    if (t.c > .01){ cx.globalAlpha = t.a*t.c; cx.drawImage(t.img, x, y, w, h); }
+    if (t.m > .2){ cx.globalAlpha = (t.m-.2)*1.2; cx.strokeStyle = ink; cx.lineWidth = 1; cx.strokeRect(x-.5, y-.5, w+1, h+1); }
+  }
+  if (labA > .01){
+    cx.globalAlpha = labA; cx.font = `400 10.5px 'Helvetica Neue', Helvetica, Arial, sans-serif`; cx.letterSpacing = '0px';
+    for (const l of labels){ cx.fillStyle = mute; cx.fillText(l.t + '  ' + l.n, l.x, l.y); }
+  }
+  cx.globalAlpha = 1;
+}
+
+/* ---------- knockout ---------- */
+/* the wall: every mined thumbnail, nearest-neighbour at 3x, as one slowly travelling mosaic */
+const wallCv = $('#wall'), wx = wallCv.getContext('2d');
+const surfCv = $('#surface'), sx = surfCv.getContext('2d');
+let wallT = 0, kdpr = 1, surfaceCol = '#0B0B0B', accentCol = '#FF4A2E';
+const WALL = { scale: 3, speed: 14 };
+function sizeKnock(){
+  kdpr = Math.min(devicePixelRatio||1, 2);
+  for (const c of [wallCv, surfCv]){ c.width = W*kdpr; c.height = H*kdpr; }
+  wx.setTransform(kdpr,0,0,kdpr,0,0); sx.setTransform(kdpr,0,0,kdpr,0,0);
+  wx.imageSmoothingEnabled = false;
+}
+function drawWall(dt){
+  wallT += dt*(reduce ? 0 : WALL.speed);
+  const tw = TW*WALL.scale, th = TH*WALL.scale;
+  const cols = Math.ceil(W/tw)+2, rows = Math.ceil(H/th)+2;
+  const px = wallT + ptr.nx*24, py = wallT*0.46 + ptr.ny*16;
+  const ox = -(((px % tw)+tw) % tw), oy = -(((py % th)+th) % th);
+  const c0 = Math.floor(px/tw), r0 = Math.floor(py/th);
+  const n = tiles.length, rev = layout==='chrono' && mood==='portfolio';
+  for (let r=0; r<rows; r++) for (let c=0; c<cols; c++){
+    let k = (((c0+c)*5 + (r0+r)*17) % n + n) % n;     // the deal follows the pan, so tiles travel instead of flickering
+    if (rev) k = n-1-k;
+    const t = tiles[k]; if (!t.ready) continue;
+    wx.drawImage(t.img, ox + c*tw, oy + r*th, tw, th);
+  }
+  // lift the blacks: the 2003 work is mostly dark, and a window onto black is no window
+  wx.globalCompositeOperation = 'screen';
+  wx.fillStyle = isDark() ? 'rgba(255,255,255,.26)' : 'rgba(255,255,255,.12)';
+  wx.fillRect(0, 0, W, H);
+  wx.globalCompositeOperation = 'source-over';
+}
+let BASE_RATIO = 0.817;   // alphabetic baseline inside an inline span of Helvetica Neue
+function calibrate(){
+  const c = document.createElement('canvas').getContext('2d');
+  c.font = `300 100px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+  const m = c.measureText('Hg');
+  if (m.fontBoundingBoxAscent) BASE_RATIO = m.fontBoundingBoxAscent/(m.fontBoundingBoxAscent + m.fontBoundingBoxDescent);
+}
+function knock(dt){
+  drawWall(dt);
+  sx.globalCompositeOperation = 'source-over'; sx.globalAlpha = 1;
+  sx.clearRect(0,0,W,H);
+  sx.fillStyle = surfaceCol; sx.fillRect(0,0,W,H);
+  sx.textBaseline = 'alphabetic'; sx.lineJoin = 'round';
+  for (const L of levels.concat(dead)){
+    const px = FS*L.s.v;
+    if (px < 2) continue;
+    const ls = parseFloat(L.ls) || 0;
+    sx.font = `300 ${px.toFixed(2)}px 'Helvetica Neue', Helvetica, Arial, sans-serif`;
+    if ('letterSpacing' in sx) sx.letterSpacing = (ls*px).toFixed(2)+'px';
+    for (const it of L.items){
+      const a = parseFloat(it.el.style.opacity || '1');
+      if (a < 0.01) continue;
+      const span = it.el.firstChild, r = span.getBoundingClientRect();
+      if (r.right < -50 || r.left > W+50 || r.bottom < -50 || r.top > H+50) continue;
+      const y = r.top + r.height*BASE_RATIO;
+      const sw = (parseFloat(it.fv) || 0) * px;
+      const label = span.textContent, red = it.el.classList.contains('red');
+      // the one red thing stays solid red; everything else is a window onto the wall
+      sx.globalCompositeOperation = red ? 'source-over' : 'destination-out';
+      sx.globalAlpha = a;
+      sx.fillStyle = sx.strokeStyle = red ? accentCol : '#000';
+      sx.fillText(label, r.left, y);
+      if (sw > 0.05){ sx.lineWidth = sw; sx.strokeText(label, r.left, y); }
+    }
+  }
+  sx.globalCompositeOperation = 'source-over'; sx.globalAlpha = 1;
+}
+
+/* ---------- sizing ---------- */
+function resize(){
+  W = innerWidth; H = innerHeight;
+  M = Math.round(Math.max(16, Math.min(44, W*.032)));
+  document.documentElement.style.setProperty('--M', M+'px');
+  DPR = Math.min(devicePixelRatio||1, 2);
+  cv.width = W*DPR; cv.height = H*DPR; cx.setTransform(DPR,0,0,DPR,0,0);
+  // base size: the root, set as the active column, should fill ~60% of the width and ~55% of the height
+  const r = levels[0];
+  world.style.setProperty('--fs', '100px');
+  r.items.forEach(it=>{ it.el.style.setProperty('--sw', AX.sw(0)+'em'); it.fv=''; }); r.el.style.letterSpacing = AX.ls(1)+'em'; r.ls='';
+  const w = r.el.offsetWidth, h = r.el.offsetHeight;
+  const share = W < 720 ? 1 : .6;
+  FS = Math.max(26, Math.min((W*share - (W<720 ? 2*M : M))/w*100, (H*.56)/h*100, 150));
+  world.style.setProperty('--fs', FS.toFixed(2)+'px');
+  for (const t of tiles) t.go = 0;
+  if (typeof buildGrid === 'function') buildGrid();
+  if (typeof sizeKnock === 'function') sizeKnock();
+}
+addEventListener('resize', ()=>{ resize(); measure(); });
+
+/* ---------- input ---------- */
+document.addEventListener('click', e=>{
+  if (e.target.closest('.item, .bar, #copy, #dna')) return;
+  kbd = false; up();
+});
+addEventListener('keydown', e=>{
+  if (e.target.matches && e.target.matches('input')) return;
+  const a = document.activeElement;
+  const L = levels.find(L=>L.items.some(it=>it.el===a));
+  if (e.key==='Escape' || (e.key==='ArrowLeft' && L)){ kbd = true; up(); e.preventDefault(); return; }
+  if (e.key==='ArrowDown' || e.key==='ArrowUp'){
+    kbd = true; e.preventDefault();
+    const LL = L || levels[levels.length-1];
+    const cur = L ? LL.items.findIndex(it=>it.el===a) : -1;
+    const n = LL.items.length, nx = e.key==='ArrowDown' ? (cur+1)%n : (cur<=0 ? n-1 : cur-1);
+    LL.items[nx].el.focus({preventScroll:true});
+  }
+  if (e.key==='ArrowRight' && L){ kbd = true; const i = L.items.findIndex(it=>it.el===a); if (want[levels.indexOf(L)]!==i) pick(L,i); e.preventDefault(); }
+});
+
+/* theme */
+const themeBtn = $('#theme');
+function isDark(){ const t = document.documentElement.dataset.theme; return t ? t==='dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+function syncTheme(){ themeBtn.textContent = isDark() ? 'Light' : 'Dark'; readColors(); fieldDim = isDark() ? 1 : .62;
+  const cs = getComputedStyle(document.documentElement); surfaceCol = cs.getPropertyValue('--bg').trim(); accentCol = cs.getPropertyValue('--accent').trim(); }
+document.documentElement.dataset.theme = 'dark';   // knockout is a night piece by default
+try{ const s = localStorage.getItem('tn27k-theme'); if (s) document.documentElement.dataset.theme = s; }catch(e){}
+themeBtn.addEventListener('click', ()=>{
+  const t = isDark() ? 'light' : 'dark'; document.documentElement.dataset.theme = t;
+  try{ localStorage.setItem('tn27k-theme', t); }catch(e){}
+  syncTheme();
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncTheme);
+
+/* the grid, on G */
+const gridEl = $('#grid'), gridBtn = $('#gridBtn');
+function buildGrid(){
+  gridEl.innerHTML = '';
+  const cols = W < 720 ? 4 : 12, g = W < 720 ? 12 : 20, cw = (W - 2*M - (cols-1)*g)/cols;
+  for (let i=0;i<cols;i++){ const c=document.createElement('i'); c.style.left=(M+i*(cw+g))+'px'; c.style.width=cw+'px'; gridEl.appendChild(c); }
+}
+function toggleGrid(){ const on = gridEl.classList.toggle('on'); gridBtn.setAttribute('aria-pressed', String(on)); }
+gridBtn.addEventListener('click', toggleGrid);
+addEventListener('keydown', e=>{ if ((e.key==='g'||e.key==='G') && !(e.target.matches&&e.target.matches('input'))) toggleGrid(); });
+
+/* physics panel */
+const dna = $('#dna'), dnaBtn = $('#dnaBtn');
+dnaBtn.addEventListener('click', ()=>{ const o = dna.classList.toggle('open'); dnaBtn.setAttribute('aria-expanded', String(o)); });
+dna.querySelectorAll('[data-engine]').forEach(b=> b.addEventListener('click', ()=>{
+  P.engine = b.dataset.engine;
+  dna.querySelectorAll('[data-engine]').forEach(x=> x.setAttribute('aria-pressed', String(x===b)));
+}));
+[['k',v=>Math.round(v)],['z',v=>v.toFixed(2)],['ladder',v=>v.toFixed(2)],['cascade',v=>Math.round(v)+'']].forEach(([id,f])=>{
+  const inp = document.getElementById(id), out = inp.nextElementSibling;
+  inp.value = P[id]; out.textContent = f(+inp.value);
+  inp.addEventListener('input', ()=>{ P[id] = +inp.value; out.textContent = f(+inp.value); });
+});
+
+/* ---------- boot ---------- */
+let last = performance.now(), acc = 0;
+let clock = 0;                 // own clock, so a throttled tab resumes mid-gesture instead of skipping it
+function tick(now){
+  const dt = Math.min(.05, Math.max(0, (now-last)/1000)); last = now; clock += dt*1000;
+  measure();
+  reconcile(clock);
+  targets(clock);
+  acc += dt; while (acc >= HSTEP){ stepAll(HSTEP); acc -= HSTEP; }
+  render();
+  field(dt, clock);
+  knock(dt);
+}
+function frame(now){ tick(now); requestAnimationFrame(frame); }
+function boot(){
+  calibrate();
+  levels = [ makeLevel(TREE, 0, false) ];
+  resize(); measure();
+  const r = levels[0];
+  r.x.set(M); r.y.set(topY()); r.born = clock + 250;
+  readHash(); syncTheme();
+  world.classList.add('ready');
+  if (document.fonts) document.fonts.addEventListener('loadingdone', ()=>{ resize(); measure(); });
+  // expose for poking at in the console
+  window.TN = { P, AX, get levels(){ return levels; }, get want(){ return want; }, go(p){ want = p; writeHash(); },
+    advance(sec){ for (let i=0; i<sec*60; i++) tick(last + 1000/60); } };
+  requestAnimationFrame(t=>{ last = t; frame(t); });
+}
+(document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,1500))]) : Promise.resolve()).then(boot);
+</script>
+</body>
+</html>
