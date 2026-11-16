@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Text Nav, Helvetica · exprmnts</title>
-<meta name="description" content="005 set in Helvetica Neue: the 2003 Firstborn text navigation, with a continuous weight ladder drawn by stroke, on paper.">
+<meta name="description" content="005 set in Helvetica Neue on paper: real cuts only, Medium on the path, Regular for what has stepped back.">
 <link rel="icon" href="data:,">
 <style>
 /* ---------- tokens ---------- */
@@ -38,17 +38,19 @@ body{font-family:var(--hn); font-kerning:normal; -webkit-font-smoothing:antialia
 /* ---------- the nav ---------- */
 .col{position:absolute; left:0; top:0; display:flex; flex-direction:column; align-items:flex-start; transform-origin:0 0}
 .col.root{align-items:flex-end}
-/* one face, one weight: Helvetica Neue Light, and the stroke supplies every weight above it, continuously */
+/* real cuts only: Medium for the live column and the path, Regular and grey for what has stepped back */
 .item{all:unset; display:block; position:relative; cursor:pointer; white-space:nowrap;
-  font:300 var(--fs)/.87 var(--hn); color:var(--ink); padding:.045em 0 .015em;
-  -webkit-text-stroke:var(--sw,0em) currentColor; paint-order:stroke fill;
-  transform-origin:0 50%; will-change:transform,opacity}
+  font:500 var(--fs)/.88 var(--hn); color:var(--ink); padding:.045em 0 .015em;
+  font-kerning:normal; text-rendering:optimizeLegibility;
+  transform-origin:0 50%; will-change:transform,opacity; transition:color .25s}
+.item.q{color:var(--mute)}
 .item.red{color:var(--accent)}
-.item sup{font:400 .165em/1 var(--hn); -webkit-text-stroke:0; letter-spacing:0; vertical-align:top; position:relative; top:.56em; margin-left:.3em;
+.item.red.q{color:color-mix(in oklab, var(--accent) 45%, var(--bg))}
+.item sup{font:400 .165em/1 var(--hn); letter-spacing:0; vertical-align:top; position:relative; top:.56em; margin-left:.3em;
   color:var(--mute); font-variant-numeric:tabular-nums}
 .item.red sup{color:var(--accent); opacity:.55}
 /* catalogue numbers hang in the gutter of the live column */
-.item[data-n]::before{content:attr(data-n); position:absolute; right:calc(100% + .62em); top:.62em; font:400 .145em/1 var(--hn); -webkit-text-stroke:0;
+.item[data-n]::before{content:attr(data-n); position:absolute; right:calc(100% + .62em); top:.62em; font:400 .145em/1 var(--hn);
   letter-spacing:0; color:var(--mute); font-variant-numeric:tabular-nums; opacity:0; transition:opacity .4s}
 .col.live .item[data-n]::before{opacity:1}
 .item:focus-visible{outline:1.5px solid var(--accent); outline-offset:.06em}
@@ -159,15 +161,12 @@ const P = { engine:'spring', k:200, z:.72, ladder:.5, cascade:44 };
 if (reduce){ P.k = 420; P.z = 1; P.cascade = 0; }
 
 /* the axis map: the ladder is typographic */
-/* the ladder in Helvetica: Light for everything, the stroke adds weight continuously (em of the item's own size).
-   With paint-order stroke-under-fill the stem gains exactly the stroke width:
-   0 = Light 300 · .02 ≈ Regular · .042 ≈ Medium · .07 ≈ Bold. Tracking opens as the size falls. */
+/* the ladder in Helvetica Neue, real cuts only: Medium for the live column and the path, Regular and grey once stepped back.
+   Tracking follows the rendered size. */
 const AX = {
-  sw:  g => g===0 ? 0.042 : 0,            // live column ~Medium, ancestors fall back to Light
   sc:  g => 1/(1 + (1/P.ladder - 1)*g),   // 1, .5, .33, .25 at ladder .5
-  ls:  s => -0.052 + 0.046*Math.min(1, Math.max(0, (1 - s)/0.75)),   // −.052em at full size → −.006em when small
+  ls:  s => -0.048 + 0.044*Math.min(1, Math.max(0, (1 - s)/0.75)),
 };
-const SEL_SW = 0.03, HOVER_SW = 0.018;
 
 /* sentence case, with the proper nouns the 2003 copy uses */
 const KEEP = ['Firstborn','Michael','Ferdman','Vas','Sloutchevsky','Redken','Madonna','Federated','Calvin','Klein','PR','CD-ROMs','A–Z','T-shirt','CD'];
@@ -213,7 +212,7 @@ function makeLevel(nodes, depth, red){
   el.className = 'col' + (depth===0 ? ' root' : '');
   world.appendChild(el);
   const L = { el, nodes, depth, red, items:[], sel:-1, born:clock, died:0,
-    s:new V(1,.004), x:new V(0,1), y:new V(0,1), sw:new V(AX.sw(0),.0005), w:0, h:0, ls:'' };
+    s:new V(1,.004), x:new V(0,1), y:new V(0,1), w:0, h:0, ls:'', g:0 };
   nodes.forEach((n,i)=>{
     const b = document.createElement('button');
     b.type='button'; b.className = 'item' + ((red||n.red)?' red':'');
@@ -265,7 +264,7 @@ function reconcile(now){
       const NL = makeLevel(n.children, levels.length, top.red || n.red);
       const r = selRight(top);
       NL.x.set(r + gapFor()); NL.y.set(top.y.v + it.top*top.s.v); NL.s.set(.62);
-      NL.sw.set(0);
+
       levels.push(NL);
       if (kbd) requestAnimationFrame(()=> NL.items[0].el.focus({preventScroll:true}));
     }
@@ -309,7 +308,7 @@ function targets(now){
   const n = levels.length;
   levels.forEach((L,d)=>{
     const g = n-1-d;
-    L.sw.t = AX.sw(g); L.el.classList.toggle('live', g===0 && d>0);
+    L.g = g; L.el.classList.toggle('live', g===0 && d>0);
     let fit = 1;
     if (g===0 && L.w){
       // prefer shrinking into the room to the right of the ancestors; only below 60% does the camera pan instead
@@ -329,7 +328,7 @@ function targets(now){
     L.items.forEach((it,i)=>{
       it.e.t = (now - L.born >= i*P.cascade) ? 1 : 0;
       it.k.t = (i===L.sel) ? 1 : 0;
-      it.o.t = !hasSel ? (g===0 ? 1 : .55) : (i===L.sel ? 1 : (g===0 ? .3 : .22));
+      it.o.t = g >= 2 && i !== L.sel ? .7 : 1;
       it.h.t = (hover===it || (kbd && document.activeElement===it.el)) ? 1 : 0;
     });
   });
@@ -357,7 +356,7 @@ const copyW = () => Math.min(31*16, W - 2*M);
 const HSTEP = 1/120;
 function stepAll(h){
   for (const L of levels.concat(dead)){
-    L.s.step(h); L.x.step(h); L.y.step(h); L.sw.step(h);
+    L.s.step(h); L.x.step(h); L.y.step(h); 
     for (const it of L.items){ it.e.step(h); it.o.step(h); it.h.step(h); it.k.step(h); }
   }
   cam.x.step(h); cam.y.step(h);
@@ -369,18 +368,20 @@ function render(){
   for (const L of levels.concat(dead)){
     L.el.style.transform = `translate3d(${L.x.v.toFixed(2)}px,${L.y.v.toFixed(2)}px,0) scale(${L.s.v.toFixed(4)})`;
     const ls = AX.ls(L.s.v).toFixed(4)+'em'; if (ls !== L.ls){ L.el.style.letterSpacing = ls; L.ls = ls; }
-    for (const it of L.items){
+    L.items.forEach((it, i) => {
       const e = Math.max(0, Math.min(1.08, it.e.v));
       const ty = -it.top*(1-e);                                    // born folded onto the first row, then cascades
       const tx = it.k.v*.14*FS + it.h.v*.035*FS;
       const op = Math.max(0, Math.min(1, e)) * (it.o.v + it.h.v*(1-it.o.v)*.75);
       it.el.style.transform = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,0)`;
       it.el.style.opacity = op.toFixed(3);
-      const sw = Math.max(0, L.sw.v + it.k.v*SEL_SW + it.h.v*HOVER_SW);
-      const fv = sw.toFixed(4);
-      if (fv !== it.fv){ it.el.style.setProperty('--sw', fv+'em'); it.fv = fv; }
+      const onPath = i === L.sel, live = L.g === 0 && !L.died;
+      const wght = (live || onPath) ? '500' : '400';
+      const quiet = !it.h.t && ((L.sel >= 0 && !onPath) || (!live && !onPath));
+      const fv = wght + (quiet ? 'q' : '');
+      if (fv !== it.fv){ it.el.style.fontWeight = wght; it.el.classList.toggle('q', quiet); it.fv = fv; }
       it.el.style.pointerEvents = e > .5 && !L.died ? '' : 'none';
-    }
+    });
   }
   // remove what has fully folded away
   dead = dead.filter(L=>{
@@ -614,7 +615,7 @@ function resize(){
   // base size: the root, set as the active column, should fill ~60% of the width and ~55% of the height
   const r = levels[0];
   world.style.setProperty('--fs', '100px');
-  r.items.forEach(it=>{ it.el.style.setProperty('--sw', AX.sw(0)+'em'); it.fv=''; }); r.el.style.letterSpacing = AX.ls(1)+'em'; r.ls='';
+  r.items.forEach(it=>{ it.el.style.fontWeight = '500'; it.fv=''; }); r.el.style.letterSpacing = AX.ls(1)+'em'; r.ls='';
   const w = r.el.offsetWidth, h = r.el.offsetHeight;
   const share = W < 720 ? 1 : .6;
   FS = Math.max(26, Math.min((W*share - (W<720 ? 2*M : M))/w*100, (H*.56)/h*100, 150));
