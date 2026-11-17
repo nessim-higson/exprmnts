@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "exprmnts",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "4261", "--directory", "/Users/nessimhigson/CLAUDE/projects/exprmnts"],
+      "port": 4261,
+      "autoPort": false
+    }
+  ]
+}
